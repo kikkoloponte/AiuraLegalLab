@@ -522,6 +522,14 @@ class BM25Retriever:
 
         for corpus, indices in by_corpus.items():
             sub = self._get_or_create_sub(corpus)
+            # Se il pkl per-corpus esiste già (es. tombstone scritto da purge_corpus.py)
+            # non sovrascrivere — l'utente ha volutamente azzerato questo corpus.
+            if sub.index_path.exists():
+                logger.info(
+                    f"BM25 migrazione: corpus='{corpus}' — pkl già presente, skip "
+                    f"(rimuovilo manualmente se vuoi rimigrare)"
+                )
+                continue
             for i in indices:
                 sub.doc_ids.append(doc_ids[i])
                 sub.doc_snippets.append(doc_snippets[i] if i < len(doc_snippets) else "")
