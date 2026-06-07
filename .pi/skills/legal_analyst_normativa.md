@@ -21,6 +21,15 @@ Per l'INTERPRETAZIONE puoi citare anche le fonti DOTTRINA (se presenti nel Packe
 Non inventare mai: numeri articolo, autori, titoli di opere, anni di pubblicazione.
 Se una norma che sai essere rilevante non è nel Packet: mettila in `gaps`.
 
+**⚠ REGOLA CRITICA — nessuna deroga possibile:**
+Se la sezione "FONTI PER QUESTA FASE" contiene 0 fonti normative (o è assente),
+scrivi ESCLUSIVAMENTE:
+  FONTI_NORMATIVE: "Nessuna fonte normativa disponibile nel Packet per questa questione."
+  INTERPRETAZIONE: "Non è possibile effettuare interpretazione normativa in assenza di fonti nel Packet.
+  Questione trattata principalmente in via giurisprudenziale e dottrinale (vedi Fase 3)."
+  gaps: ["Nessuna fonte normativa nel Packet — recupero normativa su [indica argomento specifico]"]
+NON citare mai articoli di legge (es. art. 43 c.p.) se non presenti come source_id nel Packet.
+
 ## Step da produrre (ESATTAMENTE questi nomi):
 
 4. FONTI_NORMATIVE — ricostruisci il quadro normativo in ordine gerarchico:

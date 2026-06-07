@@ -158,6 +158,73 @@ def _norm_step(raw: str) -> str:
     return raw.strip()
 
 
+def _fix_missing_commas(text: str) -> str:
+    """
+    Inserisce virgole mancanti tra proprietà JSON consecutive.
+
+    Artefatto LLM comune: il modello chiude una stringa lunga e inizia la
+    proprietà successiva senza virgola:
+        "...long content..."
+        "citations": [...]
+    →
+        "...long content...",
+        "citations": [...]
+
+    Usa due passate:
+    - chiusura stringa seguita da apertura stringa-chiave: `" "key":`
+    - chiusura stringa seguita da chiusura array/oggetto poi altra chiave
+    """
+    # Virgola mancante tra "...valore..." e "prossima-chiave":
+    fixed = re.sub(r'(")\s*\n(\s*"[^"]+"\s*:)', r'\1,\n\2', text)
+    # Virgola mancante tra true/false/null/numero e "prossima-chiave":
+    fixed = re.sub(r'(true|false|null|\d)\s*\n(\s*"[^"]+"\s*:)', r'\1,\n\2', fixed)
+    return fixed
+
+
+def _extract_json_balanced(text: str) -> Optional[dict]:
+    """
+    Estrae il primo oggetto JSON bilanciato usando un contatore di parentesi.
+    Più robusto dei regex per JSON con nesting profondo o stringhe complesse.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape_next = False
+    for i, ch in enumerate(text[start:], start):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\" and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                candidate = text[start : i + 1]
+                # Prova direttamente
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    pass
+                # Prova con fix commas
+                fixed = _fix_missing_commas(candidate)
+                try:
+                    return json.loads(fixed)
+                except json.JSONDecodeError:
+                    pass
+                return _repair_truncated_json(fixed)
+    return None
+
+
 def _repair_truncated_json(text: str) -> Optional[dict]:
     """
     Tenta di riparare un JSON troncato da max_tokens chiudendo le strutture aperte.
@@ -337,29 +404,53 @@ class AnalystAgent:
     def _extract_json(self, raw: str) -> Optional[dict]:
         """
         Estrae il primo oggetto JSON valido dalla risposta LLM.
-        Se il JSON è troncato (max_tokens raggiunto) tenta un repair
-        aggiungendo le parentesi di chiusura mancanti.
+
+        Strategia a cascata:
+        1. Estrae il blocco tra ```json ... ``` (greedy — cattura l'intero oggetto)
+        2. Prova tutto il testo con regex greedy {.*}
+        3. Per ogni candidato: prova json.loads, poi fix-commas, poi repair-truncation
+        4. Ultimo fallback: bracket counter per estrarre JSON bilanciato
         """
-        for pattern in [
-            r"```json\s*(\{.*?\})\s*```",
-            r"```\s*(\{.*?\})\s*```",
-            r"(\{.*\})",
-            r"(\{.*)",          # JSON troncato — manca la chiusura
-        ]:
-            m = re.search(pattern, raw, re.DOTALL)
-            if not m:
-                continue
-            candidate = m.group(1)
-            # Prova il JSON così com'è
+        candidates: list[str] = []
+
+        # 1. Dentro blocco ```json ... ``` (greedy, non .*? che ferma al primo })
+        for pat in [r"```json\s*(\{.*\})\s*```", r"```\s*(\{.*\})\s*```"]:
+            m = re.search(pat, raw, re.DOTALL)
+            if m:
+                candidates.append(m.group(1))
+
+        # 2. Tutto il testo: da { a ultima }
+        m = re.search(r"(\{.*\})", raw, re.DOTALL)
+        if m:
+            candidates.append(m.group(1))
+
+        # 3. JSON troncato (manca la chiusura)
+        m = re.search(r"(\{.*)", raw, re.DOTALL)
+        if m:
+            candidates.append(m.group(1))
+
+        # 4. Bracket counter come fallback finale
+        candidates.append(raw)  # cerca in tutto il testo
+
+        for candidate in candidates:
+            # a) JSON così com'è
             try:
                 return json.loads(candidate)
             except json.JSONDecodeError:
                 pass
-            # Repair: chiudi array e oggetto aperti
-            repaired = _repair_truncated_json(candidate)
+            # b) Fix virgole mancanti tra proprietà (artefatto LLM comune)
+            fixed = _fix_missing_commas(candidate)
+            try:
+                return json.loads(fixed)
+            except json.JSONDecodeError:
+                pass
+            # c) Repair troncamento (aggiunge } ] mancanti)
+            repaired = _repair_truncated_json(fixed)
             if repaired is not None:
                 return repaired
-        return None
+
+        # d) Bracket counter: estrae JSON bilanciato ignorando testo circostante
+        return _extract_json_balanced(raw)
 
     def _parse_response(
         self, raw: str
