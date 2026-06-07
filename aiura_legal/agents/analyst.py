@@ -1,0 +1,908 @@
+"""
+Legal Analyst [S3] — ragionamento CoT su Research Packet.
+
+Usa Ollama (qwen2.5:7b) con sistema prompt da .pi/skills/legal_analyst.md.
+Ogni claim nella risposta DEVE avere source_id presente nel Packet
+(Citation Contract). Output strutturato in JSON.
+
+Graceful degradation: se Ollama non è disponibile o risponde con errore,
+ritorna AnalysisResult con answer="" e gaps esplicativi — mai eccezioni.
+"""
+from __future__ import annotations
+
+import json
+import re
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING, AsyncGenerator, Optional
+
+from loguru import logger
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
+
+from aiura_legal.agents.ollama_client import OllamaClient
+from aiura_legal.core.types import ResearchPacket, SearchResult
+
+
+class LlmBehaviorSettings(BaseSettings):
+    model_config = ConfigDict(env_file=".env", extra="ignore")
+    llm_temperature:          float = 0.10
+    llm_max_tokens_per_phase: int   = 1800
+
+
+_llm_settings = LlmBehaviorSettings()
+
+if TYPE_CHECKING:
+    from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
+
+_SKILL_PATH = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst.md"
+)
+
+# Carica system prompt dalla Pi Skill (rimuove frontmatter YAML)
+def _load_system_prompt() -> str:
+    if not _SKILL_PATH.exists():
+        logger.warning(f"[S3] Pi Skill non trovata: {_SKILL_PATH}")
+        return (
+            "Sei un assistente legale italiano. Analizza la domanda usando "
+            "SOLO le fonti del Research Packet. Ogni claim deve avere source_id. "
+            "Rispondi in JSON con campo 'analysis_sections'."
+        )
+    text = _SKILL_PATH.read_text(encoding="utf-8")
+    # Rimuove il blocco frontmatter ---...---
+    text = re.sub(r"^---.*?---\s*", "", text, flags=re.DOTALL)
+    return text.strip()
+
+
+_SYSTEM_PROMPT: str = _load_system_prompt()
+
+_SKILL_PATH_FASE1 = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_fase1.md"
+)
+_SKILL_PATH_FASE2 = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_fase2.md"
+)
+
+def _load_prompt(path: Path, fallback: str) -> str:
+    if not path.exists():
+        logger.warning(f"Pi Skill non trovata: {path}")
+        return fallback
+    text = path.read_text(encoding="utf-8")
+    return re.sub(r"^---.*?---\s*", "", text, flags=re.DOTALL).strip()
+
+_SYSTEM_PROMPT_FASE1: str = _load_prompt(
+    _SKILL_PATH_FASE1,
+    "Sei un giurista italiano. Analizza la fattispecie normativa (step 1-5 IQRAC)."
+)
+_SYSTEM_PROMPT_FASE2: str = _load_prompt(
+    _SKILL_PATH_FASE2,
+    "Sei un giurista italiano. Completa l'analisi (step 6-9 IQRAC) con la giurisprudenza."
+)
+
+# Sequential IQRAC — 4 fasi
+_SKILL_PATH_FRAMING = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_framing.md"
+)
+_SKILL_PATH_NORMATIVA = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_normativa.md"
+)
+_SKILL_PATH_GIURISPRUDENZA_SEQ = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_giurisprudenza.md"
+)
+_SKILL_PATH_SINTESI = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_sintesi.md"
+)
+
+_SYSTEM_PROMPT_FRAMING: str = _load_prompt(
+    _SKILL_PATH_FRAMING,
+    "Sei un giurista italiano. Inquadra la fattispecie (RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE)."
+)
+_SYSTEM_PROMPT_NORMATIVA: str = _load_prompt(
+    _SKILL_PATH_NORMATIVA,
+    "Sei un giurista italiano. Analizza le fonti normative (FONTI_NORMATIVE, INTERPRETAZIONE)."
+)
+_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ: str = _load_prompt(
+    _SKILL_PATH_GIURISPRUDENZA_SEQ,
+    "Sei un giurista italiano. Analizza gli orientamenti giurisprudenziali (GIURISPRUDENZA)."
+)
+_SYSTEM_PROMPT_SINTESI: str = _load_prompt(
+    _SKILL_PATH_SINTESI,
+    "Sei un giurista italiano. Concludi l'analisi (SUSSUNZIONE, OBIEZIONI, CONCLUSIONE)."
+)
+
+
+# ---------------------------------------------------------------------------
+# Step normalization (module-level per essere testabile e riusabile)
+# ---------------------------------------------------------------------------
+
+_STEP_NORM: dict[str, str] = {
+    # Legacy 5-step → IQRAC equivalente (migrazione graceful)
+    "NORMA APPLICABILE":   "FONTI_NORMATIVE",
+    "VALUTAZIONE":         "SUSSUNZIONE",
+    "GAP ANALYSIS":        "CONCLUSIONE",
+    # Typo 7B su QUALIFICAZIONE
+    "QUALIFICAZIONAZIONE": "QUALIFICAZIONE",
+    "QUALIFICAZIZIONE":    "QUALIFICAZIONE",
+    # Varianti attese dal 7B per i nuovi step
+    "RICOSTRUZIONE FATTO": "RICOSTRUZIONE_FATTO",
+    "RICOSTRUZIONE_FATTI": "RICOSTRUZIONE_FATTO",
+    "RICOSTRUZIONE":       "RICOSTRUZIONE_FATTO",
+    "FONTI NORMATIVE":     "FONTI_NORMATIVE",
+    "FONTI_NORMATIVA":     "FONTI_NORMATIVE",
+    "FONTE_NORMATIVA":     "FONTI_NORMATIVE",
+    "FONTE NORMATIVA":     "FONTI_NORMATIVE",
+    "SUSSUZIONE":          "SUSSUNZIONE",
+    "OBIEZIONE":           "OBIEZIONI",
+    "CONCLUSIONI":         "CONCLUSIONE",
+}
+
+
+def _norm_step(raw: str) -> str:
+    upper = raw.strip().upper()
+    if upper in _STEP_NORM:
+        return _STEP_NORM[upper]
+    if upper.startswith("QUALIFICA") and upper != "QUALIFICAZIONE":
+        return "QUALIFICAZIONE"
+    if upper.startswith("RICOSTRUZ") and upper != "RICOSTRUZIONE_FATTO":
+        return "RICOSTRUZIONE_FATTO"
+    if upper.startswith("SUSSUN") and upper != "SUSSUNZIONE":
+        return "SUSSUNZIONE"
+    return raw.strip()
+
+
+def _repair_truncated_json(text: str) -> Optional[dict]:
+    """
+    Tenta di riparare un JSON troncato da max_tokens chiudendo le strutture aperte.
+    Aggiunge `}` e `]` finché il testo non è parsabile, fino a un max di 10 tentativi.
+    Ritorna il dict parsato oppure None.
+    """
+    # Rimuovi testo parziale dopo l'ultima virgola o stringa aperta
+    candidate = text.rstrip()
+    # Rimuovi trailing comma prima di chiudere
+    candidate = re.sub(r",\s*$", "", candidate)
+
+    for _ in range(10):
+        # Conta parentesi aperte
+        opens  = candidate.count("{") - candidate.count("}")
+        arrays = candidate.count("[") - candidate.count("]")
+        if opens <= 0 and arrays <= 0:
+            break
+        candidate += "]" * max(arrays, 0) + "}" * max(opens, 0)
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            # Rimuovi l'ultimo carattere non-whitespace e riprova
+            candidate = re.sub(r'[,\s]*$', "", candidate.rstrip("}]"))
+            candidate = re.sub(r",\s*$", "", candidate)
+    return None
+
+
+def _format_source(i: int, s: SearchResult) -> list[str]:
+    meta = s.metadata or {}
+    lines = [f"\n[{i}] source_id: {s.source_id}"]
+    # Normativa
+    if meta.get("titolo"):
+        lines.append(f"    titolo:   {meta['titolo']}")
+    if meta.get("fonte"):
+        lines.append(f"    fonte:    {meta['fonte']}")
+    if meta.get("articolo") or meta.get("articolo_num"):
+        lines.append(f"    articolo: {meta.get('articolo') or meta.get('articolo_num')}")
+    # Giurisprudenza
+    if meta.get("organo"):
+        organo_label = {
+            "cassazione": "Corte di Cassazione",
+            "tar": "TAR",
+            "consiglio_stato": "Consiglio di Stato",
+            "corte_cost": "Corte Costituzionale",
+            "corte_conti": "Corte dei Conti",
+        }.get(meta["organo"], meta["organo"].title())
+        ref = f"{organo_label}"
+        if meta.get("numero") and meta.get("anno"):
+            ref += f" n.{meta['numero']}/{meta['anno']}"
+        lines.append(f"    sentenza: {ref}")
+    if meta.get("materia"):
+        lines.append(f"    materia:  {meta['materia']}")
+    if meta.get("chunk_type"):
+        chunk_label = {"massima": "Massima", "motivazione": "Motivazione", "dispositivo": "Dispositivo"}
+        lines.append(f"    estratto: {chunk_label.get(meta['chunk_type'], meta['chunk_type'])}")
+    lines.append(f"    testo:    {s.snippet[:800]}")
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# Tipi output
+# ---------------------------------------------------------------------------
+
+@dataclass
+class AnalysisSection:
+    step: str
+    content: str
+    citations: list[dict] = field(default_factory=list)
+
+
+@dataclass
+class AnalysisResult:
+    """Risultato dell'analisi CoT di S3."""
+    answer: str                                    # testo leggibile per l'avvocato
+    analysis_sections: list[AnalysisSection]
+    overall_confidence: str = "MEDIUM"             # HIGH | MEDIUM | LOW
+    escalation_recommended: bool = False
+    gaps: list[str] = field(default_factory=list)
+    llm_model: str = ""
+    duration_s: float = 0.0
+    raw_response: str = ""                         # per debug/audit
+    parse_ok: bool = True                          # False se JSON non parsabile
+
+
+@dataclass
+class PhaseResult:
+    """Risultato di una singola fase del Sequential IQRAC."""
+    phase: int                        # 1=Framing, 2=Normativa, 3=Giurisprudenza, 4=Sintesi
+    name: str                         # "FRAMING" | "NORMATIVA" | "GIURISPRUDENZA" | "SINTESI"
+    sections: list[AnalysisSection]
+    sources_used: list[str]           # source_id delle fonti usate in questa fase
+    overall_confidence: str = "MEDIUM"
+    escalation_recommended: bool = False
+    gaps: list[str] = field(default_factory=list)
+    duration_s: float = 0.0
+    parse_ok: bool = True
+    # Campi estratti dalla Fase 1 per guidare il retrieval delle fasi successive
+    questione_retrieval: str = ""     # query per retrieval normativa (da Fase 1)
+    qualificazione_retrieval: str = ""  # query per retrieval giurisprudenza (da Fase 1)
+
+
+# ---------------------------------------------------------------------------
+# AnalystAgent
+# ---------------------------------------------------------------------------
+
+class AnalystAgent:
+    """
+    S3 Legal Analyst.
+
+    Costruisce il prompt con il Research Packet come contesto, chiama Ollama
+    e parsa la risposta JSON strutturata. Se il JSON è malformato usa il testo
+    grezzo come unica sezione ANALISI.
+    """
+
+    def __init__(self, ollama: Optional[OllamaClient] = None) -> None:
+        self._ollama = ollama or OllamaClient()
+
+    # ------------------------------------------------------------------
+    # Prompt building
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _effective_layer(s: SearchResult) -> str:
+        """
+        Determina il layer effettivo di una fonte.
+        source_id ha priorità su source_layer: se il source_id inizia con
+        "giurisprudenza_" la fonte è giurisprudenziale anche se source_layer
+        non è stato impostato correttamente (es. ChromaDB con corpus="" non
+        ancora patchato).
+        """
+        if s.source_id.startswith("giurisprudenza_"):
+            return "giurisprudenza"
+        return s.source_layer
+
+    def _build_context(self, packet: ResearchPacket) -> str:
+        """Serializza le fonti del Research Packet in due sezioni per layer."""
+        if not packet.sources:
+            return "NESSUNA FONTE DISPONIBILE NEL RESEARCH PACKET."
+
+        norm  = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
+        giuri = [s for s in packet.sources if self._effective_layer(s) == "giurisprudenza"]
+
+        lines = [
+            "RESEARCH PACKET — usa SOLO questi source_id nelle citazioni:",
+            "=" * 60,
+        ]
+        if norm:
+            lines.append("\n## FONTI NORMATIVE\n")
+            for i, s in enumerate(norm, 1):
+                lines.extend(_format_source(i, s))
+        if giuri:
+            lines.append("\n## GIURISPRUDENZA\n")
+            for i, s in enumerate(giuri, 1):
+                lines.extend(_format_source(i, s))
+        lines.append("=" * 60)
+        return "\n".join(lines)
+
+    def _build_prompt(self, query: str, packet: ResearchPacket) -> str:
+        context = self._build_context(packet)
+        return (
+            f"{context}\n\n"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Analizza secondo lo schema IQRAC italiano in 9 passi:\n"
+            "RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE, FONTI_NORMATIVE, "
+            "INTERPRETAZIONE, GIURISPRUDENZA, SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
+            "Per FONTI_NORMATIVE e INTERPRETAZIONE usa SOLO fonti dalla sezione "
+            "'## FONTI NORMATIVE' del Packet.\n"
+            "Per GIURISPRUDENZA usa SOLO fonti dalla sezione '## GIURISPRUDENZA' del Packet.\n"
+            "Ogni claim fattuale DEVE avere il source_id corrispondente dal Packet.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido, senza testo prima o dopo il JSON.\n"
+        )
+
+    # ------------------------------------------------------------------
+    # Response parsing
+    # ------------------------------------------------------------------
+
+    def _extract_json(self, raw: str) -> Optional[dict]:
+        """
+        Estrae il primo oggetto JSON valido dalla risposta LLM.
+        Se il JSON è troncato (max_tokens raggiunto) tenta un repair
+        aggiungendo le parentesi di chiusura mancanti.
+        """
+        for pattern in [
+            r"```json\s*(\{.*?\})\s*```",
+            r"```\s*(\{.*?\})\s*```",
+            r"(\{.*\})",
+            r"(\{.*)",          # JSON troncato — manca la chiusura
+        ]:
+            m = re.search(pattern, raw, re.DOTALL)
+            if not m:
+                continue
+            candidate = m.group(1)
+            # Prova il JSON così com'è
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                pass
+            # Repair: chiudi array e oggetto aperti
+            repaired = _repair_truncated_json(candidate)
+            if repaired is not None:
+                return repaired
+        return None
+
+    def _parse_response(
+        self, raw: str
+    ) -> tuple[list[AnalysisSection], str, bool, bool]:
+        """
+        Parsa risposta S3.
+        Ritorna (sections, confidence, escalation_recommended, parse_ok).
+        """
+        data = self._extract_json(raw)
+        if data is None:
+            # Fallback: risposta grezza come sezione unica
+            return (
+                [AnalysisSection(step="ANALISI", content=raw.strip())],
+                "LOW",
+                False,
+                False,
+            )
+
+        sections_raw = data.get("analysis_sections", [])
+        if not isinstance(sections_raw, list):
+            sections_raw = []
+
+        sections = [
+            AnalysisSection(
+                step=_norm_step(str(s.get("step", ""))),
+                content=str(s.get("content", "")),
+                citations=s.get("citations", []) if isinstance(s.get("citations"), list) else [],
+            )
+            for s in sections_raw
+            if isinstance(s, dict)
+        ]
+
+        if not sections:
+            # JSON parsato ma vuoto: usa risposta grezza
+            sections = [AnalysisSection(step="ANALISI", content=raw.strip())]
+
+        confidence = str(data.get("overall_confidence", "MEDIUM")).upper()
+        if confidence not in ("HIGH", "MEDIUM", "LOW"):
+            confidence = "MEDIUM"
+
+        escalation = bool(data.get("escalation_recommended", False))
+        return sections, confidence, escalation, True
+
+    # ------------------------------------------------------------------
+    # Generazione testo leggibile
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _sections_to_answer(sections: list[AnalysisSection]) -> str:
+        """Converte le sezioni CoT in testo leggibile per l'avvocato."""
+        parts = []
+        for s in sections:
+            if not s.content:
+                continue
+            header = f"**{s.step}**\n" if s.step else ""
+            parts.append(f"{header}{s.content}")
+        return "\n\n".join(parts)
+
+    # ------------------------------------------------------------------
+    # Deep mode helpers
+    # ------------------------------------------------------------------
+
+    def _build_context_normativa(self, packet: ResearchPacket) -> str:
+        norm = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
+        if not norm:
+            return "NESSUNA FONTE NORMATIVA NEL RESEARCH PACKET."
+        lines = ["FONTI NORMATIVE — usa SOLO questi source_id:", "=" * 60]
+        for i, s in enumerate(norm, 1):
+            lines.extend(_format_source(i, s))
+        lines.append("=" * 60)
+        return "\n".join(lines)
+
+    def _build_context_giurisprudenza(self, packet: ResearchPacket) -> str:
+        giuri = [s for s in packet.sources if self._effective_layer(s) == "giurisprudenza"]
+        if not giuri:
+            return "NESSUNA GIURISPRUDENZA NEL RESEARCH PACKET."
+        lines = ["GIURISPRUDENZA — usa SOLO questi source_id:", "=" * 60]
+        for i, s in enumerate(giuri, 1):
+            lines.extend(_format_source(i, s))
+        lines.append("=" * 60)
+        return "\n".join(lines)
+
+    @staticmethod
+    def _build_fase2_summary(sections: list[AnalysisSection]) -> str:
+        """Sintesi compatta della Fase 1 da passare come contesto alla Fase 2."""
+        parts = ["ANALISI NORMATIVA (Fase 1) — non ripetere questi step:", "─" * 50]
+        for s in sections:
+            if s.content:
+                parts.append(f"{s.step}: {s.content[:400]}")
+        parts.append("─" * 50)
+        return "\n".join(parts)
+
+    # ------------------------------------------------------------------
+    # analyze_deep()  — entry point modalità deep (due chiamate LLM)
+    # ------------------------------------------------------------------
+
+    async def analyze_deep(
+        self,
+        query: str,
+        packet: ResearchPacket,
+        temperature: float = 0.10,
+        max_tokens: int = 3000,
+    ) -> tuple["AnalysisResult", Optional["AnalysisResult"]]:
+        """
+        Modalità deep: due chiamate LLM sequenziali.
+        Fase 1 — normativa (step 1-5)
+        Fase 2 — giurisprudenza + conclusione (step 6-9), costruita su Fase 1.
+
+        Ritorna (fase1_result, fase2_result).
+        Se Fase 2 fallisce ritorna (fase1_result, None) — risposta parziale.
+        """
+        # ── Fase 1 ────────────────────────────────────────────────────
+        ctx_norm = self._build_context_normativa(packet)
+        prompt_f1 = (
+            f"{ctx_norm}\n\n"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Produci i 5 step normativi IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, "
+            "QUESTIONE, FONTI_NORMATIVE, INTERPRETAZIONE.\n"
+            "Sii dettagliato. Ogni claim fattuale DEVE avere source_id dal Packet.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        t0 = time.monotonic()
+        try:
+            raw_f1 = await self._ollama.generate(
+                prompt=prompt_f1, temperature=temperature,
+                max_tokens=max_tokens, system=_SYSTEM_PROMPT_FASE1,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Fase1] Ollama non disponibile: {exc}")
+            empty = AnalysisResult(
+                answer="", analysis_sections=[], overall_confidence="LOW",
+                gaps=[f"LLM non disponibile ({type(exc).__name__})."],
+                llm_model=self._ollama.model, parse_ok=False,
+            )
+            return empty, None
+
+        sections_f1, conf_f1, _, ok_f1 = self._parse_response(raw_f1)
+        result_f1 = AnalysisResult(
+            answer=self._sections_to_answer(sections_f1),
+            analysis_sections=sections_f1,
+            overall_confidence=conf_f1,
+            gaps=[],
+            llm_model=self._ollama.model,
+            duration_s=time.monotonic() - t0,
+            raw_response=raw_f1,
+            parse_ok=ok_f1,
+        )
+        logger.info(
+            f"[S3 Fase1] {len(sections_f1)} sezioni, "
+            f"confidence={conf_f1}, parse_ok={ok_f1}, t={result_f1.duration_s:.1f}s"
+        )
+
+        # ── Fase 2 ────────────────────────────────────────────────────
+        ctx_giuri = self._build_context_giurisprudenza(packet)
+        summary_f1 = self._build_fase2_summary(sections_f1)
+        prompt_f2 = (
+            f"{summary_f1}\n\n"
+            f"{ctx_giuri}\n\n"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Costruisci i 4 step finali IQRAC: GIURISPRUDENZA, SUSSUNZIONE, "
+            "OBIEZIONI, CONCLUSIONE.\n"
+            "Basati sull'analisi normativa sopra. Sii dettagliato e operativo.\n"
+            "Ogni citazione giurisprudenziale DEVE avere source_id dalla sezione "
+            "GIURISPRUDENZA del Packet.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        t1 = time.monotonic()
+        try:
+            raw_f2 = await self._ollama.generate(
+                prompt=prompt_f2, temperature=temperature,
+                max_tokens=max_tokens, system=_SYSTEM_PROMPT_FASE2,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Fase2] Ollama non disponibile: {exc} — risposta parziale")
+            return result_f1, None
+
+        sections_f2, conf_f2, escalation_f2, ok_f2 = self._parse_response(raw_f2)
+        result_f2 = AnalysisResult(
+            answer=self._sections_to_answer(sections_f2),
+            analysis_sections=sections_f2,
+            overall_confidence=conf_f2,
+            escalation_recommended=escalation_f2,
+            gaps=[],
+            llm_model=self._ollama.model,
+            duration_s=time.monotonic() - t1,
+            raw_response=raw_f2,
+            parse_ok=ok_f2,
+        )
+        logger.info(
+            f"[S3 Fase2] {len(sections_f2)} sezioni, "
+            f"confidence={conf_f2}, parse_ok={ok_f2}, t={result_f2.duration_s:.1f}s"
+        )
+        return result_f1, result_f2
+
+    # ------------------------------------------------------------------
+    # analyze_sequential()  — Sequential IQRAC (4 fasi + retrieval per fase)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _build_framing_summary(sections: list[AnalysisSection], data: dict) -> str:
+        """Riassunto compatto della Fase 1 da passare come contesto alle fasi successive."""
+        parts = ["FRAMING GIURIDICO (Fase 1) — non ripetere questi step:", "─" * 50]
+        for s in sections:
+            if s.content:
+                parts.append(f"{s.step}: {s.content[:500]}")
+        parts.append("─" * 50)
+        return "\n".join(parts)
+
+    @staticmethod
+    def _build_phase_context(phase_results: list["PhaseResult"]) -> str:
+        """Riassunto compatto di tutte le fasi precedenti."""
+        parts = ["ANALISI PRECEDENTE — non ripetere questi step:", "─" * 50]
+        for pr in phase_results:
+            parts.append(f"\n[Fase {pr.phase}: {pr.name}]")
+            for s in pr.sections:
+                if s.content:
+                    parts.append(f"{s.step}: {s.content[:400]}")
+        parts.append("─" * 50)
+        return "\n".join(parts)
+
+    @staticmethod
+    def _format_phase_sources(sources: list[SearchResult]) -> str:
+        """Serializza fonti di fase in formato leggibile per il prompt."""
+        if not sources:
+            return "NESSUNA FONTE DISPONIBILE PER QUESTA FASE."
+        lines = ["FONTI PER QUESTA FASE — usa SOLO questi source_id:", "=" * 60]
+        for i, s in enumerate(sources, 1):
+            lines.extend(_format_source(i, s))
+        lines.append("=" * 60)
+        return "\n".join(lines)
+
+    async def analyze_sequential(
+        self,
+        query: str,
+        packet: ResearchPacket,
+        phase_retriever: Optional["PhaseRetriever"] = None,
+        temperature: float = 0.0,       # 0.0 = usa valore da env (LLM_TEMPERATURE)
+        max_tokens_per_phase: int = 0,  # 0 = usa valore da env (LLM_MAX_TOKENS_PER_PHASE)
+    ) -> AsyncGenerator["PhaseResult", None]:
+        """
+        Sequential IQRAC: 4 fasi sequenziali con retrieval mirato per fase.
+
+        Async generator: yielda ogni PhaseResult appena completato,
+        permettendo lo streaming SSE fase per fase.
+
+        Fasi:
+          1. Framing (RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE) — no fonti
+          2. Normativa (FONTI_NORMATIVE, INTERPRETAZIONE) — re-query normattiva
+          3. Giurisprudenza (GIURISPRUDENZA) — re-query giurisprudenza
+          4. Sintesi (SUSSUNZIONE, OBIEZIONI, CONCLUSIONE) — no nuovo retrieval
+        """
+        # Risolvi i parametri da env se non specificati esplicitamente
+        if temperature == 0.0:
+            temperature = _llm_settings.llm_temperature
+        if max_tokens_per_phase == 0:
+            max_tokens_per_phase = _llm_settings.llm_max_tokens_per_phase
+
+        completed_phases: list[PhaseResult] = []
+
+        # ── Fase 1: Framing ───────────────────────────────────────────
+        t0 = time.monotonic()
+        prompt_f1 = (
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Produci i 3 step di framing IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        raw_f1 = ""
+        data_f1: dict = {}
+        try:
+            raw_f1 = await self._ollama.generate(
+                prompt=prompt_f1, temperature=temperature,
+                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_FRAMING,
+            )
+            data_f1 = self._extract_json(raw_f1) or {}
+        except Exception as exc:
+            logger.warning(f"[S3 Seq Fase1] Ollama errore: {exc}")
+
+        sections_f1, conf_f1, _, ok_f1 = self._parse_response(raw_f1 or "")
+        questione_retrieval = str(data_f1.get("questione_retrieval", "")).strip()
+        qualificazione_retrieval = str(data_f1.get("qualificazione_retrieval", "")).strip()
+
+        # Fallback: usa query originale se il modello non ha estratto le query di retrieval
+        if not questione_retrieval:
+            questione_retrieval = query
+        if not qualificazione_retrieval:
+            qualificazione_retrieval = query
+
+        phase1 = PhaseResult(
+            phase=1, name="FRAMING",
+            sections=sections_f1,
+            sources_used=[],
+            overall_confidence=conf_f1,
+            gaps=data_f1.get("gaps", []),
+            duration_s=time.monotonic() - t0,
+            parse_ok=ok_f1,
+            questione_retrieval=questione_retrieval,
+            qualificazione_retrieval=qualificazione_retrieval,
+        )
+        completed_phases.append(phase1)
+        logger.info(
+            f"[S3 Seq] Fase 1 FRAMING: {len(sections_f1)} sezioni, "
+            f"ok={ok_f1}, t={phase1.duration_s:.1f}s"
+        )
+        yield phase1
+
+        # ── Retrieval per Fase 2 (normativa + dottrina) ──────────────
+        norm_sources: list[SearchResult] = []
+        dott_sources: list[SearchResult] = []
+        if phase_retriever is not None:
+            import asyncio as _asyncio
+            try:
+                norm_sources = await _asyncio.to_thread(
+                    phase_retriever.retrieve_normativa, questione_retrieval
+                )
+            except Exception as exc:
+                logger.warning(f"[S3 Seq] retrieval normativa fallito: {exc}")
+            try:
+                dott_sources = await _asyncio.to_thread(
+                    phase_retriever.retrieve_dottrina, questione_retrieval
+                )
+            except Exception as exc:
+                logger.warning(f"[S3 Seq] retrieval dottrina fallito: {exc}")
+
+        # Fallback: usa fonti normative dal packet iniziale S2
+        if not norm_sources:
+            norm_sources = [
+                s for s in packet.sources
+                if self._effective_layer(s) == "normativa"
+            ]
+
+        # ── Fase 2: Normativa + Dottrina ──────────────────────────────
+        t1 = time.monotonic()
+        ctx_norm = self._format_phase_sources(norm_sources)
+        framing_summary = self._build_framing_summary(sections_f1, data_f1)
+
+        # Sezione dottrina opzionale — presente solo se ci sono fonti
+        ctx_dott = ""
+        if dott_sources:
+            dott_lines = ["DOTTRINA — usa questi source_id per l'INTERPRETAZIONE:", "=" * 60]
+            for i, s in enumerate(dott_sources, 1):
+                dott_lines.extend(_format_source(i, s))
+            dott_lines.append("=" * 60)
+            ctx_dott = "\n".join(dott_lines) + "\n\n"
+
+        prompt_f2 = (
+            f"{framing_summary}\n\n"
+            f"{ctx_norm}\n\n"
+            f"{ctx_dott}"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Sulla base del framing sopra, produci FONTI_NORMATIVE e INTERPRETAZIONE.\n"
+            "Per FONTI_NORMATIVE usa SOLO fonti dalla sezione FONTI PER QUESTA FASE.\n"
+            "Per INTERPRETAZIONE puoi citare anche la DOTTRINA (se presente) a supporto "
+            "dei criteri ermeneutici, con il relativo source_id.\n"
+            "Ogni claim DEVE avere source_id dal Packet.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        raw_f2 = ""
+        try:
+            raw_f2 = await self._ollama.generate(
+                prompt=prompt_f2, temperature=temperature,
+                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_NORMATIVA,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Seq Fase2] Ollama errore: {exc}")
+
+        sections_f2, conf_f2, _, ok_f2 = self._parse_response(raw_f2 or "")
+        phase2 = PhaseResult(
+            phase=2, name="NORMATIVA",
+            sections=sections_f2,
+            sources_used=[s.source_id for s in norm_sources + dott_sources],
+            overall_confidence=conf_f2,
+            gaps=[],
+            duration_s=time.monotonic() - t1,
+            parse_ok=ok_f2,
+        )
+        completed_phases.append(phase2)
+        logger.info(
+            f"[S3 Seq] Fase 2 NORMATIVA: {len(sections_f2)} sezioni, "
+            f"fonti={len(norm_sources)}, ok={ok_f2}, t={phase2.duration_s:.1f}s"
+        )
+        yield phase2
+
+        # ── Retrieval per Fase 3 ──────────────────────────────────────
+        giuri_sources: list[SearchResult] = []
+        if phase_retriever is not None:
+            try:
+                import asyncio as _asyncio
+                giuri_sources = await _asyncio.to_thread(
+                    phase_retriever.retrieve_giurisprudenza, qualificazione_retrieval
+                )
+            except Exception as exc:
+                logger.warning(f"[S3 Seq] retrieval giurisprudenza fallito: {exc}")
+        if not giuri_sources:
+            giuri_sources = [
+                s for s in packet.sources
+                if self._effective_layer(s) == "giurisprudenza"
+            ]
+
+        # ── Fase 3: Giurisprudenza ────────────────────────────────────
+        t2 = time.monotonic()
+        ctx_giuri = self._format_phase_sources(giuri_sources)
+        phase_context = self._build_phase_context(completed_phases)
+        prompt_f3 = (
+            f"{phase_context}\n\n"
+            f"{ctx_giuri}\n\n"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Produci il passo GIURISPRUDENZA analizzando le sentenze nel Packet.\n"
+            "Ogni sentenza citata DEVE avere source_id dalla sezione FONTI PER QUESTA FASE.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        raw_f3 = ""
+        try:
+            raw_f3 = await self._ollama.generate(
+                prompt=prompt_f3, temperature=temperature,
+                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Seq Fase3] Ollama errore: {exc}")
+
+        sections_f3, conf_f3, _, ok_f3 = self._parse_response(raw_f3 or "")
+        phase3 = PhaseResult(
+            phase=3, name="GIURISPRUDENZA",
+            sections=sections_f3,
+            sources_used=[s.source_id for s in giuri_sources],
+            overall_confidence=conf_f3,
+            gaps=[],
+            duration_s=time.monotonic() - t2,
+            parse_ok=ok_f3,
+        )
+        completed_phases.append(phase3)
+        logger.info(
+            f"[S3 Seq] Fase 3 GIURISPRUDENZA: {len(sections_f3)} sezioni, "
+            f"fonti={len(giuri_sources)}, ok={ok_f3}, t={phase3.duration_s:.1f}s"
+        )
+        yield phase3
+
+        # ── Fase 4: Sintesi ───────────────────────────────────────────
+        t3 = time.monotonic()
+        full_context = self._build_phase_context(completed_phases)
+        prompt_f4 = (
+            f"{full_context}\n\n"
+            f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
+            "Sii operativo e preciso. Usa 'VALUTAZIONE PERSONALE:' per valutazioni non grounded.\n"
+            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+        )
+        raw_f4 = ""
+        try:
+            raw_f4 = await self._ollama.generate(
+                prompt=prompt_f4, temperature=temperature,
+                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_SINTESI,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Seq Fase4] Ollama errore: {exc}")
+
+        sections_f4, conf_f4, escalation_f4, ok_f4 = self._parse_response(raw_f4 or "")
+        phase4 = PhaseResult(
+            phase=4, name="SINTESI",
+            sections=sections_f4,
+            sources_used=[],
+            overall_confidence=conf_f4,
+            escalation_recommended=escalation_f4,
+            gaps=[],
+            duration_s=time.monotonic() - t3,
+            parse_ok=ok_f4,
+        )
+        logger.info(
+            f"[S3 Seq] Fase 4 SINTESI: {len(sections_f4)} sezioni, "
+            f"escalation={escalation_f4}, ok={ok_f4}, t={phase4.duration_s:.1f}s"
+        )
+        yield phase4
+
+    # ------------------------------------------------------------------
+    # analyze()  — entry point
+    # ------------------------------------------------------------------
+
+    async def analyze(
+        self,
+        query: str,
+        packet: ResearchPacket,
+        temperature: float = 0.10,
+        max_tokens: int = 4500,
+    ) -> AnalysisResult:
+        """
+        Genera analisi CoT sul Research Packet.
+
+        Non solleva mai eccezioni: in caso di errore Ollama ritorna
+        AnalysisResult vuoto con gaps esplicativi.
+        """
+        t0 = time.monotonic()
+
+        if not packet.sources:
+            return AnalysisResult(
+                answer="",
+                analysis_sections=[],
+                overall_confidence="LOW",
+                gaps=["Nessuna fonte nel Research Packet: impossibile analizzare."],
+                llm_model=self._ollama.model,
+                duration_s=time.monotonic() - t0,
+                parse_ok=False,
+            )
+
+        prompt = self._build_prompt(query, packet)
+
+        try:
+            raw = await self._ollama.generate(
+                prompt=prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                system=_SYSTEM_PROMPT,
+            )
+        except Exception as exc:
+            logger.warning(f"[S3 Analyst] Ollama non disponibile: {exc}")
+            return AnalysisResult(
+                answer="",
+                analysis_sections=[],
+                overall_confidence="LOW",
+                gaps=[f"LLM non disponibile ({type(exc).__name__}). Retrieval disponibile."],
+                llm_model=self._ollama.model,
+                duration_s=time.monotonic() - t0,
+                parse_ok=False,
+            )
+
+        sections, confidence, escalation, parse_ok = self._parse_response(raw)
+        answer = self._sections_to_answer(sections)
+
+        if not parse_ok:
+            logger.warning("[S3 Analyst] JSON non parsabile — risposta grezza usata")
+
+        logger.info(
+            f"[S3 Analyst] {len(sections)} sezioni, confidence={confidence}, "
+            f"escalation={escalation}, parse_ok={parse_ok}, "
+            f"t={time.monotonic() - t0:.1f}s"
+        )
+
+        return AnalysisResult(
+            answer=answer,
+            analysis_sections=sections,
+            overall_confidence=confidence,
+            escalation_recommended=escalation,
+            gaps=[],
+            llm_model=self._ollama.model,
+            duration_s=time.monotonic() - t0,
+            raw_response=raw,
+            parse_ok=parse_ok,
+        )

@@ -1,0 +1,148 @@
+Output: eval\query_results\20260531T185230Z
+File JSONL: ['queries_amm.jsonl', 'queries_civ.jsonl', 'queries_cross.jsonl', 'queries_pen.jsonl', 'queries_trib.jsonl', 'test_aiura_01.jsonl']
+
+=== queries_amm.jsonl (20 query) ===
+  [ 1/20] amm_001  R=1.00  36.2s  FAIL
+  [ 2/20] amm_002  R=1.00  72.3s  PASS
+  [ 3/20] amm_003  R=1.00  72.2s  PASS
+  [ 4/20] amm_004  R=0.00  68.8s  PASS
+  [ 5/20] amm_005  R=1.00  70.6s  FAIL
+  [ 6/20] amm_006  R=1.00  69.3s  FAIL
+  [ 7/20] amm_007  R=0.00  66.2s  PASS
+  [ 8/20] amm_008  R=1.00  69.9s  FAIL
+  [ 9/20] amm_009  R=0.00  54.3s  FAIL
+  [10/20] amm_010  R=1.00  71.0s  PASS
+  [11/20] amm_011  R=0.00  69.2s  PASS
+  [12/20] amm_012  R=1.00  68.3s  PASS
+  [13/20] amm_013  R=1.00  70.0s  FAIL
+  [14/20] amm_014  R=1.00  71.6s  PASS
+  [15/20] amm_015  R=1.00  67.4s  PASS
+  [16/20] amm_016  R=0.00  68.0s  PASS
+  [17/20] amm_017  R=1.00  67.6s  FAIL
+  [18/20] amm_018  R=1.00  68.5s  PASS
+  [19/20] amm_019  R=0.00  68.3s  PASS
+  [20/20] amm_020  R=0.00  69.1s  PASS
+
+=== queries_civ.jsonl (20 query) ===
+  [ 1/20] civ_001  R=1.00  67.3s  FAIL
+  [ 2/20] civ_002  R=1.00  69.7s  PASS
+  [ 3/20] civ_003  R=1.00  69.4s  PASS
+  [ 4/20] civ_004  R=1.00  68.5s  FAIL
+  [ 5/20] civ_005  R=1.00  67.6s  FAIL
+  [ 6/20] civ_006  R=1.00  67.8s  PASS
+  [ 7/20] civ_007  R=1.00  71.5s  PASS
+  [ 8/20] civ_008  R=1.00  67.2s  PASS
+  [ 9/20] civ_009  R=1.00  69.1s  FAIL
+  [10/20] civ_010  R=1.00  69.2s  FAIL
+  [11/20] civ_011  R=1.00  66.3s  FAIL
+  [12/20] civ_012  R=1.00  67.3s  FAIL
+  [13/20] civ_013  R=1.00  66.2s  FAIL
+  [14/20] civ_014  R=1.00  68.5s  FAIL
+  [15/20] civ_015  R=1.00  68.2s  PASS
+  [16/20] civ_016  R=1.00  68.3s  PASS
+  [17/20] civ_017  R=1.00  65.6s  FAIL
+  [18/20] civ_018  R=1.00  69.9s  PASS
+  [19/20] civ_019  R=1.00  68.6s  FAIL
+  [20/20] civ_020  R=1.00  67.6s  PASS
+
+=== queries_cross.jsonl (30 query) ===
+  [ 1/30] cross_001  R=0.50  64.6s  PASS
+  [ 2/30] cross_002  R=1.00  65.6s  PASS
+  [ 3/30] cross_003  R=0.00  65.2s  FAIL
+  [ 4/30] cross_004  R=0.00  65.8s  FAIL
+  [ 5/30] cross_005  R=0.50  67.1s  PASS
+  [ 6/30] cross_006  R=0.00  67.6s  FAIL
+  [ 7/30] cross_007  R=0.50  68.6s  FAIL
+  [ 8/30] cross_008  R=1.00  65.0s  FAIL
+  [ 9/30] cross_009  R=0.00  66.7s  PASS
+  [10/30] cross_010  R=1.00  64.4s  PASS
+  [11/30] cross_011  R=0.50  69.4s  FAIL
+  [12/30] cross_012  R=0.50  53.4s  FAIL
+  [13/30] cross_013  R=1.00  64.8s  FAIL
+  [14/30] cross_014  R=0.50  68.3s  FAIL
+  [15/30] cross_015  R=0.00  68.5s  FAIL
+  [16/30] cross_016  R=0.50  64.4s  PASS
+  [17/30] cross_017  R=0.50  68.1s  FAIL
+  [18/30] cross_018  R=0.00  67.4s  PASS
+  [19/30] cross_019  R=0.50  68.4s  FAIL
+  [20/30] cross_020  R=1.00  66.4s  PASS
+  [21/30] cross_021  R=0.00  67.8s  FAIL
+  [22/30] cross_022  R=0.00  64.2s  PASS
+  [23/30] cross_023  R=0.00  67.3s  PASS
+  [24/30] cross_024  R=1.00  69.1s  FAIL
+  [25/30] cross_025  R=0.00  65.2s  PASS
+  [26/30] cross_026  R=0.00  65.3s  PASS
+  [27/30] cross_027  R=0.00  65.8s  PASS
+  [28/30] cross_028  R=1.00  66.2s  PASS
+  [29/30] cross_029  R=0.50  64.7s  FAIL
+  [30/30] cross_030  R=0.67  66.6s  PASS
+
+=== queries_pen.jsonl (20 query) ===
+  [ 1/20] pen_001  R=1.00  63.4s  PASS
+  [ 2/20] pen_002  R=1.00  67.5s  FAIL
+  [ 3/20] pen_003  R=1.00  64.3s  PASS
+  [ 4/20] pen_004  R=1.00  67.0s  FAIL
+  [ 5/20] pen_005  R=1.00  67.0s  FAIL
+  [ 6/20] pen_006  R=1.00  65.0s  FAIL
+  [ 7/20] pen_007  R=1.00  64.0s  FAIL
+  [ 8/20] pen_008  R=1.00  68.4s  PASS
+  [ 9/20] pen_009  R=1.00  66.2s  FAIL
+  [10/20] pen_010  R=1.00  67.9s  PASS
+  [11/20] pen_011  R=1.00  31.4s  PASS
+  [12/20] pen_012  R=1.00  21.8s  FAIL
+  [13/20] pen_013  R=1.00  23.7s  PASS
+  [14/20] pen_014  R=1.00  23.9s  PASS
+  [15/20] pen_015  R=1.00  22.9s  FAIL
+  [16/20] pen_016  R=0.00  51.3s  PASS
+  [17/20] pen_017  R=1.00  63.6s  FAIL
+  [18/20] pen_018  R=1.00  64.2s  PASS
+  [19/20] pen_019  R=1.00  66.9s  PASS
+  [20/20] pen_020  R=1.00  64.9s  FAIL
+
+=== queries_trib.jsonl (20 query) ===
+  [ 1/20] trib_001  R=0.00  66.9s  PASS
+  [ 2/20] trib_002  R=1.00  65.1s  PASS
+  [ 3/20] trib_003  R=0.00  67.0s  FAIL
+  [ 4/20] trib_004  R=1.00  66.8s  PASS
+  [ 5/20] trib_005  R=1.00  70.5s  FAIL
+  [ 6/20] trib_006  R=1.00  66.9s  FAIL
+  [ 7/20] trib_007  R=0.00  69.5s  PASS
+  [ 8/20] trib_008  R=0.00  68.5s  PASS
+  [ 9/20] trib_009  R=0.00  66.9s  PASS
+  [10/20] trib_010  R=0.00  67.1s  PASS
+  [11/20] trib_011  R=1.00  69.8s  PASS
+  [12/20] trib_012  R=1.00  66.7s  PASS
+  [13/20] trib_013  R=0.00  67.1s  PASS
+  [14/20] trib_014  R=0.00  65.5s  PASS
+  [15/20] trib_015  R=1.00  68.1s  PASS
+  [16/20] trib_016  R=0.00  69.8s  FAIL
+  [17/20] trib_017  R=0.00  68.4s  FAIL
+  [18/20] trib_018  R=1.00  71.4s  PASS
+  [19/20] trib_019  R=1.00  66.0s  FAIL
+  [20/20] trib_020  R=0.00  68.5s  PASS
+
+=== test_aiura_01.jsonl (20 query) ===
+  [ 1/20] q01  R=1.00  69.1s  FAIL
+  [ 2/20] q02  R=1.00  60.1s  FAIL
+  [ 3/20] q03  R=1.00  70.2s  PASS
+  [ 4/20] q04  R=1.00  67.9s  FAIL
+  [ 5/20] q05  R=1.00  68.8s  FAIL
+  [ 6/20] q06  R=1.00  68.8s  FAIL
+  [ 7/20] q07  R=1.00  65.5s  PASS
+  [ 8/20] q08  R=1.00  65.2s  PASS
+  [ 9/20] q09  R=1.00  66.8s  FAIL
+  [10/20] q10  R=1.00  63.6s  FAIL
+  [11/20] q11  R=1.00  67.1s  FAIL
+  [12/20] q12  R=1.00  68.5s  PASS
+  [13/20] q13  R=1.00  68.1s  PASS
+  [14/20] q14  R=1.00  70.5s  PASS
+  [15/20] q15  R=1.00  50.1s  FAIL
+  [16/20] q16  R=1.00  23.6s  PASS
+  [17/20] q17  R=1.00  22.4s  FAIL
+  [18/20] q18  R=1.00  25.2s  PASS
+  [19/20] q19  R=1.00  25.3s  FAIL
+  [20/20] q20  R=1.00  27.2s  PASS
+
+
+Riepilogo globale: eval\query_results\20260531T185230Z\_global_summary.md
+Fine.

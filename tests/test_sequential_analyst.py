@@ -1,0 +1,275 @@
+"""
+Test SequentialAnalyst (analyze_sequential) e PhaseRetriever.
+
+Strategia:
+  - OllamaClient.generate mockato → output LLM controllato senza Ollama
+  - PhaseRetriever mockato → nessun indice su disco
+  - HybridRetriever mockato → nessun indice su disco
+  - Zero chiamate HTTP, zero PII reali
+"""
+from __future__ import annotations
+
+import json
+import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from aiura_legal.agents.analyst import AnalystAgent, PhaseResult
+from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
+from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _make_source(
+    doc_id: str,
+    layer: str = "normativa",
+    snippet: str = "Testo sintetico.",
+) -> SearchResult:
+    return SearchResult(
+        doc_id=doc_id,
+        score=1.0,
+        snippet=snippet,
+        source_id=doc_id,
+        source_layer=layer,
+        retrieval_method="hybrid_rrf",
+        metadata={"corpus": layer, "titolo": "Titolo sintetico"},
+    )
+
+
+def _make_packet() -> ResearchPacket:
+    return ResearchPacket(
+        query_original="test query",
+        query_intent=QueryIntent.FATTISPECIE_ANALYSIS,
+        sources=[
+            _make_source("ART_43_CP", "normativa", "Art. 43 c.p. — elemento soggettivo del reato."),
+            _make_source("giurisprudenza_cass_38343_2014", "giurisprudenza", "ThyssenKrupp — dolo eventuale."),
+        ],
+        retrieval_confidence="HIGH",
+    )
+
+
+def _phase_json(step_names: list[str], questione_retrieval: str = "") -> str:
+    sections = [
+        {"step": name, "content": f"Contenuto {name}.", "citations": []}
+        for name in step_names
+    ]
+    data: dict = {
+        "analysis_sections": sections,
+        "overall_confidence": "MEDIUM",
+        "gaps": [],
+    }
+    if questione_retrieval:
+        data["questione_retrieval"] = questione_retrieval
+        data["qualificazione_retrieval"] = questione_retrieval + " giurisprudenza"
+    return json.dumps(data)
+
+
+# ---------------------------------------------------------------------------
+# Fixture: AnalystAgent con OllamaClient mockato
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def mock_ollama():
+    ollama = MagicMock()
+    ollama.model = "qwen2.5:7b-test"
+    # generate è async — risponde con JSON per ogni fase
+    call_count = {"n": 0}
+    responses = [
+        _phase_json(
+            ["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+            questione_retrieval="dolo eventuale colpa cosciente art. 43",
+        ),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(**kwargs):
+        n = call_count["n"]
+        call_count["n"] += 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    return ollama
+
+
+@pytest.fixture
+def analyst(mock_ollama) -> AnalystAgent:
+    return AnalystAgent(ollama=mock_ollama)
+
+
+@pytest.fixture
+def mock_phase_retriever():
+    pr = MagicMock(spec=PhaseRetriever)
+    pr.retrieve_normativa.return_value = [
+        _make_source("ART_43_CP_REQUERY", "normativa", "Art. 43 — requery.")
+    ]
+    pr.retrieve_giurisprudenza.return_value = [
+        _make_source("giurisprudenza_thyssen_requery", "giurisprudenza", "ThyssenKrupp requery.")
+    ]
+    pr.retrieve_dottrina.return_value = []
+    return pr
+
+
+# ---------------------------------------------------------------------------
+# Test analyze_sequential — fasi e struttura
+# ---------------------------------------------------------------------------
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_yields_4_phases(analyst, mock_phase_retriever):
+    """analyze_sequential() deve emettere esattamente 4 PhaseResult."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="Qual è il confine tra dolo eventuale e colpa cosciente?",
+        packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        phases.append(phase)
+
+    assert len(phases) == 4
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_phase_names(analyst, mock_phase_retriever):
+    """Le 4 fasi devono avere i nomi corretti nell'ordine corretto."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever
+    ):
+        phases.append(phase)
+
+    assert [p.name for p in phases] == ["FRAMING", "NORMATIVA", "GIURISPRUDENZA", "SINTESI"]
+    assert [p.phase for p in phases] == [1, 2, 3, 4]
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_phase1_extracts_retrieval_queries(analyst, mock_phase_retriever):
+    """Fase 1 deve estrarre questione_retrieval e qualificazione_retrieval dal JSON."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever
+    ):
+        phases.append(phase)
+
+    phase1 = phases[0]
+    assert phase1.questione_retrieval == "dolo eventuale colpa cosciente art. 43"
+    assert "giurisprudenza" in phase1.qualificazione_retrieval
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_uses_phase_retriever(analyst, mock_phase_retriever):
+    """PhaseRetriever deve essere chiamato una volta per normativa e una per giurisprudenza."""
+    packet = _make_packet()
+    async for _ in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever
+    ):
+        pass
+
+    mock_phase_retriever.retrieve_normativa.assert_called_once()
+    mock_phase_retriever.retrieve_giurisprudenza.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_sources_used(analyst, mock_phase_retriever):
+    """Fase 2 deve avere sources_used con le fonti del retrieval normativa."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever
+    ):
+        phases.append(phase)
+
+    phase2 = phases[1]
+    assert "ART_43_CP_REQUERY" in phase2.sources_used
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_fallback_to_packet_sources(analyst):
+    """Senza PhaseRetriever, le fasi devono usare le fonti del packet iniziale."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=None
+    ):
+        phases.append(phase)
+
+    assert len(phases) == 4
+    # Fase 2 deve aver usato le fonti normative del packet
+    phase2 = phases[1]
+    assert "ART_43_CP" in phase2.sources_used
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_graceful_on_ollama_error():
+    """Se Ollama fallisce, analyze_sequential deve continuare emettendo fasi vuote."""
+    ollama = MagicMock()
+    ollama.model = "test"
+
+    async def _fail(**kwargs):
+        raise ConnectionError("Ollama non disponibile")
+
+    ollama.generate = _fail
+    agent = AnalystAgent(ollama=ollama)
+    packet = _make_packet()
+
+    phases = []
+    async for phase in agent.analyze_sequential(
+        query="test", packet=packet, phase_retriever=None
+    ):
+        phases.append(phase)
+
+    # Deve emettere tutte e 4 le fasi anche se Ollama non risponde
+    assert len(phases) == 4
+    for phase in phases:
+        assert phase.parse_ok is False or phase.sections is not None
+
+
+# ---------------------------------------------------------------------------
+# Test PhaseRetriever
+# ---------------------------------------------------------------------------
+
+def test_phase_retriever_retrieve_normativa_calls_search_round():
+    """retrieve_normativa() deve chiamare _search_round con filtro normattiva."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [
+        _make_source("ART_1", "normativa")
+    ]
+    pr = PhaseRetriever(mock_retriever)
+
+    results = pr.retrieve_normativa("dolo eventuale art. 43", top_k=4)
+
+    mock_retriever._search_round.assert_called_once()
+    call_kwargs = mock_retriever._search_round.call_args
+    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    assert all(r.source_layer == "normativa" for r in results)
+
+
+def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
+    """retrieve_giurisprudenza() deve chiamare _search_round con filtro giurisprudenza."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [
+        _make_source("CASS_1", "giurisprudenza")
+    ]
+    pr = PhaseRetriever(mock_retriever)
+
+    results = pr.retrieve_giurisprudenza("ThyssenKrupp dolo eventuale", top_k=4)
+
+    mock_retriever._search_round.assert_called_once()
+    call_kwargs = mock_retriever._search_round.call_args
+    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    assert all(r.source_layer == "giurisprudenza" for r in results)
+
+
+def test_phase_retriever_empty_query_returns_empty():
+    """Con query vuota, PhaseRetriever deve restituire lista vuota senza chiamare il retriever."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+
+    assert pr.retrieve_normativa("") == []
+    assert pr.retrieve_giurisprudenza("  ") == []
+    mock_retriever._search_round.assert_not_called()

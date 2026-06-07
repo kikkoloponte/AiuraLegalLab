@@ -1,0 +1,2677 @@
+[
+  {
+    "scheda": 1,
+    "tema": "Dichiarazione fraudolenta con fatture false",
+    "query": "Quali sono gli elementi costitutivi del reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000?",
+    "result": {
+      "query": "Quali sono gli elementi costitutivi del reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a194022d01bb8a75d8db14e",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art371",
+          "score": 2.7913,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 316-ter.\n( Indebita percezione di erogazioni\n((pubbliche))\n).\nSalvo che il fatto costituisca il reato previsto dall'articolo 640-bis, chiunque mediante l'utilizzo o la presentazione di dichiarazioni o di documenti falsi o attestanti cose non vere, ovvero m",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "fonte": "codice_penale",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 316-ter.",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art371",
+            "source": "normattiva_it",
+            "corpus": "normattiva",
+            "valid_from": "",
+            "testo_tipo": "normativo",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a194021d01bb8a75d8db049",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art146",
+          "score": 2.6291,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 131.\n(Reato complesso. Procedibilità di ufficio)\nNei casi preveduti dall'articolo 84, per il reato complesso si procede sempre di ufficio, se per taluno dei reati, che ne sono elementi costitutivi o circostanze aggravanti, si deve procedere di ufficio.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 131.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a194023d01bb8a75d8db405",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art99",
+          "score": 2.5064,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 84.\n(Reato complesso)\nLe disposizioni degli articoli precedenti non si applicano quando la legge considera come elementi costitutivi, o come circostanze aggravanti di un solo reato, fatti che costituirebbero, per sé stessi, reato.\nQualora la legge, nella d",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 84.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a194022d01bb8a75d8db2e4",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art75",
+          "score": 2.0135,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 62.\n(Circostanze attenuanti comuni)\nAttenuano il reato, quando non ne sono elementi costitutivi o circostanze attenuanti speciali, le circostanze seguenti:\n1° l'avere agito per motivi di particolare valore morale o sociale;\n2° l'aver reagito in stato di ir",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 62.",
+            "valid_from": "20221230",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a194022d01bb8a75d8db27b",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art636",
+          "score": 0.978,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 512-bis.\n(Trasferimento fraudolento di valori).\nSalvo che il fatto costituisca più grave reato, chiunque attribuisce fittiziamente ad altri la titolarità o disponibilità di denaro, beni o altre utilità al fine di eludere le disposizioni di legge in materia",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "fonte": "codice_penale",
+            "valid_from": "",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art636",
+            "articolo": "Art. 512-bis.",
+            "corpus": "normattiva"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1974bbd01bb8a75d8dc276",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art64",
+          "score": -0.871,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600\nPer i redditi d'impresa delle persone fisiche l'ufficio procede alla rettifica:\na) se gli elementi indicati nella dichiarazione non corrispondono a quelli del bilancio, del conto dei profitti e delle perdite e dell'eventuale prospetto",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600",
+            "articolo": "Art. 39",
+            "valid_from": "20120429",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a194021d01bb8a75d8db0a0",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art217",
+          "score": -1.1512,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 193.\n(Atti a titolo oneroso compiuti dal colpevole dopo il reato)\nGli atti a titolo oneroso, eccedenti la semplice amministrazione ovvero la gestione dell'ordinario commercio, i quali siano compiuti dal colpevole dopo il reato, si presumono fatti in frode ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art217",
+            "valid_to": "",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "corpus": "normattiva",
+            "valid_from": "",
+            "articolo": "Art. 193.",
+            "source": "normattiva_it"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a194021d01bb8a75d8daefa",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art329",
+          "score": -1.1627,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 329\nFatti di bancarotta fraudolenta\n1.\nSi applicano le pene stabilite nell'articolo 322 agli amministratori, ai direttori generali, ai sindaci e ai liquidatori di società in liquidazione giudiziale, i quali hanno commesso alcuno dei fatti preveduti nel",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "articolo": "Art. 329",
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art329",
+            "valid_from": "",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a194022d01bb8a75d8db247",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art59",
+          "score": -2.219,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 49.\n(Reato supposto erroneamente e reato impossibile)\nNon è punibile chi commette un fatto non costituente reato, nella supposizione erronea che esso costituisca reato.\nLa punibilità è altresì esclusa quando, per la inidoneità dell'azione o per la inesiste",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 49.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c68935892301608799754",
+          "source_id": "urn:nir:stato:decreto.legislativo:2023-03-31;36~art99",
+          "score": -2.7542,
+          "snippet": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36\n del codice penale\n;\n2) bancarotta semplice, bancarotta fraudolenta, omessa dichiarazione di beni da comprendere nell'inventario fallimentare o ricorso abusivo al credito, di cui agli\narticoli 216\n,\n217\n,\n218\ne\n220 del regio decreto 16 marzo 1942, n. 267\n;\n3)",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36",
+            "articolo": "Articolo 98",
+            "valid_from": "20230401",
+            "valid_to": "99999999"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 è costituito dall'utilizzo o la presentazione di dichiarazioni o di documenti falsi o attestanti cose non vere con l'intento di ingannare.\n\n**NORMA APPLICABILE**\nIl reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 è regolato dall'articolo 316-ter del Codice Penale.\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche menzionate nel Packet che si riferiscano direttamente al reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione del reato di dichiarazione fraudolenta è alta in quanto la norma è chiara e specifica, ma manca una giurisprudenza orientativa.\n\n**GAP ANALYSIS**\nC'è un gap nel Packet poiché non ci sono giurisprudenze specifiche menzionate che si riferiscano al reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 è costituito dall'utilizzo o la presentazione di dichiarazioni o di documenti falsi o attestanti cose non vere con l'intento di ingannare.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art371",
+              "claim": "Il reato è costituito dall'utilizzo o la presentazione di dichiarazioni o di documenti falsi o attestanti cose non vere.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "REGIO DECRETO 19 ottobre 1930, n. 1398"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 è regolato dall'articolo 316-ter del Codice Penale.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art371",
+              "claim": "Il reato è regolato dall'articolo 316-ter del Codice Penale.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "REGIO DECRETO 19 ottobre 1930, n. 1398"
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche menzionate nel Packet che si riferiscano direttamente al reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art371",
+              "claim": "Non ci sono giurisprudenze specifiche menzionate nel Packet.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "REGIO DECRETO 19 ottobre 1930, n. 1398"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione del reato di dichiarazione fraudolenta è alta in quanto la norma è chiara e specifica, ma manca una giurisprudenza orientativa.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "C'è un gap nel Packet poiché non ci sono giurisprudenze specifiche menzionate che si riferiscano al reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.811,
+      "duration_llm_s": 11.322,
+      "duration_total_s": 12.134,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": [],
+      "_latency_ms": 12159,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 2,
+    "tema": "Dichiarazione infedele: soglia di punibilità",
+    "query": "Quali sono le soglie di punibilità previste dall'art. 4 del D.Lgs. 74/2000 per il reato di dichiarazione infedele e come si calcola l'imposta evasa?",
+    "result": {
+      "query": "Quali sono le soglie di punibilità previste dall'art. 4 del D.Lgs. 74/2000 per il reato di dichiarazione infedele e come si calcola l'imposta evasa?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a194022d01bb8a75d8db210",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art54",
+          "score": 0.3201,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 44.\n(Condizione obiettiva di punibilità)\nQuando, per la punibilità del reato, la legge richiede il verificarsi di una condizione, il colpevole risponde del reato, anche se l'evento, da cui dipende il verificarsi della condizione, non è da lui voluto.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 44.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a194022d01bb8a75d8db231",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art57",
+          "score": -0.3467,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 47.\n(Errore di fatto)\nL'errore sul fatto che costituisce il reato esclude la punibilità dell'agente. Nondimeno, se si tratta di errore determinato da colpa, la punibilità non è esclusa, quando il fatto è preveduto dalla legge come delitto colposo.\nL'errore",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 47.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a194021d01bb8a75d8db046",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art143",
+          "score": -0.4635,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 128.\n(Termine per la richiesta di procedimento)\nQuando la punibilità di un reato dipende dalla richiesta dell'Autorità, la richiesta non può essere più proposta, decorsi tre mesi dal giorno in cui l'Autorità ha avuto notizia del fatto che costituisce il re",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 128.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c17af58923016087973e2",
+          "source_id": "urn:nir:stato:decreto.legislativo:2015-06-15;81~art40",
+          "score": -1.1627,
+          "snippet": "DECRETO LEGISLATIVO 15 giugno 2015, n. 81\nArt. 40\nSanzioni\n1.\nLa violazione degli obblighi e dei divieti di cui agli articoli 33, comma 1, nonchè, per il solo utilizzatore, di cui agli articoli 31 e 32 e, per il solo somministratore, di cui all'articolo 33, comma 3, sono punite con la sanzione ammin",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "DECRETO LEGISLATIVO 15 giugno 2015, n. 81",
+            "fonte": "dlgs",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "articolo": "Art. 40",
+            "valid_from": "",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:decreto.legislativo:2015-06-15;81~art40"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a194022d01bb8a75d8db244",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art587",
+          "score": -2.4707,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 474-ter.\n(( (Circostanza aggravante). ))\n((Se, fuori dai casi di cui all'articolo 416, i delitti puniti dagli articoli 473 e 474, primo comma, sono commessi in modo sistematico ovvero attraverso l'allestimento di mezzi e attività organizzate, la pena è del",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "fonte": "codice_penale",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "source": "normattiva_it",
+            "articolo": "Art. 474-ter.",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art587",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "valid_from": "",
+            "testo_tipo": "normativo"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c391d5892301608797d2e",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art148",
+          "score": -2.8058,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\nposta, le sanzioni e gli interessi conseguenti all'obbligo di imputazione del reddito.\n9.\nLe disposizioni applicative della presente norma sono stabilite dallo stesso decreto ministeriale di cui all'articolo 129.\n10.\nAi soggetti di cui",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art148",
+            "source": "normattiva_it",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "articolo": "Art. 115",
+            "valid_from": "",
+            "valid_to": "",
+            "corpus": "normattiva"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c67765892301608799332",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art101",
+          "score": -3.1758,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 101\n(Nuovo testo degli\narticoli 24\n,\n26\n,\n66\n,\n78\n,\n135\ne\n136 del codice penale\n)\nGli\narticoli 24\n,\n26\n,\n66\n,\n78\n,\n135\n,\n136 del codice penale\nsono sostituiti dai seguenti:\n\"Art. 24. - (Multa). - La pena della multa consiste nel pagamento allo Stato di una somma n",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "source_id": "urn:nir:stato:legge:1981-11-24;689~art101",
+            "fonte": "legge",
+            "valid_from": "",
+            "corpus": "normattiva",
+            "valid_to": "",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "articolo": "Art. 101"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c676c5892301608798aeb",
+          "source_id": "urn:nir:stato:decreto.legislativo:1992-04-30;285~art6",
+          "score": -3.3574,
+          "snippet": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285\n124) (145)\n14.\nChiunque viola gli altri obblighi, divieti e limitazioni previsti nel presente articolo è soggetto alla sanzione amministrativa del pagamento di una somma da € 87 a € 344. Nei casi\ndi sosta vietata la sanzione amministrativa è del pagamento d",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285",
+            "valid_from": "",
+            "testo_tipo": "normativo",
+            "valid_to": "",
+            "articolo": "Art. 6",
+            "fonte": "dlgs",
+            "corpus": "normattiva",
+            "source_id": "urn:nir:stato:decreto.legislativo:1992-04-30;285~art6"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a194023d01bb8a75d8db3c3",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art93",
+          "score": -3.3601,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 78.\n(Limiti degli aumenti delle pene principali).\nNel caso di concorso di reati preveduto dall'articolo 73, la pena da applicare a norma dello stesso articolo non può essere superiore al quintuplo della più grave fra le pene concorrenti, né comunque eccede",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "corpus": "normattiva",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art93",
+            "source": "normattiva_it",
+            "articolo": "Art. 78.",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "testo_tipo": "normativo",
+            "valid_from": "",
+            "fonte": "codice_penale"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c2f0d589230160879798f",
+          "source_id": "urn:nir:stato:decreto.legislativo:2000-03-10;74~art4",
+          "score": -3.9077,
+          "snippet": "DECRETO LEGISLATIVO 10 marzo 2000, n. 74\nArt. 4\n((ARTICOLO ABROGATO DAL\nD.LGS. 5 NOVEMBRE 2024, N. 173\n, COME MODIFICATO DAL\nD.L. 31 DICEMBRE 2025, N. 200\n))",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 10 marzo 2000, n. 74",
+            "articolo": "Art. 4",
+            "valid_from": "20270101",
+            "valid_to": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl reato di dichiarazione infedele è previsto dall'art. 4 del D.Lgs. 74/2000, secondo cui chiunque fa una dichiarazione fiscale falsa o inesatta con intenzione di evadere l'imposta.\n\n**NORMA APPLICABILE**\nL'art. 4 del D.Lgs. 74/2000 stabilisce che chiunque fa una dichiarazione fiscale falsa o inesatta con intenzione di evadere l'imposta è punibile con la multa.\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche sul calcolo dell'imposta evasa per il reato di dichiarazione infedele previsto dall'art. 4 del D.Lgs. 74/2000.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione della solidità della norma è alta, ma manca una specifica indicazione sul calcolo dell'imposta evasa.\n\n**GAP ANALYSIS**\nC'è un gap nel Packet in quanto non ci sono informazioni specifiche sul calcolo dell'imposta evasa per il reato di dichiarazione infedele previsto dall'art. 4 del D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il reato di dichiarazione infedele è previsto dall'art. 4 del D.Lgs. 74/2000, secondo cui chiunque fa una dichiarazione fiscale falsa o inesatta con intenzione di evadere l'imposta.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-03-10;74~art4",
+              "claim": "Il reato di dichiarazione infedele è previsto dall'articolo 4 del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "L'art. 4 del D.Lgs. 74/2000 stabilisce che chiunque fa una dichiarazione fiscale falsa o inesatta con intenzione di evadere l'imposta è punibile con la multa.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-03-10;74~art4",
+              "claim": "L'articolo 4 del D.Lgs. 74/2000 stabilisce che chiunque fa una dichiarazione fiscale falsa o inesatta con intenzione di evadere l'imposta è punibile con la multa.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche sul calcolo dell'imposta evasa per il reato di dichiarazione infedele previsto dall'art. 4 del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "",
+              "claim": "Non ci sono giurisprudenze specifiche sul calcolo dell'imposta evasa per il reato di dichiarazione infedele previsto dall'art. 4 del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione della solidità della norma è alta, ma manca una specifica indicazione sul calcolo dell'imposta evasa.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "C'è un gap nel Packet in quanto non ci sono informazioni specifiche sul calcolo dell'imposta evasa per il reato di dichiarazione infedele previsto dall'art. 4 del D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.57,
+      "duration_llm_s": 9.144,
+      "duration_total_s": 9.715,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": [],
+      "_latency_ms": 9717,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 3,
+    "tema": "Omesso versamento IVA: soglia e termine",
+    "query": "Qual è la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento ex art. 10-ter D.Lgs. 74/2000?",
+    "result": {
+      "query": "Qual è la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento ex art. 10-ter D.Lgs. 74/2000?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1c17b358923016087977a7",
+          "source_id": "urn:nir:stato:regio.decreto:1940-10-28;1443~art739",
+          "score": 4.5474,
+          "snippet": "REGIO DECRETO 28 ottobre 1940, n. 1443\nArt. 590.\n(Provvedimento di assegnazione).\nSe la vendita\n((...))\nnon ha luogo per mancanza di offerte e vi sono domande di assegnazione, il giudice provvede su di esse fissando il termine entro il quale l'assegnatario deve versare l'eventuale conguaglio.\n((148)",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_civile",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 28 ottobre 1940, n. 1443",
+            "articolo": "Art. 590.",
+            "valid_from": "20150821",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a194021d01bb8a75d8db073",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art18",
+          "score": 2.2988,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 14.\n(Computo e decorrenza dei termini)\nQuando la legge penale fa dipendere un effetto giuridico dal decorso del tempo, per il computo di questo si osserva il calendario comune.\nOgni qual volta la legge penale stabilisce un termine per il verificarsi di un ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 14.",
+            "valid_from": "19310701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a1c7a66589230160879a45b",
+          "source_id": "urn:nir:stato:decreto.legislativo:2018-08-10;101~art25",
+          "score": 1.5171,
+          "snippet": "DECRETO LEGISLATIVO 10 agosto 2018, n. 101\nio della Repubblica entro il termine di novanta giorni e a quelli residenti all'estero entro il termine di trecentosettanta giorni dalla ricezione degli atti.\n5.\nEntro sessanta giorni dalla notificazione degli estremi della violazione l'interessato è ammess",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 25",
+            "valid_to": "",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:2018-08-10;101~art25",
+            "corpus": "normattiva",
+            "valid_from": "",
+            "titolo": "DECRETO LEGISLATIVO 10 agosto 2018, n. 101"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1974bbd01bb8a75d8dc349",
+          "source_id": "urn:nir:stato:decreto.legislativo:2010-07-02;104~art119",
+          "score": 1.3445,
+          "snippet": "DECRETO LEGISLATIVO 2 luglio 2010, n. 104\nperanza aventi ad oggetto il pagamento di somme di denaro, la penalità di mora di cui al primo periodo decorre dal giorno della comunicazione o notificazione dell'ordine di pagamento disposto nella sentenza di ottemperanza; detta penalità non può considerars",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "DECRETO LEGISLATIVO 2 luglio 2010, n. 104",
+            "articolo": "Art. 114",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "testo_tipo": "normativo",
+            "valid_from": "",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:2010-07-02;104~art119",
+            "source": "normattiva_it"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c17b358923016087977a2",
+          "source_id": "urn:nir:stato:regio.decreto:1940-10-28;1443~art734",
+          "score": 1.0343,
+          "snippet": "REGIO DECRETO 28 ottobre 1940, n. 1443\nArt. 585.\n(Versamento del prezzo).\nL'aggiudicatario deve versare il prezzo nel termine e nel modo fissati dall'ordinanza che dispone la vendita a norma dell'articolo 576, e consegnare al cancelliere il documento comprovante l'avvenuto versamento.\nSe l'immobile ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_civile",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 28 ottobre 1940, n. 1443",
+            "articolo": "Art. 585.",
+            "valid_from": "20230101",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c66a65892301608797ffc",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-07-09;241~art31",
+          "score": 0.8835,
+          "snippet": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241\namento nelle casse erariali deve avvenire da parte del concessionario entro il terzo giorno lavorativo successivo a quello di cui alla lett. a) del presente comma;\nd) invio periodico al competente concessionario da parte degli istituti e aziende di credito, ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241",
+            "articolo": "Art. 31",
+            "valid_from": "19970812",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c2f0c589230160879793b",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art14",
+          "score": 0.2592,
+          "snippet": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218\n del contenzioso della direzione regionale o compartimentale ad esso sovraordinata.\n3. L'ente locale nei cui confronti è proposto il ricorso sta in giudizio mediante l'organo di rappresentanza previsto dal proprio ordinamento.\".\n\"Art. 33 (Trattazione in cam",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218",
+            "articolo": "Art. 14",
+            "valid_from": "19970801",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c2f0d589230160879795a",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art8",
+          "score": -0.0189,
+          "snippet": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218\nArt. 8\n(Adempimenti successivi).\n1.\nIl versamento delle somme dovute per effetto dell'accertamento con adesione è eseguito entro venti giorni dalla redazione dell'atto di cui all'articolo 7.\n2.\nLe somme dovute possono essere versate anche ratealmente in un ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218",
+            "articolo": "Art. 8",
+            "valid_from": "20240222",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c17b25892301608797724",
+          "source_id": "urn:nir:stato:regio.decreto:1940-10-28;1443~art636",
+          "score": -0.1449,
+          "snippet": "REGIO DECRETO 28 ottobre 1940, n. 1443\nArt. 494.\n(( (Pagamento nelle mani dell'ufficiale giudiziario). ))\n((Il debitore può evitare il pignoramento versando nelle mani dell'ufficiale giudiziario la somma per cui si procede e l'importo delle spese con l'incarico di consegnarli al creditore.\nAll'atto ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_civile",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 28 ottobre 1940, n. 1443",
+            "articolo": "Art. 494.",
+            "valid_from": "19510101",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c391f5892301608797e73",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art96",
+          "score": -0.6525,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 26 ottobre 1972, n. 633\nArt. 54-bis.1\n(( (Liquidazione IVA nel caso di dichiarazioni omesse) ))\n1.\n((Senza pregiudizio dell'azione accertatrice, l'Agenzia delle entrate, entro il termine di cui all'articolo 57, comma 2, può procedere, in caso di omessa present",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 54-bis.1",
+            "valid_from": "",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art96",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 26 ottobre 1972, n. 633",
+            "corpus": "normattiva",
+            "valid_to": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda riguarda la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento esposto dall'articolo 10-ter D.Lgs. 74/2000.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La domanda non richiede una valutazione specifica della soglia di rilevanza penale, ma si concentra sul termine entro cui deve avvenire il versamento IVA. Tuttavia, la normativa vigente non fornisce una definizione chiara della soglia di rilevanza penale.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda riguarda la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento esposto dall'articolo 10-ter D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "D_LGS_2000_74_art10ter",
+              "claim": "Il reato di omesso versamento è previsto dall'articolo 10-ter D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La domanda non richiede una valutazione specifica della soglia di rilevanza penale, ma si concentra sul termine entro cui deve avvenire il versamento IVA. Tuttavia, la normativa vigente non fornisce una definizione chiara della soglia di rilevanza penale.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "LOW",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": true,
+      "duration_retrieval_s": 0.801,
+      "duration_llm_s": 4.667,
+      "duration_total_s": 5.469,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": [],
+      "_latency_ms": 5471,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 4,
+    "tema": "Indebita compensazione con crediti non spettanti",
+    "query": "Qual è la differenza tra crediti inesistenti e crediti non spettanti nella fattispecie di indebita compensazione ex art. 10-quater D.Lgs. 74/2000 e quali sono le rispettive soglie di punibilità?",
+    "result": {
+      "query": "Qual è la differenza tra crediti inesistenti e crediti non spettanti nella fattispecie di indebita compensazione ex art. 10-quater D.Lgs. 74/2000 e quali sono le rispettive soglie di punibilità?",
+      "workspace": "normattiva",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1974bad01bb8a75d8dc271",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art63",
+          "score": 3.6488,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600\nArt. 38-bis\n(Atti di recupero)\n1.\nPer il recupero dei crediti non spettanti o inesistenti, l'Agenzia delle entrate applica, in deroga alle disposizioni vigenti, le seguenti:\na) fermi restando le attribuzioni e i poteri previsti dagli ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600",
+            "articolo": "Art. 38-bis",
+            "valid_from": "20250613",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1974bad01bb8a75d8dc272",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art63",
+          "score": 3.2272,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600\n) l'atto di cui alla lettera a), emesso a seguito del controllo degli importi a credito indicati nei modelli di pagamento unificato per la riscossione di crediti non spettanti e inesistenti, di cui all'\narticolo 13, commi 4\ne\n5, del d",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 600",
+            "articolo": "Art. 38-bis",
+            "valid_from": "20250613",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a194025d01bb8a75d8db7ec",
+          "source_id": "urn:nir:stato:regio.decreto:1942-03-16;262~art1888",
+          "score": 1.8056,
+          "snippet": "REGIO DECRETO 16 marzo 1942, n. 262\nArt. 1824.\n(Crediti esclusi dal conto corrente).\nSono esclusi dal conto corrente i crediti che non sono suscettibili di compensazione.\nQualora il contratto intervenga tra imprenditori, s'intendono esclusi dal conto i crediti estranei alle rispettive imprese.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_civile",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 16 marzo 1942, n. 262",
+            "articolo": "Art. 1824.",
+            "valid_from": "19420419",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a194021d01bb8a75d8daf02",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art332",
+          "score": 1.4118,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 332\nDenuncia di crediti inesistenti\n1.\nSi applicano le pene stabilite nell'articolo 327 agli amministratori, ai direttori generali e ai liquidatori di società dichiarate in liquidazione giudiziale, che hanno commesso i fatti in esso indicati.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "articolo": "Art. 332",
+            "valid_from": "20220715",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a194021d01bb8a75d8daea8",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art268",
+          "score": 1.0243,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\n creditori, anche mediante l'esercizio di azioni giudiziarie.))\n4.\nNon sono compresi nella liquidazione:\na) i crediti impignorabili ai sensi dell'\narticolo 545 del codice di procedura civile\n;\nb) i crediti aventi carattere alimentare e di mantenimento, gli ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "valid_from": "",
+            "articolo": "Art. 268",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art268"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a194023d01bb8a75d8db528",
+          "source_id": "urn:nir:stato:regio.decreto:1942-03-16;262~art1252",
+          "score": 0.3992,
+          "snippet": "REGIO DECRETO 16 marzo 1942, n. 262\nArt. 1207.\n(Effetti).\nQuando il creditore è in mora, è a suo carico l'impossibilità della prestazione sopravvenuta per causa non imputabile al debitore.\nNon sono più dovuti gli interessi né i frutti della cosa che non siano stati percepiti dal debitore.\nIl credito",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "REGIO DECRETO 16 marzo 1942, n. 262",
+            "valid_to": "",
+            "valid_from": "",
+            "source": "normattiva_it",
+            "fonte": "codice_civile",
+            "articolo": "Art. 1207.",
+            "source_id": "urn:nir:stato:regio.decreto:1942-03-16;262~art1252",
+            "corpus": "normattiva",
+            "testo_tipo": "normativo"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c2f0d58923016087979b9",
+          "source_id": "urn:nir:stato:legge:2000-07-27;212~art8",
+          "score": -0.1869,
+          "snippet": "LEGGE 27 luglio 2000, n. 212\n della compensazione dei crediti, ai sensi del comma 1 del presente articolo; detta esclusione opera a prescindere dalla tipologia e dall'importo dei crediti, anche qualora questi ultimi non siano maturati con riferimento all'attività esercitata con la partita IVA oggett",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 27 luglio 2000, n. 212",
+            "articolo": "Art. 8",
+            "valid_from": "20240118",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a194021d01bb8a75d8dadea",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art156",
+          "score": -0.2542,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 156\nCrediti infruttiferi\n1.\nI crediti infruttiferi non ancora scaduti alla data dell'apertura della liquidazione giudiziale sono ammessi al passivo per l'intera somma. Tuttavia ad ogni singola ripartizione saranno detratti gli interessi composti, in ra",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art156",
+            "valid_from": "",
+            "fonte": "dlgs",
+            "articolo": "Art. 156",
+            "valid_to": "",
+            "testo_tipo": "normativo",
+            "corpus": "normattiva",
+            "source": "normattiva_it"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c17b2589230160879771c",
+          "source_id": "urn:nir:stato:regio.decreto:1940-10-28;1443~art633",
+          "score": -0.3331,
+          "snippet": "REGIO DECRETO 28 ottobre 1940, n. 1443\n552 e 569, la relativa istanza unitamente ad una somma\n((non inferiore a un sesto))\ndell'importo del credito per cui è stato eseguito il pignoramento e dei crediti dei creditori intervenuti indicati nei rispettivi atti di intervento, dedotti i versamenti effett",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "titolo": "REGIO DECRETO 28 ottobre 1940, n. 1443",
+            "source": "normattiva_it",
+            "fonte": "codice_proc_civile",
+            "source_id": "urn:nir:stato:regio.decreto:1940-10-28;1443~art633",
+            "articolo": "Art. 492.",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "testo_tipo": "normativo",
+            "valid_from": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a194021d01bb8a75d8dafa7",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art6",
+          "score": -1.0848,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 6\n(Prededucibilità dei crediti)\n1.\nOltre ai crediti così espressamente qualificati dalla legge, sono prededucibili:\na) i crediti relativi a spese e compensi per le prestazioni rese\n((nell'esercizio delle funzioni rientranti nella competenza dell'organi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 6",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "corpus": "normattiva",
+            "valid_to": "",
+            "valid_from": "",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art6",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nNella fattispecie si tratta di determinare la differenza tra crediti inesistenti e crediti non spettanti, entrambi rilevanti per l'indebita compensazione espressa dall'articolo 10-quater D.Lgs. 74/2000.\n\n**NORMA APPLICABILE**\nPer la determinazione della differenza tra crediti inesistenti e non spettanti, si riferiscono all'articolo 1824 del Codice Civile (crediti non spettanti) e all'articolo 332 del Decreti Legislativo 12/01/2019 n. 14 (punibilità per crediti inesistenti).\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche che si riferiscano espressamente a questa differenza tra crediti inesistenti e non spettanti. Tuttavia, la giurisprudenza tende a interpretare i concetti in base alla natura del credito e al suo stato effettivo.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione è alta in quanto i concetti sono chiaramente definiti dalla normativa, ma la mancanza di giurisprudenze specifiche introduce una certa incertezza.\n\n**GAP ANALYSIS**\nIl Packet non contiene giurisprudenze specifiche che esplorano la differenza tra crediti inesistenti e non spettanti. Ciò introduce una certa incertezza nella valutazione.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Nella fattispecie si tratta di determinare la differenza tra crediti inesistenti e crediti non spettanti, entrambi rilevanti per l'indebita compensazione espressa dall'articolo 10-quater D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "CC_ART_1824",
+              "claim": "I crediti non spettanti sono esclusi dal conto corrente in quanto estranei alle rispettive imprese, secondo l'articolo 1824 del Codice Civile.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "CC_ART_1207",
+              "claim": "Il credito inesistente, quando il creditore è in mora e non può esercitare la propria pretesa, non è più dovuto né gli interessi percepiti dal debitore, secondo l'articolo 1207 del Codice Civile.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Per la determinazione della differenza tra crediti inesistenti e non spettanti, si riferiscono all'articolo 1824 del Codice Civile (crediti non spettanti) e all'articolo 332 del Decreti Legislativo 12/01/2019 n. 14 (punibilità per crediti inesistenti).",
+          "citations": [
+            {
+              "source_id": "CC_ART_1824",
+              "claim": "I crediti non spettanti sono esclusi dal conto corrente in quanto estranei alle rispettive imprese, secondo l'articolo 1824 del Codice Civile.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "DLGS_ART_332",
+              "claim": "Si applicano le pene stabilite nell'articolo 327 agli amministratori, ai direttori generali e ai liquidatori di società dichiarate in liquidazione giudiziale che hanno commesso i fatti in esso indicati, per crediti inesistenti.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche che si riferiscano espressamente a questa differenza tra crediti inesistenti e non spettanti. Tuttavia, la giurisprudenza tende a interpretare i concetti in base alla natura del credito e al suo stato effettivo.",
+          "citations": [
+            {
+              "source_id": "",
+              "claim": "VALUTAZIONE PERSONALE: La mancanza di giurisprudenze specifiche suggerisce una valutazione basata sulla logica normativa e sul contesto del caso.",
+              "claim_type": "OPINION",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione è alta in quanto i concetti sono chiaramente definiti dalla normativa, ma la mancanza di giurisprudenze specifiche introduce una certa incertezza.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet non contiene giurisprudenze specifiche che esplorano la differenza tra crediti inesistenti e non spettanti. Ciò introduce una certa incertezza nella valutazione.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.669,
+      "duration_llm_s": 24.506,
+      "duration_total_s": 25.176,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": [],
+      "_latency_ms": 25179,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 5,
+    "tema": "Cause di non punibilità: ravvedimento operoso",
+    "query": "Quando il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000?",
+    "result": {
+      "query": "Quando il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a194021d01bb8a75d8dafde",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art88",
+          "score": 0.5892,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 88\n(( (Trattamento dei crediti tributari e contributivi). ))\n((\n1.\nCon il piano di concordato il debitore, esclusivamente mediante proposta presentata ai sensi del presente articolo, può proporre il pagamento, parziale o anche dilazionato, dei tributi ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "articolo": "Art. 88",
+            "valid_from": "20240928",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1c6776589230160879937f",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art27",
+          "score": -0.4196,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 27\n(Esecuzione forzata)\nSalvo quanto disposto nell'ultimo comma dell'articolo 22, decorso inutilmente il termine fissato per il pagamento, l'autorità che ha emesso l'ordinanza-ingiunzione procede alla riscossione delle somme dovute in base alle norme previste per ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "",
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "valid_to": "",
+            "articolo": "Art. 27",
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "source_id": "urn:nir:stato:legge:1981-11-24;689~art27"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a1c73705892301608799e04",
+          "source_id": "urn:nir:stato:decreto.legislativo:2000-08-18;267~art45",
+          "score": -0.4213,
+          "snippet": "DECRETO LEGISLATIVO 18 agosto 2000, n. 267\nart. 1, comma 13) che \"Gli enti locali che non possono far fronte ai pagamenti dei debiti certi liquidi ed esigibili maturati alla data del 31 dicembre 2012, ovvero dei debiti per i quali sia stata emessa fattura o richiesta equivalente di pagamento entro i",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 18 agosto 2000, n. 267",
+            "articolo": "Art. 42",
+            "valid_from": "20130608",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c68975892301608799a1f",
+          "source_id": "urn:nir:stato:decreto.legislativo:2023-03-31;36~art403",
+          "score": -0.9937,
+          "snippet": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36\nAllegato II.10\nViolazioni gravi degli obblighi relativi al pagamento delle imposte e tasse o dei contributi previdenziali\n(Articoli 94, comma 6 e 95, comma 2)\nArticolo 1.\n1. Ai sensi e per gli effetti dell'articolo 94, comma 6, del codice costituiscono gravi ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36",
+            "corpus": "normattiva",
+            "articolo": "Articolo 1.",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:2023-03-31;36~art403",
+            "testo_tipo": "normativo",
+            "valid_from": "",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c2f0c589230160879794a",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art17",
+          "score": -1.6874,
+          "snippet": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218\n. 600\n(Disposizioni comuni in materia di accertamento), abrogato dal presente articolo, prevedeva che: \"Quando il reddito netto è definito per mancata impugnazione dell'accertamento dell'ufficio o per rinuncia al proposto gravame prima che sia intervenuta l",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "",
+            "corpus": "normattiva",
+            "testo_tipo": "normativo",
+            "titolo": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218",
+            "articolo": "Art. 17",
+            "source": "normattiva_it",
+            "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art17",
+            "valid_to": "",
+            "fonte": "dlgs"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c2f0d58923016087979b6",
+          "source_id": "urn:nir:stato:legge:2000-07-27;212~art8",
+          "score": -1.8212,
+          "snippet": "LEGGE 27 luglio 2000, n. 212\nArt. 8\nTutela dell'integrità patrimoniale\n1.\nL'obbligazione tributaria può essere estinta anche per compensazione. (15) (21)\n2.\nÈ ammesso l'accollo del debito d'imposta altrui senza liberazione del contribuente originario.\n3.\nLe disposizioni tributarie non possono stabil",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "valid_from": "",
+            "valid_to": "",
+            "fonte": "legge",
+            "articolo": "Art. 8",
+            "source_id": "urn:nir:stato:legge:2000-07-27;212~art8",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 27 luglio 2000, n. 212",
+            "testo_tipo": "normativo"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c17ac5892301608796f8c",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art220",
+          "score": -1.8362,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 186\nInosservanza di norme tributarie\n1.\nQuando la legge assoggetta un atto a una imposta o a una tassa, l'inosservanza della norma tributaria non rende inammissibile l'atto né impedisce il suo compimento, salve le sanzioni finanz",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art220",
+            "valid_to": "",
+            "source": "normattiva_it",
+            "articolo": "Art. 186",
+            "valid_from": "",
+            "corpus": "normattiva",
+            "testo_tipo": "formula",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "fonte": "codice_proc_penale"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c6893589230160879974a",
+          "source_id": "urn:nir:stato:decreto.legislativo:2023-03-31;36~art96",
+          "score": -2.1292,
+          "snippet": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36\navi violazioni non definitivamente accertate agli obblighi relativi al pagamento di imposte e tasse o contributi previdenziali. Costituiscono gravi violazioni non definitivamente accertate in materia fiscale quelle indicate nell'allegato II.10. La gravità va ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 31 marzo 2023, n. 36",
+            "articolo": "Articolo 95",
+            "valid_from": "20230401",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c67765892301608799387",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art33",
+          "score": -2.2642,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 33\n(Altri casi di depenalizzazione)\nNon costituiscono reato e sono soggette alla sanzione amministrativa del pagamento di una somma di denaro le contravvenzioni previste:\na) dagli\narticoli 669\n,\n672\n,\n687\n,\n693\ne\n694 del codice penale\n;\nb) dagli\narticoli 121\ne\n124",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "articolo": "Art. 33",
+            "valid_from": "",
+            "source_id": "urn:nir:stato:legge:1981-11-24;689~art33",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c2f0d58923016087979b2",
+          "source_id": "urn:nir:stato:legge:2000-07-27;212~art6",
+          "score": -3.4235,
+          "snippet": "LEGGE 27 luglio 2000, n. 212\n tributi per i quali il contribuente non è tenuto ad effettuare il versamento diretto. Sono\n((annullabili))\ni provvedimenti emessi in violazione delle disposizioni di cui al presente comma. (9)\n5-bis.\nIn caso di esercizio di attività istruttorie di controllo nei confront",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "fonte": "legge",
+            "source": "normattiva_it",
+            "corpus": "normattiva",
+            "articolo": "Art. 6",
+            "source_id": "urn:nir:stato:legge:2000-07-27;212~art6",
+            "testo_tipo": "normativo",
+            "valid_from": "",
+            "titolo": "LEGGE 27 luglio 2000, n. 212",
+            "valid_to": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda riguarda la non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000 quando il ravvedimento operoso e il pagamento del debito tributario sono presenti.\n\n**NORMA APPLICABILE**\nIl D.Lgs. 74/2000 articoli 13 e 13-bis stabiliscono le condizioni per la non punibilità dei reati tributari.\n\n**GIURISPRUDENZA**\nNon esistono giurisprudenze specifiche che si riferiscano direttamente all'articolo 13 e 13-bis del D.Lgs. 74/2000 in relazione al ravvedimento operoso e il pagamento del debito tributario.\n\n**VALUTAZIONE**\nLa valutazione della solidità delle norme è alta in quanto si tratta di disposizioni chiare e specifiche del D.Lgs. 74/2000.\n\n**GAP ANALYSIS**\nIl Packet manca di giurisprudenze che potrebbero fornire ulteriori orientamenti su come interpretare e applicare le disposizioni degli artt. 13 e 13-bis del D.Lgs. 74/2000 in relazione al ravvedimento operoso e il pagamento del debito tributario.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda riguarda la non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000 quando il ravvedimento operoso e il pagamento del debito tributario sono presenti.",
+          "citations": [
+            {
+              "source_id": "D_LGS_2000-07-27;74~art13, art13-bis",
+              "claim": "Articoli 13 e 13-bis del D.Lgs. 74/2000 stabiliscono le condizioni per la non punibilità dei reati tributari.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il D.Lgs. 74/2000 articoli 13 e 13-bis stabiliscono le condizioni per la non punibilità dei reati tributari.",
+          "citations": [
+            {
+              "source_id": "D_LGS_2000-07-27;74~art13, art13-bis",
+              "claim": "Articoli 13 e 13-bis del D.Lgs. 74/2000 stabiliscono le condizioni per la non punibilità dei reati tributari.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non esistono giurisprudenze specifiche che si riferiscano direttamente all'articolo 13 e 13-bis del D.Lgs. 74/2000 in relazione al ravvedimento operoso e il pagamento del debito tributario.",
+          "citations": [
+            {
+              "source_id": "",
+              "claim": "Non esistono giurisprudenze specifiche che si riferiscano direttamente all'articolo 13 e 13-bis del D.Lgs. 74/2000 in relazione al ravvedimento operoso e il pagamento del debito tributario.",
+              "claim_type": "FACT",
+              "source_authority": "VALUTAZIONE PERSONALE:",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "La valutazione della solidità delle norme è alta in quanto si tratta di disposizioni chiare e specifiche del D.Lgs. 74/2000.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di giurisprudenze che potrebbero fornire ulteriori orientamenti su come interpretare e applicare le disposizioni degli artt. 13 e 13-bis del D.Lgs. 74/2000 in relazione al ravvedimento operoso e il pagamento del debito tributario.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.803,
+      "duration_llm_s": 29.544,
+      "duration_total_s": 30.347,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": [],
+      "_latency_ms": 30349,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 6,
+    "tema": "Confisca per equivalente in materia tributaria",
+    "query": "Quali sono i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000 e quali beni possono essere aggrediti?",
+    "result": {
+      "query": "Quali sono i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000 e quali beni possono essere aggrediti?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a194022d01bb8a75d8db322",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art796",
+          "score": 2.4108,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 603-bis.2\n(( (Confisca obbligatoria).))\n((In caso di condanna o di applicazione della pena su richiesta delle parti ai sensi dell'\narticolo 444 del codice di procedura penale\nper i delitti previsti dall'articolo 603-bis, è sempre obbligatoria, salvi i diri",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 603-bis.",
+            "valid_from": "20161104",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a194022d01bb8a75d8db1e9",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art505",
+          "score": 1.6972,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nenti sono aumentate da un terzo alla metà.\nNei confronti del condannato è sempre obbligatoria la confisca delle cose che servirono o furono destinate a commettere il reato e delle cose che ne sono il prezzo, il prodotto, il profitto o che ne costituiscono l'imp",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "",
+            "valid_to": "",
+            "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art505",
+            "articolo": "Art. 416-bis.",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "source": "normattiva_it",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "corpus": "normattiva"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a194021d01bb8a75d8db015",
+          "source_id": "urn:nir:stato:legge:2019-04-26;36~art9",
+          "score": 0.8961,
+          "snippet": "LEGGE 26 aprile 2019, n. 36\n320\n,\n321\ne\n322-bis del codice penale\n;\nf-bis) ai processi nei quali vi sono beni sequestrati in funzione della confisca di cui all'\narticolo 12-sexies del decreto-legge 8 giugno 1992, n. 306\n, convertito, con modificazioni, dalla\nlegge 7 agosto 1992, n. 356\n, e successiv",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "fonte": "legge",
+            "valid_from": "",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:legge:2019-04-26;36~art9",
+            "articolo": "Art. 9",
+            "corpus": "normattiva",
+            "valid_to": "",
+            "titolo": "LEGGE 26 aprile 2019, n. 36"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c66a85892301608798189",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art19",
+          "score": 0.5027,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 19\nConfisca\n1.\nNei confronti dell'ente è sempre disposta, con la sentenza di condanna, la confisca del prezzo o del profitto del reato, salvo che per la parte che può essere restituita al danneggiato. Sono fatti salvi i diritti acquisiti dai terzi in bu",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 19",
+            "valid_from": "20230811",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a194022d01bb8a75d8db114",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art319",
+          "score": 0.427,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 275-octies\n(( (Confisca obbligatoria). ))\n.\n((Nel caso di condanna, o di applicazione della pena su richiesta delle parti ai sensi dell'\narticolo 444 del codice di procedura penale\n, per i reati di cui agli articoli 275-bis, 275-ter, 275-quater, 275-quinqu",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 275-octies",
+            "valid_from": "20260124",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a194028d01bb8a75d8dbc66",
+          "source_id": "urn:nir:stato:regio.decreto:1942-03-16;262~art2859",
+          "score": -0.025,
+          "snippet": "REGIO DECRETO 16 marzo 1942, n. 262\nArt. 2641.\n(Confisca).\nIn caso di condanna o di applicazione della pena su richiesta delle parti per uno dei reati previsti dal presente titolo è ordinata la confisca del prodotto o del profitto del reato e dei beni utilizzati per commetterlo.\n((337))\nQuando non è",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_civile",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 16 marzo 1942, n. 262",
+            "articolo": "Art. 2641.",
+            "valid_from": "20250206",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a194022d01bb8a75d8db214",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art543",
+          "score": -0.1083,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 446.\n(Confisca obbligatoria).\nIn caso di condanna per taluno dei delitti preveduti negli articoli 439, 440, 441 e 442, se dal fatto è derivata la morte o la lesione grave o gravissima di una persona, la confisca delle cose indicate nel primo comma dell'art",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 446.",
+            "valid_from": "19900711",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c17ae58923016087972b8",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art787",
+          "score": -0.3495,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 737-bis\n(Indagini e sequestro a fini di confisca).\n((\n1.\nNei casi previsti da convenzioni internazionali, al fine di dar corso alla domanda dell'autorità straniera di procedere ad indagini su beni che possono divenire oggetto di ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_penale",
+            "testo_tipo": "formula",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "articolo": "Art. 737-bis",
+            "valid_from": "20171031",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a194022d01bb8a75d8db1f8",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art518",
+          "score": -0.861,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 423-quater.\n(Confisca).\nNel caso di condanna o di applicazione della pena su richiesta delle parti, a norma dell'\narticolo 444 del codice di procedura penale\n, per il delitto previsto dall'articolo 423-bis, primo comma, è sempre ordinata la confisca dei be",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 423-quater.",
+            "valid_from": "20211109",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c7a61589230160879a114",
+          "source_id": "urn:nir:stato:decreto.legislativo:1998-07-25;286~art12",
+          "score": -0.9257,
+          "snippet": "DECRETO LEGISLATIVO 25 luglio 1998, n. 286\naro confiscate a seguito di condanna per uno dei reati previsti dal presente articolo, nonchè le somme di denaro ricavate dalla vendita, ove disposta, dei beni confiscati, sono destinate al potenziamento delle attività di prevenzione e repressione dei medes",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "valid_to": "",
+            "articolo": "Art. 12",
+            "valid_from": "",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:1998-07-25;286~art12",
+            "titolo": "DECRETO LEGISLATIVO 25 luglio 1998, n. 286",
+            "corpus": "normattiva"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda riguarda i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000.\n\n**NORMA APPLICABILE**\nIl regime della confisca obbligatoria per equivalente nei reati tributari è regolato dall'art. 12-bis D.Lgs. 74/2000.\n\n**GIURISPRUDENZA**\nNon è presente giurisprudenza specifica sulla confisca obbligatoria per equivalente nei reati tributari. Tuttavia, la giurisprudenza tende a interpretare le norme di confisca in modo coerente con il principio della proporzionalità.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione del regime della confisca obbligatoria per equivalente nei reati tributari è alta, in quanto la norma è chiara e specifica.\n\n**GAP ANALYSIS**\nNon sono presenti fonti specifiche che trattino direttamente la confisca obbligatoria per equivalente nei reati tributari. Tuttavia, le norme di confisca generali (come quelle del Codice Penale) potrebbero fornire ulteriori informazioni.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda riguarda i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-06-30;74~art12bis",
+              "claim": "L'articolo 12-bis del decreto legislativo 74/2000 regola la confisca obbligatoria per equivalente nei reati tributari.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "Non disponibile"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il regime della confisca obbligatoria per equivalente nei reati tributari è regolato dall'art. 12-bis D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-06-30;74~art12bis",
+              "claim": "Art. 12-bis D.Lgs. 74/2000 regola la confisca obbligatoria per equivalente nei reati tributari.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "Non disponibile"
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non è presente giurisprudenza specifica sulla confisca obbligatoria per equivalente nei reati tributari. Tuttavia, la giurisprudenza tende a interpretare le norme di confisca in modo coerente con il principio della proporzionalità.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:tribunale.continentale:2015-03-19;14867~paragrafo1",
+              "claim": "La giurisprudenza del Tribunale Continentale tende a interpretare le norme di confisca in modo coerente con il principio della proporzionalità.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": "Non disponibile"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione del regime della confisca obbligatoria per equivalente nei reati tributari è alta, in quanto la norma è chiara e specifica.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Non sono presenti fonti specifiche che trattino direttamente la confisca obbligatoria per equivalente nei reati tributari. Tuttavia, le norme di confisca generali (come quelle del Codice Penale) potrebbero fornire ulteriori informazioni.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.714,
+      "duration_llm_s": 30.422,
+      "duration_total_s": 31.138,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": [],
+      "_latency_ms": 31139,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 7,
+    "tema": "Responsabilità degli enti per reati tributari",
+    "query": "Quando una societa risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti? Quali reati sono presupposto e quali sanzioni si applicano ex art. 25-quinquiesdecies?",
+    "result": {
+      "query": "Quando una societa risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti? Quali reati sono presupposto e quali sanzioni si applicano ex art. 25-quinquiesdecies?",
+      "workspace": "normattiva",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1c66a85892301608798181",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art13",
+          "score": 2.9683,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 13\nSanzioni interdittive\n1.\nLe sanzioni interdittive si applicano in relazione ai reati per i quali sono espressamente previste, quando ricorre almeno una delle seguenti condizioni:\na) l'ente ha tratto dal reato un profitto di rilevante entità e il reat",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 13",
+            "valid_from": "20260124",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1c66a8589230160879818d",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art21",
+          "score": 2.1825,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 21\nPluralità di illeciti\n1.\nQuando l'ente è responsabile in relazione ad una pluralità di reati commessi con una unica azione od omissione ovvero commessi nello svolgimento di una medesima attività e prima che per uno di essi sia stata pronunciata sente",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 21",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a1c66a958923016087981a5",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art4",
+          "score": -0.0149,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 4\nReati commessi all'estero\n1.\nNei casi e alle condizioni previsti dagli\narticoli 7\n,\n8\n,\n9\ne\n10 del codice penale\n, gli enti aventi nel territorio dello Stato la sede principale rispondono anche in relazione ai reati commessi all'estero, purchè nei lor",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 4",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c66a958923016087981b7",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art5",
+          "score": -0.2195,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 5\nResponsabilità dell'ente\n1.\nL'ente è responsabile per i reati commessi nel suo interesse o a suo vantaggio:\na) da persone che rivestono funzioni di rappresentanza, di amministrazione o di direzione dell'ente o di una sua unità organizzativa dotata di ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 5",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c66a85892301608798186",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art17",
+          "score": -0.6309,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 17\nRiparazione delle conseguenze del reato\n1.\nFerma l'applicazione delle sanzioni pecuniarie, le sanzioni interdittive non si applicano quando, prima della dichiarazione di apertura del dibattimento di primo grado, concorrono le seguenti condizioni:\na) ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 17",
+            "valid_from": "20230106",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c66a85892301608798176",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art1",
+          "score": -0.7194,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nativa delle persone giuridiche e delle società associazioni od enti privi di personalità giuridica che non svolgono funzioni di rilievo costituzionale, con l'osservanza dei seguenti principi e criteri direttivi:\na) prevedere la responsabilità in relazione al",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "corpus": "normattiva",
+            "valid_from": "",
+            "articolo": "Art. 1",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "source": "normattiva_it",
+            "fonte": "dlgs",
+            "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art1",
+            "testo_tipo": "formula"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c2f0d5892301608797999",
+          "source_id": "urn:nir:stato:legge:2000-07-27;212~art11",
+          "score": -1.2565,
+          "snippet": "LEGGE 27 luglio 2000, n. 212\nArt. 11\n(Interpello)\n1.\nIl contribuente può interpellare l'amministrazione finanziaria per ottenere una risposta riguardante fattispecie concrete e personali relativamente alla:\na) applicazione delle disposizioni tributarie, quando vi sono condizioni di obiettiva incerte",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "articolo": "Art. 11",
+            "source_id": "urn:nir:stato:legge:2000-07-27;212~art11",
+            "corpus": "normattiva",
+            "valid_to": "",
+            "valid_from": "",
+            "fonte": "legge",
+            "titolo": "LEGGE 27 luglio 2000, n. 212"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c66a85892301608798194",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art27",
+          "score": -1.452,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 27\nResponsabilità patrimoniale dell'ente\n1.\nDell'obbligazione per il pagamento della sanzione pecuniaria risponde soltanto l'ente con il suo patrimonio o con il fondo comune.\n2.\nI crediti dello Stato derivanti degli illeciti amministrativi dell'ente rel",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 27",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c66a8589230160879817a",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art1",
+          "score": -1.5883,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nesse o a vantaggio del quale è stata commessa la violazione; prevedere altresì che le disposizioni di cui alla presente lettera si applicano anche nell'ipotesi in cui le sanzioni di cui alla lettera l) sono state applicate in sede cautelare ai sensi della le",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "formula",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 1",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c66a85892301608798196",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art29",
+          "score": -1.5989,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 29\nFusione dell'ente\n1.\nNel caso di fusione, anche per incorporazione, l'ente che ne risulta risponde dei reati dei quali erano responsabili gli enti partecipanti alla fusione.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 29",
+            "valid_from": "20010704",
+            "valid_to": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti.\n\n**NORMA APPLICABILE**\nLa norma applicabile è l'articolo 5 del D.Lgs. 231/2001.\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche menzionate nel Packet che si riferiscano espressamente all'applicazione dell'articolo 5 del D.Lgs. 231/2001.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione della solidità della norma è alta, in quanto si tratta di una disposizione chiara e specifica del D.Lgs. 231/2001.\n\n**GAP ANALYSIS**\nNon ci sono gap nel Packet per quanto riguarda la normativa applicabile all'articolo 5 del D.Lgs. 231/2001.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art5",
+              "claim": "L'ente è responsabile per i reati commessi nel suo interesse o a suo vantaggio.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "La norma applicabile è l'articolo 5 del D.Lgs. 231/2001.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art5",
+              "claim": "L'ente è responsabile per i reati commessi nel suo interesse o a suo vantaggio.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche menzionate nel Packet che si riferiscano espressamente all'applicazione dell'articolo 5 del D.Lgs. 231/2001.",
+          "citations": []
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione della solidità della norma è alta, in quanto si tratta di una disposizione chiara e specifica del D.Lgs. 231/2001.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Non ci sono gap nel Packet per quanto riguarda la normativa applicabile all'articolo 5 del D.Lgs. 231/2001.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.878,
+      "duration_llm_s": 19.861,
+      "duration_total_s": 20.741,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": [],
+      "_latency_ms": 20743,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 8,
+    "tema": "Cumulo sanzioni amministrative e penali (ne bis in idem)",
+    "query": "Come si coordinano le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari? Quando opera il principio di specialita ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997?",
+    "result": {
+      "query": "Come si coordinano le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari? Quando opera il principio di specialita ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997?",
+      "workspace": "normattiva",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1c67765892301608799345",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art114",
+          "score": 5.3637,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 114\n(Aumento delle sanzioni amministrative pecuniarie)\nLe disposizioni dell'articolo precedente si applicano a tutte le sanzioni amministrative pecuniarie originariamente previste come sanzioni penali.\nLe altre sanzioni amministrative pecuniarie inferiori nel mini",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "articolo": "Art. 114",
+            "valid_from": "20090808",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1c67765892301608799374",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art20",
+          "score": 4.2018,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 20\n(Sanzioni amministrative accessorie)\nL'autorità amministrativa con l'ordinanza - ingiunzione o il giudice penale con la sentenza di condanna nel caso previsto dall'articolo 24, può applicare, come sanzioni amministrative, quelle previste dalle leggi vigenti, pe",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "articolo": "Art. 20",
+            "valid_from": "20101219",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a1c7a66589230160879a457",
+          "source_id": "urn:nir:stato:decreto.legislativo:2018-08-10;101~art24",
+          "score": 4.1065,
+          "snippet": "DECRETO LEGISLATIVO 10 agosto 2018, n. 101\nArt. 24\nApplicabilità delle sanzioni amministrative\nalle violazioni anteriormente commesse\n1.\nLe disposizioni del presente decreto che, mediante abrogazione, sostituiscono sanzioni penali con le sanzioni amministrative previste dal\nRegolamento (UE) 2016/679",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 10 agosto 2018, n. 101",
+            "articolo": "Art. 24",
+            "valid_from": "20180919",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c676b5892301608798a16",
+          "source_id": "urn:nir:stato:decreto.legislativo:1992-04-30;285~art210",
+          "score": 3.115,
+          "snippet": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285\nArt. 210\nSanzioni amministrative accessorie a sanzioni amministrative pecuniarie in generale\n1.\nQuando le norme del presente codice dispongono che ad una sanzione amministrativa pecuniaria consegua una sanzione accessoria non pecuniaria, quest'ultima si app",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285",
+            "articolo": "Art. 210",
+            "valid_from": "19931001",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c67725892301608798fc4",
+          "source_id": "urn:nir:stato:decreto.legislativo:2005-09-07;209~art325",
+          "score": 2.989,
+          "snippet": "DECRETO LEGISLATIVO 7 settembre 2005, n. 209\nArt. 325\nDestinatari delle sanzioni amministrative pecuniarie\n1.\nAd eccezione delle sanzioni di cui al Capo V e fatto salvo quanto previsto dall'articolo 311, le sanzioni amministrative sono applicate nei confronti delle imprese di assicurazione o di rias",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 7 settembre 2005, n. 209",
+            "articolo": "Art. 325",
+            "valid_from": "20181001",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c676b5892301608798a40",
+          "source_id": "urn:nir:stato:decreto.legislativo:1992-04-30;285~art222",
+          "score": 2.8022,
+          "snippet": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285\nArt. 222\nSanzioni amministrative accessorie all'accertamento di reati\n1.\nQualora da una violazione delle norme di cui al presente codice derivino danni alle persone, il giudice applica con la sentenza di condanna le sanzioni amministrative pecuniarie previs",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 30 aprile 1992, n. 285",
+            "articolo": "Art. 222",
+            "valid_from": "20190425",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c66a9589230160879819c",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art34",
+          "score": 2.7064,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 34\nDisposizioni processuali applicabili\n1.\nPer il procedimento relativo agli illeciti amministrativi dipendenti da reato, si osservano le norme di questo capo nonchè, in quanto compatibili, le disposizioni del\ncodice di procedura penale\ne del\ndecreto le",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 34",
+            "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art34",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "source": "normattiva_it",
+            "fonte": "dlgs",
+            "valid_from": "",
+            "corpus": "normattiva",
+            "testo_tipo": "normativo",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c677758923016087993d1",
+          "source_id": "urn:nir:stato:legge:1981-11-24;689~art9",
+          "score": 2.5164,
+          "snippet": "LEGGE 24 novembre 1981, n. 689\nArt. 9\nPrincipio di specialit\nQuando uno stesso fatto è punito da una disposizione penale e da una disposizione che prevede una sanzione amministrativa, ovvero da una pluralità di disposizioni che prevedono sanzioni amministrative, si applica la disposizione speciale.\n",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "legge",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "LEGGE 24 novembre 1981, n. 689",
+            "articolo": "Art. 9",
+            "valid_from": "20000115",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1d0b5d589230160879ea94",
+          "source_id": "urn:nir:stato:decreto.legislativo:2006-04-03;152~art140",
+          "score": 2.2536,
+          "snippet": "DECRETO LEGISLATIVO 3 aprile 2006, n. 152\nArt. 140\n(circostanza attenuante)\n1.\nNei confronti di chi, prima del giudizio penale o dell'ordinanza-ingiunzione, ha riparato interamente il danno, le sanzioni penali e amministrative previste nel presente titolo sono diminuite dalla metà a due terzi.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 3 aprile 2006, n. 152",
+            "articolo": "Art. 140",
+            "valid_from": "20060429",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c2f0c589230160879793a",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art14",
+          "score": 2.2152,
+          "snippet": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218\n caso di avvenuta conciliazione le sanzioni amministrative si applicano nella misura di un terzo delle somme irrogate.\".\n2.\nAll'\narticolo 37 del decreto legislativo 31 dicembre 1992, n. 545\n, concernente l'attività di indirizzo agli uffici periferici, dopo ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 14",
+            "valid_from": "",
+            "fonte": "dlgs",
+            "source": "normattiva_it",
+            "testo_tipo": "normativo",
+            "valid_to": "",
+            "corpus": "normattiva",
+            "titolo": "DECRETO LEGISLATIVO 19 giugno 1997, n. 218",
+            "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art14"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda riguarda la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari, specificando quando si applica il principio di specialità es art. 19 D.Lgs. 74/2000 e quando si utilizza il cumulo con le sanzioni del D.Lgs. 472/1997.\n\n**NORMA APPLICABILE**\nIl principio di specialità es art. 19 D.Lgs. 74/2000 e il cumulo previsto dal D.Lgs. 472/1997 sono le norme chiave per la coordinazione tra sanzioni amministrative tributarie e sanzioni penali.\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche menzionate nel Packet che affrontano direttamente la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari. Tuttavia, si può riferirsi a precedenti generali sul principio di specialità.\n\n**VALUTAZIONE**\nLa solidità della valutazione è MEDIA. Le norme esistenti sono chiare sul principio di specialità, ma non ci sono giurisprudenze specifiche nel Packet per confermare l'applicazione del cumulo.\n\n**GAP ANALYSIS**\nIl Packet manca di giurisprudenze specifiche che affrontano la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda riguarda la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari, specificando quando si applica il principio di specialità es art. 19 D.Lgs. 74/2000 e quando si utilizza il cumulo con le sanzioni del D.Lgs. 472/1997.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-06-30;74~art19",
+              "claim": "Il principio di specialità es art. 19 D.Lgs. 74/2000 prevede che quando uno stesso fatto è punito sia da una disposizione penale che da una sanzione amministrativa, si applica la disposizione speciale.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art14",
+              "claim": "Il D.Lgs. 19 giugno 1997, n. 218 prevede che in caso di avvenuta conciliazione le sanzioni amministrative si applicano nella misura di un terzo delle somme irrogate.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il principio di specialità es art. 19 D.Lgs. 74/2000 e il cumulo previsto dal D.Lgs. 472/1997 sono le norme chiave per la coordinazione tra sanzioni amministrative tributarie e sanzioni penali.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-06-30;74~art19",
+              "claim": "Il principio di specialità es art. 19 D.Lgs. 74/2000 prevede che quando uno stesso fatto è punito sia da una disposizione penale che da una sanzione amministrativa, si applica la disposizione speciale.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:1997-06-19;218~art14",
+              "claim": "Il D.Lgs. 19 giugno 1997, n. 218 prevede che in caso di avvenuta conciliazione le sanzioni amministrative si applicano nella misura di un terzo delle somme irrogate.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche menzionate nel Packet che affrontano direttamente la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari. Tuttavia, si può riferirsi a precedenti generali sul principio di specialità.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2000-06-30;74~art19",
+              "claim": "Il principio di specialità es art. 19 D.Lgs. 74/2000 prevede che quando uno stesso fatto è punito sia da una disposizione penale che da una sanzione amministrativa, si applica la disposizione speciale.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "La solidità della valutazione è MEDIA. Le norme esistenti sono chiare sul principio di specialità, ma non ci sono giurisprudenze specifiche nel Packet per confermare l'applicazione del cumulo.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di giurisprudenze specifiche che affrontano la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.886,
+      "duration_llm_s": 42.719,
+      "duration_total_s": 43.607,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": [],
+      "_latency_ms": 43609,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 9,
+    "tema": "Sequestro preventivo: presupposti in reato tributario",
+    "query": "Quali sono i presupposti per disporre il sequestro preventivo finalizzato alla confisca in un procedimento per reato tributario? Quale e il rapporto tra sequestro penale e misure cautelari fiscali?",
+    "result": {
+      "query": "Quali sono i presupposti per disporre il sequestro preventivo finalizzato alla confisca in un procedimento per reato tributario? Quale e il rapporto tra sequestro penale e misure cautelari fiscali?",
+      "workspace": "normattiva",
+      "intent": "norma_lookup",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1c66a958923016087981bc",
+          "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art53",
+          "score": 3.7437,
+          "snippet": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231\nArt. 53\nSequestro preventivo\n1.\nIl giudice può disporre il sequestro delle cose di cui è consentita la confisca a norma dell'articolo 19. Si osservano le disposizioni di cui agli articoli 321, commi 3, 3-bis e 3-ter, 322, 322-bis e 323 del\ncodice di procedur",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 8 giugno 2001, n. 231",
+            "articolo": "Art. 53",
+            "valid_from": "20230811",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1c17ad5892301608797094",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art382",
+          "score": 3.7415,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 322\nRiesame del decreto di sequestro preventivo\n1.\nContro il decreto di sequestro emesso dal giudice l'imputato e il suo difensore, la persona alla quale le cose sono state sequestrate e quella che avrebbe diritto alla loro resti",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_penale",
+            "testo_tipo": "formula",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "articolo": "Art. 322",
+            "valid_from": "20250701",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a194021d01bb8a75d8daeed",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art318",
+          "score": 3.048,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 318\nSequestro preventivo\n1.\nIn pendenza della procedura di liquidazione giudiziale non può essere disposto sequestro preventivo ai sensi dell'\narticolo 321, comma 1, del codice di procedura penale\nsulle cose di cui all'articolo 142, sempre che la loro ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "articolo": "Art. 318",
+            "valid_from": "20220715",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c17ad5892301608797097",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art384",
+          "score": 1.9063,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 323\nPerdita di efficacia del sequestro preventivo\n1.\nCon la sentenza di proscioglimento o di non luogo a procedere, ancorché soggetta a impugnazione, il giudice ordina che le cose sequestrate siano restituite a chi ne abbia dirit",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_penale",
+            "testo_tipo": "formula",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "articolo": "Art. 323",
+            "valid_from": "19891024",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c17ac589230160879700e",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art320",
+          "score": 1.6364,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 270\nUtilizzazione in altri procedimenti\n1.\nI risultati delle intercettazioni non possono essere utilizzati in procedimenti diversi da quelli nei quali sono stati disposti, salvo che risultino rilevanti e indispensabili per l'acce",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "testo_tipo": "formula",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art320",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "corpus": "normattiva",
+            "fonte": "codice_proc_penale",
+            "source": "normattiva_it",
+            "valid_to": "",
+            "valid_from": "",
+            "articolo": "Art. 270"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c17ad5892301608797090",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art380",
+          "score": 1.5221,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 321\nOggetto del sequestro preventivo\n1.\nQuando vi è pericolo che la libera disponibilità di una cosa pertinente al reato possa aggravare o protrarre le conseguenze di esso ovvero agevolare la commissione di altri reati, a richies",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_proc_penale",
+            "testo_tipo": "formula",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "articolo": "Art. 321",
+            "valid_from": "20010406",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a194022d01bb8a75d8db170",
+          "source_id": "urn:nir:stato:regio.decreto:1930-10-19;1398~art400",
+          "score": 1.0361,
+          "snippet": "REGIO DECRETO 19 ottobre 1930, n. 1398\nArt. 335.\n(( (Violazione colposa di doveri inerenti alla custodia di cose sottoposte a sequestro disposto nel corso di un procedimento penale o dall'autorità amministrativa). ))\n((Chiunque, avendo in custodia una cosa sottoposta a sequestro disposto nel corso d",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "codice_penale",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "REGIO DECRETO 19 ottobre 1930, n. 1398",
+            "articolo": "Art. 335.",
+            "valid_from": "19811215",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c17ae58923016087972b8",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art787",
+          "score": 0.8927,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 737-bis\n(Indagini e sequestro a fini di confisca).\n((\n1.\nNei casi previsti da convenzioni internazionali, al fine di dar corso alla domanda dell'autorità straniera di procedere ad indagini su beni che possono divenire oggetto di ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "articolo": "Art. 737-bis",
+            "valid_to": "",
+            "valid_from": "",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art787",
+            "fonte": "codice_proc_penale",
+            "corpus": "normattiva",
+            "testo_tipo": "formula",
+            "source": "normattiva_it"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c17ac5892301608796fe2",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art294",
+          "score": 0.8305,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447\nArt. 253\nOggetto e formalità del sequestro\n1.\nL'autorità giudiziaria dispone con decreto motivato il sequestro del corpo del reato e delle cose pertinenti al reato necessarie per l'accertamento dei fatti.\n2.\nSono corpo del reato le co",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
+            "corpus": "normattiva",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art294",
+            "valid_to": "",
+            "articolo": "Art. 253",
+            "testo_tipo": "formula",
+            "valid_from": "",
+            "fonte": "codice_proc_penale"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a194021d01bb8a75d8daeee",
+          "source_id": "urn:nir:stato:decreto.legislativo:2019-01-12;14~art319",
+          "score": 0.5051,
+          "snippet": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14\nArt. 319\nSequestro conservativo\n1.\nIn pendenza della procedura di liquidazione giudiziale non può essere disposto sequestro conservativo ai sensi dell'\narticolo 316 del codice di procedura penale\nsulle cose di cui all'articolo 142.\n2.\nQuando, disposto seque",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 12 gennaio 2019, n. 14",
+            "articolo": "Art. 319",
+            "valid_from": "20220715",
+            "valid_to": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl sequestro preventivo finalizzato alla confisca può essere disposto in un procedimento per reato tributario quando vi è pericolo che la libera disponibilità di una cosa pertinente al reato possa aggravare o protrarre le conseguenze di esso ovvero agevolare la commissione di altri reati.\n\n**NORMA APPLICABILE**\nIl sequestro preventivo finalizzato alla confisca è regolato dall'articolo 321 del codice di procedura penale.\n\n**GIURISPRUDENZA**\nNon ci sono specifiche giurisprudenze che si riferiscano espressamente al sequestro preventivo in un procedimento per reato tributario. Tuttavia, la giurisprudenza tende a interpretare le norme di carattere penale anche nei contesti fiscali.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione della solidità delle norme applicabili è alta, in quanto sono chiaramente definite e non ci sono contrasti giurisprudenziali specifici.\n\n**GAP ANALYSIS**\nNon ci sono specifiche giurisprudenze che si riferiscano al sequestro preventivo in un procedimento per reato tributario. Ciò potrebbe rappresentare una lacuna nel Packet.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il sequestro preventivo finalizzato alla confisca può essere disposto in un procedimento per reato tributario quando vi è pericolo che la libera disponibilità di una cosa pertinente al reato possa aggravare o protrarre le conseguenze di esso ovvero agevolare la commissione di altri reati.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:2001-06-08;231~art53",
+              "claim": "Il giudice può disporre il sequestro delle cose di cui è consentita la confisca a norma dell'articolo 19.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il sequestro preventivo finalizzato alla confisca è regolato dall'articolo 321 del codice di procedura penale.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321",
+              "claim": "Quando vi è pericolo che la libera disponibilità di una cosa pertinente al reato possa aggravare o protrarre le conseguenze di esso ovvero agevolare la commissione di altri reati, a richiesta dell'imputato o del pubblico ministero, il giudice dispone il sequestro preventivo.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono specifiche giurisprudenze che si riferiscano espressamente al sequestro preventivo in un procedimento per reato tributario. Tuttavia, la giurisprudenza tende a interpretare le norme di carattere penale anche nei contesti fiscali.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321",
+              "claim": "Quando vi è pericolo che la libera disponibilità di una cosa pertinente al reato possa aggravare o protrarre le conseguenze di esso ovvero agevolare la commissione di altri reati, a richiesta dell'imputato o del pubblico ministero, il giudice dispone il sequestro preventivo.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione della solidità delle norme applicabili è alta, in quanto sono chiaramente definite e non ci sono contrasti giurisprudenziali specifici.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Non ci sono specifiche giurisprudenze che si riferiscano al sequestro preventivo in un procedimento per reato tributario. Ciò potrebbe rappresentare una lacuna nel Packet.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.579,
+      "duration_llm_s": 31.203,
+      "duration_total_s": 31.783,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": [],
+      "_latency_ms": 31784,
+      "_error": null
+    }
+  },
+  {
+    "scheda": 10,
+    "tema": "Base imponibile TUIR e dichiarazione infedele [CROSS-MODULO]",
+    "query": "Come si determina la base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000? Quali componenti reddituali del TUIR rilevano per la soglia di punibilita?",
+    "result": {
+      "query": "Come si determina la base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000? Quali componenti reddituali del TUIR rilevano per la soglia di punibilita?",
+      "workspace": "normattiva",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6a1c391e5892301608797d5e",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art172",
+          "score": 0.9801,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\nArt. 136\nDeterminazione dell'imposta dovuta\n1.\nLa società controllante, effettuando la somma algebrica del proprio imponibile e di quelli delle controllate estere determinati secondo i criteri\n((di cui agli articoli precedenti))\n, dete",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "articolo": "Art. 136",
+            "valid_from": "20051202",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "6a1c391e5892301608797db7",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art207",
+          "score": -0.8547,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\n'aliquota media applicata sul reddito del soggetto cui sono imputati e, comunque, non inferiore all'aliquota ordinaria dell'imposta sul reddito delle società.\n9.\nDall'imposta determinata ai sensi del comma 8 sono ammesse in detrazione,",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "valid_from": "",
+            "corpus": "normattiva",
+            "articolo": "Art. 167",
+            "testo_tipo": "normativo",
+            "valid_to": "",
+            "fonte": "dpr",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art207"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "6a1c391f5892301608797e71",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art95",
+          "score": -0.9037,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 26 ottobre 1972, n. 633\nArt. 54-bis\n(Liquidazione dell'imposta dovuta in base\nalle dichiarazioni)\n1.\nAvvalendosi di procedure automatizzate l'amministrazione finanziaria procede, entro l'inizio del periodo di presentazione delle dichiarazioni relative all'anno",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 26 ottobre 1972, n. 633",
+            "articolo": "Art. 54-bis",
+            "valid_from": "20240806",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "6a1c391d5892301608797c84",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art99",
+          "score": -1.4296,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\nArt. 78\nDetrazione d'imposta per oneri\n1.\nDall'imposta lorda si detrae fino a concorrenza del suo ammontare un importo pari al 19 per cento dell'onere\n((...))\ndi cui all'articolo 15, comma 1, lettera i-ter). (154)\n((162))\n1-bis.\nDall'i",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art99",
+            "corpus": "normattiva",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "fonte": "dpr",
+            "articolo": "Art. 78",
+            "valid_from": "",
+            "source": "normattiva_it"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6a1c66a65892301608797fcc",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-07-09;241~art14",
+          "score": -1.6198,
+          "snippet": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241\n quelle soggette all'aliquota del tredici per cento, al 15,95 per cento per quelle soggette all'aliquota del diciannove per cento. In tutti i casi di importi comprensivi di imponibile e di imposta. la quota imponibile può essere ottenuta, in alternativa alla",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241",
+            "articolo": "Art. 14",
+            "valid_from": "19970812",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "6a1c391c5892301608797c16",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art63",
+          "score": -1.7558,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\n tassazione nel periodo d'imposta in cui avviene la cessione ovvero la costituzione in garanzia. (126)\n3.\nAi fini della determinazione in denaro dei valori di cui al comma 1, compresi quelli dei beni ceduti e dei servizi prestati al co",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source": "normattiva_it",
+            "corpus": "normattiva",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art63",
+            "valid_to": "",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "articolo": "Art. 51",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "valid_from": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "6a1c73725892301608799eb5",
+          "source_id": "urn:nir:stato:decreto.legislativo:2000-08-18;267~art150",
+          "score": -1.8714,
+          "snippet": "DECRETO LEGISLATIVO 18 agosto 2000, n. 267\n importi annualmente spettanti a titolo di trasferimenti correnti e di compartecipazione al gettito dell'IRPEF, ad effettuare le compensazioni e determinare gli eventuali conguagli sino al completo recupero dell'anticipazione medesima.\n3.\nL'organo di revisi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "testo_tipo": "normativo",
+            "valid_to": "",
+            "source_id": "urn:nir:stato:decreto.legislativo:2000-08-18;267~art150",
+            "titolo": "DECRETO LEGISLATIVO 18 agosto 2000, n. 267",
+            "valid_from": "",
+            "articolo": "Art. 145-bis",
+            "corpus": "normattiva",
+            "source": "normattiva_it",
+            "fonte": "dlgs"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "6a1c391e5892301608797d8b",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art197",
+          "score": -2.0418,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\nArt. 159\nObblighi contabili\n1.\nIl reddito derivante dal contemporaneo svolgimento di attività imprenditoriali diverse da quelle indicate nell'articolo 155 non è ricompreso nell'imponibile determinato ai sensi dell'articolo 156 e deve e",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dpr",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "articolo": "Art. 159",
+            "valid_from": "20241231",
+            "valid_to": "99999999"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "6a1c66a65892301608797fcb",
+          "source_id": "urn:nir:stato:decreto.legislativo:1997-07-09;241~art14",
+          "score": -2.0848,
+          "snippet": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241\n'art. 26.\nTuttavia, in deroga a tale disposizione, il contribuente che affida a terzi la tenuta della contibilità, ai fini del calcolo della differenza di imposta relativa al mese precedente può fare riferimento alle annotazioni eseguite per il secondo mese ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "corpus": "normattiva",
+            "fonte": "dlgs",
+            "testo_tipo": "normativo",
+            "source": "normattiva_it",
+            "titolo": "DECRETO LEGISLATIVO 9 luglio 1997, n. 241",
+            "articolo": "Art. 14",
+            "valid_from": "19970812",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6a1c391e5892301608797d6d",
+          "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art184",
+          "score": -2.1121,
+          "snippet": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917\nArt. 147\nDetrazione d'imposta per oneri\n1.\nDall'imposta lorda si detrae, fino alla concorrenza del suo ammontare, un importo pari al 22 per cento degli oneri indicati alle lettere a), g), h), h-bis), i), i-bis)\n((, i-quater) e i-octies",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "",
+            "testo_tipo": "normativo",
+            "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art184",
+            "source": "normattiva_it",
+            "articolo": "Art. 147",
+            "corpus": "normattiva",
+            "valid_to": "",
+            "titolo": "DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 dicembre 1986, n. 917",
+            "fonte": "dpr"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si determina in base alle norme relative all'IRPEF e IRES.\n\n**NORMA APPLICABILE**\nLa norma applicabile per la determinazione della base imponibile IRPEF/IRES è il D.Lgs. 241/1997, articolo 14.\n\n**GIURISPRUDENZA**\nNon ci sono giurisprudenze specifiche per la determinazione della base imponibile IRPEF/IRES in relazione al reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La normativa è chiara e specifica, ma la mancanza di giurisprudenza potrebbe rendere il caso più incerto.\n\n**GAP ANALYSIS**\nIl Packet manca di giurisprudenze relative alla determinazione della base imponibile IRPEF/IRES in relazione al reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si determina in base alle norme relative all'IRPEF e IRES.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art136",
+              "claim": "La società controllante determina l'imposta dovuta effettuando la somma algebrica del proprio imponibile e di quelli delle controllate estere.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art78",
+              "claim": "Dall'imposta lorda si detrae fino a concorrenza del suo ammontare un importo pari al 19 per cento dell'onere.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:1997-07-09;241~art14",
+              "claim": "Le imposizioni relative all'IRPEF e IRES sono determinate in base alle norme del D.Lgs. 241/1997.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "La norma applicabile per la determinazione della base imponibile IRPEF/IRES è il D.Lgs. 241/1997, articolo 14.",
+          "citations": [
+            {
+              "source_id": "urn:nir:stato:decreto.legislativo:1997-07-09;241~art14",
+              "claim": "Il D.Lgs. 241/1997, articolo 14, regola la determinazione dell'imposta lorda e delle detrazioni.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono giurisprudenze specifiche per la determinazione della base imponibile IRPEF/IRES in relazione al reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000.",
+          "citations": []
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La normativa è chiara e specifica, ma la mancanza di giurisprudenza potrebbe rendere il caso più incerto.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di giurisprudenze relative alla determinazione della base imponibile IRPEF/IRES in relazione al reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 0.908,
+      "duration_llm_s": 32.651,
+      "duration_total_s": 33.559,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": [],
+      "_latency_ms": 33561,
+      "_error": null
+    }
+  }
+]

@@ -1,0 +1,35 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.env
+*.env.local
+# Modelli e indici (grandi)
+*.gguf
+*.pkl
+*.faiss
+workspaces/*/indices/
+workspaces/*/vault/
+shared/*/indices/
+.DS_Store
+Thumbs.db
+# Download dottrina e giurisprudenza (dati grandi)
+download/
+workspaces/jurisprudence_graph.json
+workspaces/qdrant_storage/
+# Eval results (generati a runtime)
+eval/results/
+scripts/build_report.json
+# Brainstorming / preview artifacts
+.superpowers/
+# Runtime logs
+logs/
+# Word temp files
+docs/~$*
+docs/node_modules/
+docs/package-lock.json

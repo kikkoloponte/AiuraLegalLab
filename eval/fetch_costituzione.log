@@ -1,0 +1,9 @@
+[32m2026-05-31 20:12:12.960[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m255[0m - [1mFetch atto: urn:nir:stato:costituzione:1947-12-27;0[0m
+[32m2026-05-31 20:12:12.960[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m256[0m - [1m  tipo: 'COSTITUZIONE'  |  titolo: 'COSTITUZIONE 27 dicembre 1947, n. 0'[0m
+[32m2026-05-31 20:12:47.304[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  50 articoli scaricati…[0m
+[32m2026-05-31 20:13:27.670[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  100 articoli scaricati…[0m
+[32m2026-05-31 20:14:07.692[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  150 articoli scaricati…[0m
+[32m2026-05-31 20:14:13.377[0m | [32m[1mSUCCESS [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m305[0m - [32m[1m  urn:nir:stato:costituzione:1947-12-27;0: 157 articoli scaricati, 157 scritti/aggiornati[0m
+  [WARN] pos 41: Server error '500 Internal Server Error' for url 'https://www.normattiva.it/atto/caricaArticolo?art.versione=2&art.idGruppo=4&art.flagTipoArticolo=0&art.codiceRedazionale=047U0001&art.idArticolo=41&art.idSottoArticolo=1&art.idSottoArticolo1=10&art.dataPubblicazioneGazzetta=1947-12-27+00%3A00%3A00.0&art.progressivo=0&riferimenti=false&qId=&art.imUpdate=false'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+  [INFO] 1 errori AJAX-500 consecutivi — switch a N2Ls fallback dalla posizione 41

@@ -1,0 +1,2724 @@
+[
+  {
+    "id": 1,
+    "difficolta": "Facile",
+    "norma": "D.Lgs. 74/2000 art. 2",
+    "modulo": "Penale Tributario",
+    "query": "Quali sono gli elementi costitutivi del reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000?",
+    "response": {
+      "query": "Quali sono gli elementi costitutivi del reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "7f0d547780b4917b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.341,
+          "snippet": "del decreto - al profitto del reato di cui all'art. 2 d.lgs. n. 74 del 2000 (contestato al FIORITO al capo 10, nella qualità di amministratore unico della LUNA CAPRESE s.r.I.). 2. Ricorre per cassazione il FIORITO, nella duplice qualità specificata e a mezzo del proprio difensore, deducendo violazio",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "7f0d547780b4917b",
+            "anno": "2025",
+            "valid_from": "2025-11-07",
+            "materia": "",
+            "organo": "cassazione",
+            "valid_to": "",
+            "numero": "36353"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "496f14874486f1a1_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.5218,
+          "snippet": "deve risultare - oltre, e prima ancora che idoneo ad ostacolare le ragioni creditorie dell'Erario - \"fraudolento\". Sul punto, questa Suprema Corte ha ripetutamente chiarito che «ai sensi dell'art. 11 d.lgs. 10 marzo 2000, n. 74, gli atti dispositivi compiuti dall'obbligato, oggettivamente idonei ad ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2025",
+            "valid_from": "2026-02-12",
+            "organo": "cassazione",
+            "numero": "5760",
+            "materia": "",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "496f14874486f1a1",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "d945a992adbd236e_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.7576,
+          "snippet": "in questione la stessa persona fisica avesse cumulato la carica di amministratore di entrambe le società parti contraenti di tale atto, in realtà, non può affatto essere valorizzata come elemento di per sé idoneo a far presumere da solo la sussistenza del requisito del consilium fraudis da parte di ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-05-20",
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "13401",
+            "chunk_type": "dispositivo",
+            "valid_to": "",
+            "organo": "cassazione",
+            "jdoc_id": "d945a992adbd236e",
+            "anno": "2025",
+            "materia": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "1ec44643f6f9277f_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.4267,
+          "snippet": "della sentenza. L’accertamento della non autenticità delle sottoscrizioni a nome dell’odierno ricorrente aveva reso tali atti non utilizzabili da parte dell’Agenzia delle Entrate di Catania, rimasta peraltro anche soccombente nel giudizio di querela di falso; gli stessi atti peraltro erano in ogni c",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "materia": "",
+            "valid_from": "2025-10-15",
+            "numero": "27519",
+            "jdoc_id": "1ec44643f6f9277f",
+            "valid_to": "",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "4d5af632b76e7e82_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.0321,
+          "snippet": "'Appello di Cataniavisti gli atti, il provvedimento impugnato e il ricorso;udita la relazione svolta dal Consigliere Alessio Scarcella;letta la requisitoria scritta del Pubblico Ministero, in persona del Sostituto Procuratoregenerale Fulvio Baldi, che ha concluso chiedendo annullarsi il provvediment",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "4d5af632b76e7e82",
+            "organo": "cassazione",
+            "numero": "16622",
+            "anno": 2026,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "55f6ed37d79aa359_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.0952,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da Galfré Tullio, nato a Cuneo il 24/8/1953 avverso la sentenza del 13/3/2025 della Corte d'appello di Torino visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Giovanni Liberati; udito il Pubblico Ministero, i",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "55f6ed37d79aa359",
+            "organo": "cassazione",
+            "numero": "41178",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "3c3dc5c599866b2f_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.1499,
+          "snippet": "a seguente SENTENZA sul ricorso proposto da Gramuglia Paolo, nato a Reggio Calabria il 22/1/1973 avverso la sentenza del 8/5/2025 della Corte d'appello di Reggio Calabria visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Giovanni Liberati; udito il Pu",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "3c3dc5c599866b2f",
+            "organo": "cassazione",
+            "numero": "1094",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "5f2820432b3b01a0_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.2154,
+          "snippet": "a seguente SENTENZA sul ricorso proposto da Santi Luigino, nato in Belgio il 13/8/1952 avverso la sentenza del 20/1/2025 della Corte d'appello di Ancona visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Giovanni Liberati; lette le richieste del Pubbli",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "5f2820432b3b01a0",
+            "organo": "cassazione",
+            "numero": "1092",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "610739b37a96f2b4_dispositivo",
+          "source_id": "giurisprudenza_corte_conti",
+          "score": -6.3524,
+          "snippet": "e dell’onere della prova, incide sulla\nstessa fondatezza della domanda.\n33\nInfatti, la procura sembra ascrivere il danno alla semplice\nviolazione dell’iter amministrativo, rappresentando che tali due\nopere avrebbero dovuto essere trattate quali due distinte\nacquisizioni anche dal punto di vista ammi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2025",
+            "valid_to": "",
+            "materia": "",
+            "valid_from": "2025-11-26",
+            "organo": "corte_conti",
+            "jdoc_id": "610739b37a96f2b4",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_corte_conti",
+            "numero": "288"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "6bf5705a7898d5ca_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.4388,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da De Luca Iuri, nato a Torre del Greco il 18/08/1989 avverso la sentenza del 04/06/2024 della Corte d'appello di Firenze visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Emanuela Gai; udito il Pubblico Minis",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "6bf5705a7898d5ca",
+            "organo": "cassazione",
+            "numero": "13564",
+            "anno": 2025,
+            "materia": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 richiede la presenza di alcuni elementi costitutivi: l'intenzione fraudolenta, l'uso di fatture o altri documenti e l'esistenza di operazioni inesistenti.\n\n**NORMA APPLICABILE**\nIl reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti è regolamentato dall'art. 2 del D.Lgs. 74/2000.\n\n**GIURISPRUDENZA**\nLa giurisprudenza della Cassazione ha ripetutamente chiarito che l'uso di fatture o altri documenti per operazioni inesistenti è un elemento costitutivo del reato, ma non valorizza automaticamente la sussistenza del consilium fraudis. La presenza di atti dispositivi idonei a ostacolare le ragioni creditorie dell'Erario deve essere valutata con attenzione.\n\n**VALUTAZIONE**\nLa valutazione della sussistenza del consilium fraudis richiede una rigorosa analisi dei fatti, non potendo essere valorizzato automaticamente l'uso di fatture o altri documenti per operazioni inesistenti.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica analisi della sussistenza del consilium fraudis, che è un elemento cruciale per la valutazione del reato. Inoltre, non ci sono citazioni dirette relative all'articolo 2 del D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti ai sensi dell'art. 2 del D.Lgs. 74/2000 richiede la presenza di alcuni elementi costitutivi: l'intenzione fraudolenta, l'uso di fatture o altri documenti e l'esistenza di operazioni inesistenti.",
+          "citations": [
+            {
+              "source_id": "CC_ART_1218",
+              "claim": "Il reato di dichiarazione fraudolenta richiede l'intenzione fraudolenta (art. 1218 del Codice penale).",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            },
+            {
+              "source_id": "CC_ART_1235",
+              "claim": "L'uso di fatture o altri documenti è un elemento costitutivo del reato (art. 1235 del Codice penale).",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            },
+            {
+              "source_id": "CC_ART_1236",
+              "claim": "L'esistenza di operazioni inesistenti è un elemento costitutivo del reato (art. 1236 del Codice penale).",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti è regolamentato dall'art. 2 del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "D_LGS_74_2000",
+              "claim": "Il reato di dichiarazione fraudolenta mediante uso di fatture o altri documenti per operazioni inesistenti è regolamentato dall'art. 2 del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "D.Lgs. n. 74 del 2000"
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La giurisprudenza della Cassazione ha ripetutamente chiarito che l'uso di fatture o altri documenti per operazioni inesistenti è un elemento costitutivo del reato, ma non valorizza automaticamente la sussistenza del consilium fraudis. La presenza di atti dispositivi idonei a ostacolare le ragioni creditorie dell'Erario deve essere valutata con attenzione.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione ha ripetutamente chiarito che l'uso di fatture o altri documenti per operazioni inesistenti è un elemento costitutivo del reato (testo [2]).",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": "Cassazione"
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione non valorizza automaticamente la sussistenza del consilium fraudis (testo [3]).",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": "Cassazione"
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione ha evidenziato l'importanza dell'accertamento della non autenticità delle sottoscrizioni a nome dell'odierno ricorrente (testo [4]).",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": "Cassazione"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "La valutazione della sussistenza del consilium fraudis richiede una rigorosa analisi dei fatti, non potendo essere valorizzato automaticamente l'uso di fatture o altri documenti per operazioni inesistenti.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica analisi della sussistenza del consilium fraudis, che è un elemento cruciale per la valutazione del reato. Inoltre, non ci sono citazioni dirette relative all'articolo 2 del D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 3.732,
+      "duration_llm_s": 20.795,
+      "duration_total_s": 24.528,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": []
+    },
+    "elapsed_s": 75.5
+  },
+  {
+    "id": 2,
+    "difficolta": "Media",
+    "norma": "D.Lgs. 74/2000 art. 4",
+    "modulo": "Penale Tributario",
+    "query": "Quali sono le soglie di punibilità previste dall'art. 4 del D.Lgs. 74/2000 per il reato di dichiarazione infedele e come si calcola l'imposta evasa?",
+    "response": {
+      "query": "Quali sono le soglie di punibilità previste dall'art. 4 del D.Lgs. 74/2000 per il reato di dichiarazione infedele e come si calcola l'imposta evasa?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "36ffa07432880bc1_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 1.4386,
+          "snippet": ". Sussistono, inoltre, i presupposti per la condanna dei ricorrenti, nella presente sede, sia ai sensi dell’art. 96, comma 3, c.p.c., che ai sensi del comma 4 della medesima disposizione, come espressamente previsto dall’art. 380-bis, ultimo comma, c.p.c.. La Corte, tenuto conto delle ragioni della ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "36ffa07432880bc1",
+            "numero": "34498",
+            "anno": "2025",
+            "valid_from": "2025-12-29",
+            "organo": "cassazione",
+            "materia": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "cb9e5e675ad1b4ed_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.8598,
+          "snippet": ". Sussistono, inoltre, i presupposti per la condanna della parte ricorrente, nella presente sede, sia ai sensi dell’art. 96, comma 3, c.p.c., che ai sensi del comma 4 della medesima disposi- zione, come espressamente previsto dall’art. 380-bis, ultimo comma, c.p.c.. La Corte, tenuto conto delle ragi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "valid_from": "2025-12-02",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "cb9e5e675ad1b4ed",
+            "numero": "31464",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "bd0e5cfe78ae6f67_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.5241,
+          "snippet": ". Sussistono, inoltre, i presupposti per la condanna della parte ricorrente, nella presente sede, sia ai sensi dell’art. 96, comma 3, c.p.c., che ai sensi del comma 4 della medesima disposi- zione, come espressamente previsto dall’art. 380 bis, ultimo comma, c.p.c.. La Corte, tenuto conto delle ragi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2025-09-24",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "numero": "26058",
+            "valid_to": "",
+            "jdoc_id": "bd0e5cfe78ae6f67",
+            "materia": "",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "605546341f82d43d_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.4803,
+          "snippet": ". 7. Non vi sono i presupposti per imporre il pagamento del cd. doppio contributo unificato. Il meccanismo sanzionatorio di cui all'art. 13, comma 1-quater, d.P.R. n. 115 del 2002, nel testo introdotto dall'art. 1, comma 17, legge n. 228 del 2012, è applicabile solo ove il procedimento per cassazion",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2025",
+            "materia": "",
+            "jdoc_id": "605546341f82d43d",
+            "organo": "cassazione",
+            "valid_from": "2025-07-16",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "numero": "19715"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "6e0cd77caf77eac5_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.4685,
+          "snippet": ", con distrazione in favore deidifensori dichiarat i si antistatari . Sussistono, inoltre, i presupposti per la condanna della ricor - rente, nella presente sede, sia ai sensi dell’art. 96, comma 3, c.p.c., che ai sensi del comma 4 della medesima disposizione, come espressamente previsto dall’art. 3",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "6e0cd77caf77eac5",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "anno": "2025",
+            "valid_from": "2025-12-10",
+            "numero": "32140",
+            "organo": "cassazione",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "fa5d3ec506db610b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.5237,
+          "snippet": ", conla distrazione richiesta.Non si ravvisano però i presupposti per la condanna dellaricorrente ex art. 96 cod. proc. civ. chiesta dalla controricorrente.In considerazione dell’esito del ricorso, ai sensi dell’art. 13 co. 1-quater d.P.R. 30 maggio 2002 n. 115 si deve dare atto della sussistenzadei",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "valid_from": "2026-05-23",
+            "numero": "15890",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "organo": "cassazione",
+            "anno": "2026",
+            "materia": "",
+            "jdoc_id": "fa5d3ec506db610b"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "819dfb895d558c0d_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.7927,
+          "snippet": ".8.  In virtù del richiamo fatto dall’art. 380-bis, comma 3,c.p.c., l’Agenzia delle Entrate deve essere condannata, ai sensidell’art. 96, comma 3, c.p.c., al pagamento, in favore deicontroricorrenti, della somma di euro 7.000,00.8.1. Inoltre, in applicazione del combinato dispostodegli artt. 380-bis",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-03-25",
+            "numero": "7161",
+            "materia": "",
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "819dfb895d558c0d",
+            "anno": "2026"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "b15ab569659fcf5b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.1862,
+          "snippet": "- quanto alla confisca del prezzo o del profitto del reato. 5. Tanto premesso, l'art. 12 -bis, stesso decreto, stabilisce che nel caso di condanna o di applicazione della pena su richiesta delle parti a norma dell'articolo 444 del codice di procedura penale per uno dei delitti previsti dal d. Igs. n",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "organo": "cassazione",
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "jdoc_id": "b15ab569659fcf5b",
+            "chunk_type": "dispositivo",
+            "valid_from": "2025-08-06",
+            "numero": "28968",
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "99cdf82ff4c720b1_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.5352,
+          "snippet": ". Inoltre, poiché dalladefinizione del giudizio in conformità alla proposta ex art. 380-bis c.p.c.discende l'applicazione delle sanzioni di cui al terzo e al quarto commadell'art. 96 c.p.c., il ricorrente deve essere condannato al pagamento degliulteriori importi, così come liquidati in dispositivo.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "anno": "2026",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "99cdf82ff4c720b1",
+            "valid_to": "",
+            "numero": "8615",
+            "materia": "",
+            "organo": "cassazione",
+            "valid_from": "2026-04-07"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "f5ea10fecb429480_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.7175,
+          "snippet": ", secondo il principio dellasoccombenza. Inoltre, dalla definizione del giudizio in conformità allaproposta ex art. 380-bis c.p.c. discende l'applicazione, senza alcunavalutazione discrezionale della Corte, delle sanzioni di cui aicommi 3 e 4 dell'art. 96 c.p.c. P.Q.MLa Corte rigetta il ricorso, con",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-04-01",
+            "numero": "8122",
+            "valid_to": "",
+            "jdoc_id": "f5ea10fecb429480",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "anno": "2025"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl reato di dichiarazione infedele è previsto dall'art. 4 del D.Lgs. 74/2000, secondo cui l'imposto evaso deve essere superiore a 15.000 euro.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione è alta in quanto le norme sono chiare e specifiche.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il reato di dichiarazione infedele è previsto dall'art. 4 del D.Lgs. 74/2000, secondo cui l'imposto evaso deve essere superiore a 15.000 euro.",
+          "citations": [
+            {
+              "source_id": "DLGS_74_2000_ART_4",
+              "claim": "Il reato di dichiarazione infedele è previsto dall'art. 4 del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "D.Lgs. 74/2000, art. 4"
+            },
+            {
+              "source_id": "DLGS_74_2000_ART_4",
+              "claim": "L'imposto evaso deve essere superiore a 15.000 euro.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "D.Lgs. 74/2000, art. 4"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione è alta in quanto le norme sono chiare e specifiche.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.714,
+      "duration_llm_s": 4.972,
+      "duration_total_s": 6.687,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": []
+    },
+    "elapsed_s": 6.7
+  },
+  {
+    "id": 3,
+    "difficolta": "Facile",
+    "norma": "D.Lgs. 74/2000 art. 10-ter",
+    "modulo": "Penale Tributario",
+    "query": "Qual è la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento ex art. 10-ter D.Lgs. 74/2000?",
+    "response": {
+      "query": "Qual è la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento ex art. 10-ter D.Lgs. 74/2000?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "5a40a39989d89edf_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.0335,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da Aversa De Fazio Antonio, nato a Melissa il 28/2/1962 avverso la sentenza del 8/1/2025 della Corte d'appello di Catanzaro visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Giovanni Liberati; udito il Pubblic",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "5a40a39989d89edf",
+            "organo": "cassazione",
+            "numero": "39154",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "a35bd2fc2a771b2a_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.3039,
+          "snippet": "o la seguente Sul ricorso proposto da: Manunta Angelina, nata a Sassari il 08/09/1934, avverso la sentenza del 17/04/2025 della Corte di appello di Cagliari, Sezione distaccata di Sassari; visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Giovanni Gio",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "a35bd2fc2a771b2a",
+            "organo": "cassazione",
+            "numero": "7529",
+            "anno": 2026,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "7927af62c69f8a40_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.4773,
+          "snippet": "Maria, nato a Pavia il 27/09/1962 avverso la sentenza del 17/10/2025 della Corte di appello di Milano visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Antonio Corbo; letta la requisitoria del Pubblico Ministero, in persona del Sostituto Procuratore g",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "7927af62c69f8a40",
+            "organo": "cassazione",
+            "numero": "16949",
+            "anno": 2026,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "f044d9a4cd72a0bd_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.2135,
+          "snippet": "PDFBox: REPUBBLICA ITALIANA In nome del Popolo Italiano LA CORTE SUPREMA DI CASSAZIONE TERZA SEZIONE PENALE Composta da Aldo Aceto - Presidente - Sent. n. 1415/2025 Emanuela Gai - Relatore - UP – 01/10/2025 Alessio Scarcella R.G.N. 20692/2025 Ubalda Macrì Alessandro M. Andronio ha pronunciato la seg",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "f044d9a4cd72a0bd",
+            "organo": "cassazione",
+            "numero": "37396",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "74ad7cfbfc415301_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.2547,
+          "snippet": "o la seguente Sul ricorso proposto da: Giaffreda Donato, nato a Genk (Belgio) il 07/06/1953, avverso la sentenza dell’11/11/2024 della Corte di appello di Lecce; visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Giovanni Giorgianni; letta la requisito",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "74ad7cfbfc415301",
+            "organo": "cassazione",
+            "numero": "41557",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "eb26b88f07b168c4_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.6606,
+          "snippet": "to la seguente SENTENZA sul ricorso proposto da: De Simone Vincenzo, nato a Napoli il 01/01/1951 avverso la sentenza del 17/10/2024 della Corte di appello di Napoli visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Antonella Di Stasi; letta la requisi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "eb26b88f07b168c4",
+            "organo": "cassazione",
+            "numero": "35034",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "b0f6a6fd6d204eb0_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.0732,
+          "snippet": "o la seguente Sul ricorso presentato da: Federico Carmela, nata a Scilla il 30/04/1966, avverso la sentenza del 17/02/2025 della Corte di appello di Napoli visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Cons. Alberto Galanti; lette le conclusioni del Pubblico ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "b0f6a6fd6d204eb0",
+            "organo": "cassazione",
+            "numero": "35938",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "ce4910ae07de4333_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.082,
+          "snippet": "seguente SENTENZA sul ricorso proposto da Procuratore Generale presso la Corte d'appello di Brescia nel procedimento nei confronti di Orsiní Marco, nato a Santa Maria Capua Vetere il 10/1/1994 avverso la sentenza del 28/3/2025 del Tribunale di Brescia visti gli atti, il provvedimento impugnato e il ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "ce4910ae07de4333",
+            "organo": "cassazione",
+            "numero": "6133",
+            "anno": 2026,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "3f3dbf529aef2760_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.1704,
+          "snippet": "a seguente SENTENZA sul ricorso proposto da Martiradonna Giovanni, nato a Castellana Grotte (BA), il 07/02/1975 avverso la sentenza del 20/12/2024 della Corte di appello di Potenza; visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Alessandro Maria An",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "3f3dbf529aef2760",
+            "organo": "cassazione",
+            "numero": "37975",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "1dc130eec49d17ee_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.2195,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da Cavicchi Cristiano, nato a Roma il 27/05/1970, avverso la sentenza del 17/01/2025 della Corte di appello di Bologna; visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Giovanni Giorgianni; udito il Pubblico ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "1dc130eec49d17ee",
+            "organo": "cassazione",
+            "numero": "1915",
+            "anno": 2025,
+            "materia": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda dell'avvocato riguarda la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento esposto dall'articolo 10-ter D.Lgs. 74/2000.\n\n**NORMA APPLICABILE**\nIl termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento è stabilito dall'articolo 10-ter D.Lgs. 74/2000.\n\n**GIURISPRUDENZA**\nNon esistono giurisprudenze specifiche sulla soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento. Tuttavia, la Cassazione ha interpretato l'articolo 10-ter D.Lgs. 74/2000 in vari casi.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione della solidità delle norme e giurisprudenze è alta, ma non ci sono specifiche indicazioni sulla soglia di rilevanza penale.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica definizione della soglia di rilevanza penale per il reato di omesso versamento IVA esposta dall'articolo 10-ter D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda dell'avvocato riguarda la soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento esposto dall'articolo 10-ter D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "legge_74_2000",
+              "claim": "Il testo dell'articolo 10-ter D.Lgs. 74/2000 è necessario per la qualificazione della domanda.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "Art. 10-ter D.Lgs. 74/2000"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento è stabilito dall'articolo 10-ter D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "legge_74_2000",
+              "claim": "Il testo dell'articolo 10-ter D.Lgs. 74/2000 specifica il termine entro cui deve avvenire il versamento IVA.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "Art. 10-ter D.Lgs. 74/2000"
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non esistono giurisprudenze specifiche sulla soglia di rilevanza penale e il termine entro cui deve avvenire il versamento IVA per evitare il reato di omesso versamento. Tuttavia, la Cassazione ha interpretato l'articolo 10-ter D.Lgs. 74/2000 in vari casi.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione ha interpretato l'articolo 10-ter D.Lgs. 74/2000 in diversi casi, ma non specifica la soglia di rilevanza penale.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": "Giurisprudenza Cassazione"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione della solidità delle norme e giurisprudenze è alta, ma non ci sono specifiche indicazioni sulla soglia di rilevanza penale.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica definizione della soglia di rilevanza penale per il reato di omesso versamento IVA esposta dall'articolo 10-ter D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.98,
+      "duration_llm_s": 14.156,
+      "duration_total_s": 16.137,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 16.3
+  },
+  {
+    "id": 4,
+    "difficolta": "Media",
+    "norma": "D.Lgs. 74/2000 art. 10-quater",
+    "modulo": "Penale Tributario",
+    "query": "Qual è la differenza tra crediti inesistenti e crediti non spettanti nella fattispecie di indebita compensazione ex art. 10-quater D.Lgs. 74/2000 e quali sono le rispettive soglie di punibilità?",
+    "response": {
+      "query": "Qual è la differenza tra crediti inesistenti e crediti non spettanti nella fattispecie di indebita compensazione ex art. 10-quater D.Lgs. 74/2000 e quali sono le rispettive soglie di punibilità?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "ce95029f0df5d03e_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 1.074,
+          "snippet": ", di un patrimonio residuo di ben 100.000.000,00 dieuro, nonché la sussistenza di un’esposizione debitoria verso l’Erario bendiversa dall’abnorme cifra erroneamente indicata dal creditoreprocedente .E quindi La sentenza è dunque censurabile non avendo valutato in alcunmodo (i) la parziale insussiste",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "11073",
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "ce95029f0df5d03e",
+            "materia": "",
+            "anno": "2026",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione",
+            "valid_from": "2026-04-24"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "11e515b0b9c9f5cf_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.8583,
+          "snippet": "del giudice regionalerisulta conforme al diritto.Infatti, le ragioni del contribuente non trovano accoglimento, perché nelcaso di specie si trattava di un credito insorto sin dal 2010, e nei quattroanni successivi la società non presentò alcuna dichiarazione annuale, per poiriportare il credito, che",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "valid_from": "2026-05-15",
+            "numero": "14367",
+            "jdoc_id": "11e515b0b9c9f5cf",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "68a487db81c93c64_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -1.7723,
+          "snippet": "che si verifica quando, a seguito del compimento dello stesso da parte del debitore (e salvo il caso, nella specie neppure prospettato, della dolosa preordinazione dell’atto a danneggiare i crediti non ancora sorti nei confronti del suo autore), il patrimonio di quest’ultimo sia diventato, sul piano",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "29435",
+            "valid_from": "2025-11-06",
+            "valid_to": "",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "68a487db81c93c64"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "f43c04f46f2543d2_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -1.9341,
+          "snippet": ", non essendo sufficiente la sola esistenza di un contratto di cessione in blocco. 1.3.Nel caso di specie, come sopra evidenziato, è stato in maniera congrua ed ineccepibile accertato in fatto, e non contestato dalla banca, che la posizione creditoria insinuata nel passivo non figurava nellelenco d",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "numero": "23834",
+            "anno": "2025",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "f43c04f46f2543d2",
+            "materia": "",
+            "valid_from": "2025-08-25"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "f3cb90b82eaba721_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.2091,
+          "snippet": ", è stata dichiarata la prescrizione di tutti i crediti contributivi portati dall’avviso di addebito n. 33020160001995523. Infine, risulta dagli atti di causa che l’avviso di addebito era emesso non solo per l’annualità 2008, ma anche per crediti del 2012, 2013, 2015. Sul punto il motivo si mostra a",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "valid_to": "",
+            "organo": "cassazione",
+            "numero": "31717",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2025-12-04",
+            "jdoc_id": "f3cb90b82eaba721",
+            "anno": "2025",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "ff3bc41bac798f7e_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.355,
+          "snippet": ". 2.9. Tale pregiudizio, in particolare, si verifica tutte le volte in cui, a seguito del compimento dell’atto dispositivo da parte del debitore (e salvo il caso della dolosa preordinazione dell’atto a danneggiare i crediti non ancora sorti nei confronti del suo autore), il patrimonio di quest’ultim",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "anno": "2025",
+            "materia": "",
+            "numero": "23193",
+            "valid_from": "2025-08-13",
+            "valid_to": "",
+            "jdoc_id": "ff3bc41bac798f7e"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "7f3fefab8e6db2d6_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.6683,
+          "snippet": "oggetto di revocatoria è anteriore al sorgere del credito, il quale non può dirsi sia sorto con la semplice raccomandata di contestazione dei vizi. Con la conseguenza che tale anteriorità si riflette sulla consapevolezza di arrecare pregiudizio al creditore, posto che egli non poteva sapere, al mome",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "18588",
+            "valid_to": "",
+            "valid_from": "2025-07-08",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "7f3fefab8e6db2d6",
+            "anno": "2025",
+            "organo": "cassazione",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "a14339b7db744046_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.824,
+          "snippet": ", giacché sela sua esistenza non fosse rilevata si avrebbe una decisione sostanzialmente ingiusta» (Cass. 18360/2022 cit.). In questa direzione si registra un revirementin tema di “concorso del fatto colposo del creditore”(art. 1227, comma 1, c.c.) dall’iniziale qualificazione come eccezione in sens",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "organo": "cassazione",
+            "jdoc_id": "a14339b7db744046",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2026-02-11",
+            "anno": "2026",
+            "numero": "3056",
+            "valid_to": "",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "a54b0b78fc350d4b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.864,
+          "snippet": "rispetto al credito e sulla sua onerosità. Contestuale Violazione e falsa applicazione dell'art. 2729 c.c.; VIII Motivo: - art. 360 c. 1 n. 3 cpc Violazione e falsa applicazione dei presupposti di cui all’art. 2901 cc - Non Sottrazione dell’unico bene del Debitore; IX Motivo: - art. 360 c. 1 n. 3 cp",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "valid_from": "2025-10-06",
+            "chunk_type": "dispositivo",
+            "numero": "26845",
+            "jdoc_id": "a54b0b78fc350d4b",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "materia": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "56649ba1c7347737_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.9613,
+          "snippet": ", essendo, piuttosto, incardinata intorno ai due presupposti dell’eventus damni e della scientia , partecipatio e consilium fraudis (oltre, che naturalmente, alle due precondizioni fattuali dell’esistenza di un credito non soddisfatto e del compimento di un atto di disposizione del patrimonio ad ope",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-06-30",
+            "jdoc_id": "56649ba1c7347737",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "numero": "17638",
+            "materia": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nNella fattispecie si tratta di una domanda sull'indebita compensazione espressa dall'art. 10-quater D.Lgs. 74/2000, in cui si chiede la differenza tra crediti inesistenti e crediti non spettanti.\n\n**NORMA APPLICABILE**\nL'art. 10-quater D.Lgs. 74/2000 regola l'indebita compensazione.\n\n**GIURISPRUDENZA**\nLa giurisprudenza della Cassazione evidenzia che i crediti inesistenti e quelli non spettanti sono trattati diversamente. I primi riguardano una situazione in cui il credito non esiste, mentre gli ultimi si riferiscono a un errore di attribuzione del debito.\n\n**VALUTAZIONE**\nLa giurisprudenza è chiara nel distinguere tra crediti inesistenti e non spettanti, ma la valutazione della punibilità di queste situazioni richiede una maggiore analisi normativa.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica norma che definisca chiaramente la differenza tra crediti inesistenti e non spettanti, oltre a mancare di un articolo o comma specifico dell'art. 10-quater D.Lgs. 74/2000.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Nella fattispecie si tratta di una domanda sull'indebita compensazione espressa dall'art. 10-quater D.Lgs. 74/2000, in cui si chiede la differenza tra crediti inesistenti e crediti non spettanti.",
+          "citations": [
+            {
+              "source_id": "CC_ART_1218",
+              "claim": "Articolo 1218 del Codice Civile definisce i concetti di credito e debito.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "L'art. 10-quater D.Lgs. 74/2000 regola l'indebita compensazione.",
+          "citations": [
+            {
+              "source_id": "D_LGS_74_2000_ART_10_QUATER",
+              "claim": "Articolo 10-quater D.Lgs. 74/2000 regola l'indebita compensazione.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La giurisprudenza della Cassazione evidenzia che i crediti inesistenti e quelli non spettanti sono trattati diversamente. I primi riguardano una situazione in cui il credito non esiste, mentre gli ultimi si riferiscono a un errore di attribuzione del debito.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La sentenza della Cassazione censura la valutazione inesistente dei crediti.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione riconosce che le ragioni del contribuente non trovano accoglimento.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Cassazione evidenzia la prescrizione di crediti contributivi.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "La giurisprudenza è chiara nel distinguere tra crediti inesistenti e non spettanti, ma la valutazione della punibilità di queste situazioni richiede una maggiore analisi normativa.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica norma che definisca chiaramente la differenza tra crediti inesistenti e non spettanti, oltre a mancare di un articolo o comma specifico dell'art. 10-quater D.Lgs. 74/2000.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.948,
+      "duration_llm_s": 47.282,
+      "duration_total_s": 49.23,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": []
+    },
+    "elapsed_s": 49.2
+  },
+  {
+    "id": 5,
+    "difficolta": "Media",
+    "norma": "D.Lgs. 74/2000 artt. 13-13bis",
+    "modulo": "Penale Tributario",
+    "query": "Quando il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000?",
+    "response": {
+      "query": "Quando il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "c4d4f493c5e694cc_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.7429,
+          "snippet": "in quanto la C.t.r., dopo aver affermato il diritto ad avvalersi della sospensione dei tributi ed aver negato il diritto di avvalersi della riduzione del 50% dei versamenti prevista con il comma 1011 dell'art. 1o della legge 296/2006 ha, contraddicendosi, dichiarato dovuto il rimborso come motivazio",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "15383",
+            "valid_to": "",
+            "anno": "2025",
+            "materia": "",
+            "organo": "cassazione",
+            "jdoc_id": "c4d4f493c5e694cc",
+            "chunk_type": "dispositivo",
+            "valid_from": "2025-06-09"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "b6981076b36b9db8_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.1741,
+          "snippet": ", in relazione al reato di cui all'art. 5 D.Lgs. n. 74/2000, per non aver presentato, essendovi l'obbligo, la dichiarazione relativa alla imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto, commesso il 29 dicembre 2018, ed ordinando, ex art. 12-bis D.Igs. n. 74/2000, l",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "jdoc_id": "b6981076b36b9db8",
+            "valid_from": "2026-02-11",
+            "anno": "2025",
+            "organo": "cassazione",
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "5436",
+            "materia": "",
+            "valid_to": "",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "ce4910ae07de4333_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.6223,
+          "snippet": "seguente SENTENZA sul ricorso proposto da Procuratore Generale presso la Corte d'appello di Brescia nel procedimento nei confronti di Orsiní Marco, nato a Santa Maria Capua Vetere il 10/1/1994 avverso la sentenza del 28/3/2025 del Tribunale di Brescia visti gli atti, il provvedimento impugnato e il ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "ce4910ae07de4333",
+            "organo": "cassazione",
+            "numero": "6133",
+            "anno": 2026,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "8d52d7931949996a_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.6622,
+          "snippet": "della sentenza, preclude il riesame dello stesso punto didiritto accertato e risolto, anche se il successivo giudizio abbiafinalità diverse da quelle che hanno costituito lo scopo ed il “petitum”del primo. Tale efficacia, riguardante anche i rapporti di durata, nontrova ostacolo, in materia tributar",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-05-20",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "anno": "2026",
+            "numero": "15460",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "8d52d7931949996a",
+            "materia": "",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "a9fbb356d1ad1e1a_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.1408,
+          "snippet": ".Rilevato che risulta soccombente l’Agenzia delle Entrate, ammessa allaprenotazione a debito del contributo unificato per essere amministrazionepubblica difesa dall'Avvocatura Generale dello Stato, non si applica ild.P.R. n. 30 maggio n. 115, art. 13 comma 1-quater (Cass. 29/01/2016,n. 1778). P.Q.MR",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "jdoc_id": "a9fbb356d1ad1e1a",
+            "numero": "13583",
+            "organo": "cassazione",
+            "valid_from": "2026-05-10",
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "cfcce226de848023_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.9036,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da D'Alterio Pasquale, nato a Giugliano in Campania il 10-07-1972, avverso la sentenza del 23-02-2024 della Corte di appello di Firenze; visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Fabio Zunica; lette le",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "cfcce226de848023",
+            "organo": "cassazione",
+            "numero": "40529",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "39747e1460339985_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.9097,
+          "snippet": "la seguente SENTENZA sui ricorsi proposti da: Guerra Raffaele nato a TRIGGIANO il 25/06/1964 Lizzano Vincenzo nato a CAPURSO il 27/03/1967 avverso la sentenza del 10/09/2024 della Corte d'appello di Bari Visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal President",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "39747e1460339985",
+            "organo": "cassazione",
+            "numero": "39557",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "1eb941af92561077_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.2944,
+          "snippet": "to la seguente SENTENZA sul ricorso diArditi Carla, nataa Lecce il 28/04/1966 , avverso la sentenza in data 21/10/2024 della Corte di appello di Lecce, visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal consigliere Ubalda Macrì; letta la requisitoriadel Pubblico M",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "1eb941af92561077",
+            "organo": "cassazione",
+            "numero": "115",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "17999158d8aedabf_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.3216,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da: Bianca Antonio nato a SIRACUSA il 02/04/1962 avverso la sentenza del 18/03/2025 della Corte d'appello di Catania Visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Emanuela Gai; letta la requisitoria del Pu",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "17999158d8aedabf",
+            "organo": "cassazione",
+            "numero": "38438",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "5a40a39989d89edf_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.4079,
+          "snippet": "la seguente SENTENZA sul ricorso proposto da Aversa De Fazio Antonio, nato a Melissa il 28/2/1962 avverso la sentenza del 8/1/2025 della Corte d'appello di Catanzaro visti gli atti, il provvedimento impugnato e il ricorso; udita la relazione svolta dal Consigliere Giovanni Liberati; udito il Pubblic",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "5a40a39989d89edf",
+            "organo": "cassazione",
+            "numero": "39154",
+            "anno": 2025,
+            "materia": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000.\n\n**NORMA APPLICABILE**\nArtt. 13 e 13-bis del D.Lgs. 74/2000.\n\n**GIURISPRUDENZA**\nNon ci sono specifiche citazioni di giurisprudenza che siano direttamente rilevanti per la domanda. Tuttavia, le sentenze riportate mostrano un orientamento generale sulla non punibilità in caso di ravvedimento operoso e pagamento del debito.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: L'orientamento generale della giurisprudenza suggerisce che il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità, ma non ci sono specifiche citazioni direttamente rilevanti per la domanda. La valutazione è di tipo ALTA.\n\n**GAP ANALYSIS**\nIl Packet manca di una citazione diretta dell'articolo 13 e 13-bis del D.Lgs. 74/2000, che è la norma applicabile alla domanda.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità dei reati tributari ai sensi degli artt. 13 e 13-bis del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Artt. 13 e 13-bis del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "",
+              "claim": "Artt. 13 e 13-bis del D.Lgs. 74/2000.",
+              "claim_type": "NORMA",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "Non ci sono specifiche citazioni di giurisprudenza che siano direttamente rilevanti per la domanda. Tuttavia, le sentenze riportate mostrano un orientamento generale sulla non punibilità in caso di ravvedimento operoso e pagamento del debito.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Non ci sono specifiche citazioni direttamente rilevanti per la domanda. Tuttavia, le sentenze riportate mostrano un orientamento generale sulla non punibilità in caso di ravvedimento operoso e pagamento del debito.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: L'orientamento generale della giurisprudenza suggerisce che il ravvedimento operoso e il pagamento del debito tributario costituiscono causa di non punibilità, ma non ci sono specifiche citazioni direttamente rilevanti per la domanda. La valutazione è di tipo ALTA.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una citazione diretta dell'articolo 13 e 13-bis del D.Lgs. 74/2000, che è la norma applicabile alla domanda.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.571,
+      "duration_llm_s": 29.334,
+      "duration_total_s": 30.906,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 31.1
+  },
+  {
+    "id": 6,
+    "difficolta": "Difficile",
+    "norma": "D.Lgs. 74/2000 art. 12-bis",
+    "modulo": "Penale Tributario",
+    "query": "Quali sono i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000 e quali beni possono essere aggrediti?",
+    "response": {
+      "query": "Quali sono i presupposti e il regime della confisca obbligatoria per equivalente nei reati tributari ai sensi dell'art. 12-bis D.Lgs. 74/2000 e quali beni possono essere aggrediti?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "210c438f65dde23e_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 3.7382,
+          "snippet": ". 6. Sussistono i presuppostiprocessuali, ai sensi dell’art. 13, comma 1 quater, del D.P.R. 115/2002, per il versamento, da parte della ricorrente, dell’ulteriore importo a titolo di contributo unificato pari a quello previsto per il ricorso a norma del comma 1 bis del citato art. 13, se dovuto. La ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "31338",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "jdoc_id": "210c438f65dde23e",
+            "valid_from": "2025-12-01",
+            "materia": "",
+            "organo": "cassazione",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "fa5d3ec506db610b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 1.2753,
+          "snippet": ", conla distrazione richiesta.Non si ravvisano però i presupposti per la condanna dellaricorrente ex art. 96 cod. proc. civ. chiesta dalla controricorrente.In considerazione dell’esito del ricorso, ai sensi dell’art. 13 co. 1-quater d.P.R. 30 maggio 2002 n. 115 si deve dare atto della sussistenzadei",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "numero": "15890",
+            "materia": "",
+            "jdoc_id": "fa5d3ec506db610b",
+            "anno": "2026",
+            "organo": "cassazione",
+            "valid_to": "",
+            "valid_from": "2026-05-23",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "b15ab569659fcf5b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.1871,
+          "snippet": "- quanto alla confisca del prezzo o del profitto del reato. 5. Tanto premesso, l'art. 12 -bis, stesso decreto, stabilisce che nel caso di condanna o di applicazione della pena su richiesta delle parti a norma dell'articolo 444 del codice di procedura penale per uno dei delitti previsti dal d. Igs. n",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-08-06",
+            "valid_to": "",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "b15ab569659fcf5b",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "numero": "28968"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "fffc031353ea1d5b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.2473,
+          "snippet": ".11. Ai sensi dell’art. 13, comma 1-quater, del d.P.R. n. 115 del2002, dà atto della sussistenza dei presupposti processuali per ilversamento, da parte del ricorrente, dell’ulteriore importo a titolo diNumero registro generale 12578/2017Numero sezionale 2600/2026Numero di raccolta generale 12988/202",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-05-06",
+            "numero": "12988",
+            "jdoc_id": "fffc031353ea1d5b",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "anno": "2026",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "8b178fe7bb66e9d5_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.9735,
+          "snippet": ". 21. Ai sensi dell'art. 13, comma 1 quater, del DPR n. 115/02, nel testo risultante dalla legge 24.12.2012 n. 228, deve provvedersi, ricorrendone i presupposti processuali, sempre come da dispositivo. La Corte rigetta i ricorsi. Condanna ciascuna ricorrente al pagamento, in favore della controricor",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "28834",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "valid_from": "2025-10-31",
+            "chunk_type": "dispositivo",
+            "valid_to": "",
+            "materia": "",
+            "jdoc_id": "8b178fe7bb66e9d5"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "9408bfe4f175cb78_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.6625,
+          "snippet": ".10. Sussistono le condizioni per dare atto, ai sensi dell’art.13, comma 1quater, del d.P.R. n.115 del 2002, dell’obbligo, per parte ricorrente, di versarel’ulteriore importo a titolo di contributo unificato pari a quello previsto perl’impugnazione integralmente rigettata, se dovuto. P.Q.MNumero reg",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "11361",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione",
+            "jdoc_id": "9408bfe4f175cb78",
+            "materia": "",
+            "anno": "2026",
+            "valid_from": "2026-04-27"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "dcd47e7591ada4f3_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.8421,
+          "snippet": ".13. Sussistono le condizioni per dare atto, ai sensi dell’art.13, comma 1quater, del d.P.R. n.115 del 2002, dell’obbligo, per parte ricorrente, di versarel’ulteriore importo a titolo di contributo unificato pari a quello previsto perl’impugnazione integralmente rigettata, se dovuto.Numero registro ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "numero": "11387",
+            "source_id": "giurisprudenza_cassazione",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "dcd47e7591ada4f3",
+            "valid_to": "",
+            "anno": "2026",
+            "valid_from": "2026-04-27",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "b6981076b36b9db8_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.1964,
+          "snippet": ", in relazione al reato di cui all'art. 5 D.Lgs. n. 74/2000, per non aver presentato, essendovi l'obbligo, la dichiarazione relativa alla imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto, commesso il 29 dicembre 2018, ed ordinando, ex art. 12-bis D.Igs. n. 74/2000, l",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "jdoc_id": "b6981076b36b9db8",
+            "organo": "cassazione",
+            "numero": "5436",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "368b2666b0f9b6f8_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.291,
+          "snippet": "li stabiliti dal comma 5-bis del medesimo articolo, che impone soltanto che, a pena di nullità, la motivazione dell’atto debba indicare i presupposti di fatto e le ragioni giuridiche che lo hanno determinato. Pertanto, pur potendosi convenire con la ricorrente che a seguito dell’entrata in vigore de",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "chunk_type": "motivazione",
+            "jdoc_id": "368b2666b0f9b6f8",
+            "valid_from": "2025-12-04",
+            "valid_to": "",
+            "numero": "31707"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "48bca02721b8fae6_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.3225,
+          "snippet": ", a confermare la sentenza “nel resto”.Ciò integrerebbe, secondo il ricorrente, il vizio di omessa pronuncia sui motividi gravame, nonché violazione di legge sostanziale, atteso che la confiscafacoltativa non è mantenibile a seguito di sentenza di proscioglimento perprescrizione, secondo principi af",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "materia": "",
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "jdoc_id": "48bca02721b8fae6",
+            "valid_from": "2026-05-12",
+            "chunk_type": "dispositivo",
+            "numero": "17096"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl regime della confisca obbligatoria per equivalente nei reati tributari è regolato dall'articolo 12-bis del D.Lgs. 74/2000.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione del regime della confisca obbligatoria per equivalente nei reati tributari è alta in quanto la norma è chiara e specifica.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il regime della confisca obbligatoria per equivalente nei reati tributari è regolato dall'articolo 12-bis del D.Lgs. 74/2000.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il regime della confisca obbligatoria per equivalente nei reati tributari è regolato dall'articolo 12-bis del D.Lgs. 74/2000.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione del regime della confisca obbligatoria per equivalente nei reati tributari è alta in quanto la norma è chiara e specifica.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.457,
+      "duration_llm_s": 13.544,
+      "duration_total_s": 15.002,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 15.2
+  },
+  {
+    "id": 7,
+    "difficolta": "Difficile",
+    "norma": "D.Lgs. 231/2001 art. 25-quinquiesdecies",
+    "modulo": "Penale Tributario / 231",
+    "query": "Quando una società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti? Quali reati sono presupposto e quali sanzioni si applicano ex art. 25-quinquiesdecies?",
+    "response": {
+      "query": "Quando una società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti? Quali reati sono presupposto e quali sanzioni si applicano ex art. 25-quinquiesdecies?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "030511e8c8c8e191_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.4105,
+          "snippet": ". Ricorrono i presupposti per dichiarare la società ricorrente tenuta al pagamento di una somma di importo pari al contributo unificato previsto per la presente impugnazione, se dovuto, ai sensi dell’art. 13, comma 1-quater, d.P.R. 30 maggio 2002, n. 115. R.G. N.13765/2016 Cons. est. Valentino Lenoc",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "12714",
+            "organo": "cassazione",
+            "valid_from": "2025-05-13",
+            "jdoc_id": "030511e8c8c8e191",
+            "anno": "2025",
+            "valid_to": "",
+            "materia": ""
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "eeffb849cf016a80_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.1677,
+          "snippet": ". 29. Ai sensi dell'art. 13, comma 1 quater, del DPR n. 115/02, nel testo risultante dalla legge 24.12.2012 n. 228, deve provvedersi, ricorrendone i presupposti processuali, sempre come da dispositivo. La Corte rigetta i ricorsi. Condanna ciascuna società ricorrente al pagamento, in favore dei rispe",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-07-10",
+            "valid_to": "",
+            "numero": "18947",
+            "organo": "cassazione",
+            "jdoc_id": "eeffb849cf016a80",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "a3a78b8384d6a1e0_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.1126,
+          "snippet": ". 26. Ai sensi dell'art. 13, comma 1 quater, del DPR n. 115/02, nel testo risultante dalla legge 24.12.2012 n. 228, deve provvedersi, ricorrendone i presupposti processuali, sempre come da dispositivo. La Corte rigetta i ricorsi. Condanna ciascuna società ricorrente al pagamento, in favore dei rispe",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "valid_from": "2025-07-10",
+            "numero": "18948",
+            "organo": "cassazione",
+            "jdoc_id": "a3a78b8384d6a1e0",
+            "materia": "",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "7e0694bff98c9988_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.1087,
+          "snippet": ". 22. Ai sensi dell'art. 13, comma 1 quater, del DPR n. 115/02, nel testo risultante dalla legge 24.12.2012 n. 228, deve provvedersi, ricorrendone i presupposti processuali, sempre come da dispositivo. La Corte rigetta i ricorsi. Condanna ciascuna società ricorrente al pagamento, in favore dei rispe",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-07-10",
+            "anno": "2025",
+            "organo": "cassazione",
+            "valid_to": "",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "7e0694bff98c9988",
+            "numero": "18951"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "5acfff962fa49a34_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.4674,
+          "snippet": "in favore della controricorrente società, mentre l’INPS non ha svolto attività difensiva;ai sensi dell’art. 13, comma 1-quater, del d.P.R. n. 115 del 2002, nel testo introdotto dall’art. 1, comma 17, della legge n. 228 del 2012, occorre altresì dare atto della sussistenza dei presupposti processuali",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "materia": "",
+            "valid_from": "2025-05-02",
+            "valid_to": "",
+            "jdoc_id": "5acfff962fa49a34",
+            "anno": "2025",
+            "chunk_type": "dispositivo",
+            "numero": "11581"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "50564416bbc2c127_massima",
+          "source_id": "giurisprudenza_corte_conti",
+          "score": -2.8371,
+          "snippet": "deferita con atto\ndel 26 marzo 2025, ai sensi dell’art. 114, co. 3, c.g.c. (d.lgs. n. 174/2016\ne s.m.i.), dal Procuratore generale rappresentante il Pubblico\nministero presso la Corte dei conti, avente ad oggetto il seguente\nquesito: “se l’art. 51, comma 7, del Codice della giustizia contabile debba",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "valid_from": "2026-03-03",
+            "organo": "corte_conti",
+            "source_id": "giurisprudenza_corte_conti",
+            "materia": "",
+            "valid_to": "",
+            "jdoc_id": "50564416bbc2c127",
+            "numero": "3/QM",
+            "chunk_type": "massima"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "b6981076b36b9db8_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.2666,
+          "snippet": ", in relazione al reato di cui all'art. 5 D.Lgs. n. 74/2000, per non aver presentato, essendovi l'obbligo, la dichiarazione relativa alla imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto, commesso il 29 dicembre 2018, ed ordinando, ex art. 12-bis D.Igs. n. 74/2000, l",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "jdoc_id": "b6981076b36b9db8",
+            "organo": "cassazione",
+            "numero": "5436",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "1c96a1e34099ea69_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.4636,
+          "snippet": ". Si dà atto della sussistenza dei presupposti processuali dì cui all'art. 13, comma 1 quater, del D.P.R. 30 maggio 2002 n. 115, introdotto dall'art. 1, comma 17, della L. 24 dicembre 2012 n. 228. La Corte respinge il ricorso. Condanna la società ricorrente alla rifusione, in favore della parte cont",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-03-20",
+            "chunk_type": "dispositivo",
+            "valid_to": "",
+            "materia": "",
+            "numero": "6644",
+            "organo": "cassazione",
+            "anno": "2026",
+            "jdoc_id": "1c96a1e34099ea69",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "b72e269892840644_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.4794,
+          "snippet": ", tenendo a mente che, essendo l’Agenzia delle Entrate un’amministrazione pubblica che fruisce di tale beneficio, le spese sono prenotate a debito. 9. In virtù del richiamo fatto dall’articolo 380 - bis , comma 3, del codice di procedura civile, la società ricorrente deve essere condannata, ai sensi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-02-12",
+            "valid_to": "",
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "anno": "2026",
+            "numero": "3063",
+            "organo": "cassazione",
+            "jdoc_id": "b72e269892840644",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "4c015e2719e1bc47_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.5477,
+          "snippet": "(cfr. il terzo commadell’articolo), se non fosse al riguardo assorbente il dato dell’inapplicabilità della norma alla fattispecieoggetto di causa, visto che la richiamata disposizione è dettata per le società per le azioni, mentre per i consorzi sonooperanti le prescrizioni di cui all’art. 2603, n. ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "numero": "32272",
+            "organo": "cassazione",
+            "valid_to": "",
+            "valid_from": "2025-12-11",
+            "materia": "",
+            "jdoc_id": "4c015e2719e1bc47",
+            "chunk_type": "dispositivo"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nUna società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti.\n\n**NORMA APPLICABILE**\nLa norma applicabile è l'art. 25-quinquiesdecies D.Lgs. 231/2001.\n\n**GIURISPRUDENZA**\nLa giurisprudenza della Cassazione conferma l'applicabilità dell'art. 25-quinquiesdecies D.Lgs. 231/2001 per i reati tributari commessi nel interesse o vantaggio di una società.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La giurisprudenza è coerente e conferma l'applicabilità dell'art. 25-quinquiesdecies D.Lgs. 231/2001 per i reati tributari commessi nel interesse o vantaggio di una società.\n\n**GAP ANALYSIS**\nNel Packet manca la specifica applicazione delle sanzioni previste dall'art. 25-quinquiesdecies D.Lgs. 231/2001.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Una società risponde ai sensi del D.Lgs. 231/2001 per i reati tributari commessi nel suo interesse o vantaggio da soggetti apicali o sottoposti.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Ricorrono i presupposti per dichiarare la società ricorrente tenuta al pagamento di una somma di importo pari al contributo unificato previsto per la presente impugnazione, se dovuto, ai sensi dell’art. 13, comma 1-quater, d.P.R. 30 maggio 2002, n. 115.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "La norma applicabile è l'art. 25-quinquiesdecies D.Lgs. 231/2001.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Si dà atto della sussistenza dei presupposti processuali dì cui all'art. 13, comma 1 quater, del D.P.R. 30 maggio 2002 n. 115, introdotto dall'art. 1, comma 17, della L. 24 dicembre 2012 n. 228.",
+              "claim_type": "NORMA",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La giurisprudenza della Cassazione conferma l'applicabilità dell'art. 25-quinquiesdecies D.Lgs. 231/2001 per i reati tributari commessi nel interesse o vantaggio di una società.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Ricorrono i presupposti per dichiarare la società ricorrente tenuta al pagamento di una somma di importo pari al contributo unificato previsto per la presente impugnazione, se dovuto, ai sensi dell’art. 13, comma 1-quater, d.P.R. 30 maggio 2002, n. 115.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Si dà atto della sussistenza dei presupposti processuali dì cui all'art. 13, comma 1 quater, del D.P.R. 30 maggio 2002 n. 115, introdotto dall'art. 1, comma 17, della L. 24 dicembre 2012 n. 228.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La giurisprudenza è coerente e conferma l'applicabilità dell'art. 25-quinquiesdecies D.Lgs. 231/2001 per i reati tributari commessi nel interesse o vantaggio di una società.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Nel Packet manca la specifica applicazione delle sanzioni previste dall'art. 25-quinquiesdecies D.Lgs. 231/2001.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.695,
+      "duration_llm_s": 38.486,
+      "duration_total_s": 40.181,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 40.4
+  },
+  {
+    "id": 8,
+    "difficolta": "Difficile",
+    "norma": "D.Lgs. 74/2000 art. 19",
+    "modulo": "Penale Tributario",
+    "query": "Come si coordinano le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari? Quando opera il principio di specialità ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997?",
+    "response": {
+      "query": "Come si coordinano le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari? Quando opera il principio di specialità ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "6c52d28da919dc69_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.202,
+          "snippet": "ovvero anche all’accertamento delpresupposto impositivo.Le Sezioni Unite, a loro volta, con ordinanza interlocutoria n. 31961/2025,hanno ritenuto di differire la decisione in quanto nelle more la questione èstata rimessa alla Corte costituzionale per l’esame di possibili profili diillegittimità cost",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "organo": "cassazione",
+            "valid_to": "",
+            "anno": "2026",
+            "materia": "",
+            "chunk_type": "motivazione",
+            "jdoc_id": "6c52d28da919dc69",
+            "numero": "9238",
+            "valid_from": "2026-04-12",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "dfc6adb8435ac734_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.3916,
+          "snippet": "della decisione (Cass. n.7995/2022). La Corte di giustizia tributaria ha soltanto richiamato ilfatto che «la disciplina che interessa il criterio di ripartizionedell’onere probatorio tra Amministrazione Finanziaria econtribuente ha trovato riordino nel neo-introdotto comma 5-bisall’interno dell’art.",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "organo": "cassazione",
+            "jdoc_id": "dfc6adb8435ac734",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "anno": "2026",
+            "numero": "14596",
+            "valid_to": "",
+            "valid_from": "2026-05-17"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "81d5a31562194601_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.7077,
+          "snippet": "l’Avvocatura Generale dello Stato, con sede in Roma, ove per legge domiciliato (indirizzo pec per notifiche e comunicazioni: ags.rm@mailcert.avvocaturastato.it); RICORRENTE CONTRO Corsani M anuela, rappresentat a e difes a dall’Avv. Prof. Umberto Gargiulo, con studio in Napoli, ove elettivamente dom",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "81d5a31562194601",
+            "organo": "cassazione",
+            "numero": "22498",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "9c685079b82206a2_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.9357,
+          "snippet": "di acquisizionecoattiva delle aree in funzione sanante.Per il Tar, dunque, «in definitiva l’attività di esecuzione posta inessere dal commissario ad acta interferisce prevalendo sulprocedimento amministrativo attivato e concluso dalla RegioneCampania, nella parte in cui quantifica le somme da corris",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "numero": "8443",
+            "valid_from": "2026-04-03",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "9c685079b82206a2",
+            "organo": "cassazione",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "bb7fd150341a3d00_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.3172,
+          "snippet": "ese legali per procedimenti penali riguardanti fatti correlati all’incarico, può essere riconosciuto solo se eventualmente previsto nelcontratto stipulato tra le parti e nello specifico, non risulta che tale previsione vi fosse. Sulla base della disamina della normativa di settore (comprese le dispo",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "valid_to": "",
+            "jdoc_id": "bb7fd150341a3d00",
+            "organo": "cassazione",
+            "anno": "2025",
+            "valid_from": "2025-11-17",
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "30280",
+            "chunk_type": "motivazione"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "615dfccc9f8344ce_motivazione",
+          "source_id": "giurisprudenza_corte_conti",
+          "score": -4.4905,
+          "snippet": "LA CORTEDEICONTI\nDecreto n. 151/2025\nSEZIONEGIURISDIZIONALE\nPERLAREGIONESICILIANA\n***\nILPRESIDENTE\nVISTE le leggi 14 gennaio 1994, n. 19 e n. 20, recanti disposizioni in\nmateria di giurisdizione e controllo della Corte dei conti;\nVISTA la legge 20 dicembre 1996, n 639, recante disposizioni in\nmateri",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "source_id": "giurisprudenza_corte_conti",
+            "materia": "",
+            "organo": "corte_conti",
+            "jdoc_id": "615dfccc9f8344ce",
+            "valid_from": "2025-12-03",
+            "numero": "151",
+            "chunk_type": "motivazione",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "573d44df721b56f8_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.851,
+          "snippet": "OGGETTO: Tributi -ORDINANZA Definizione agevolataex art. 5 l. n. 130 del2022 - Estinzione.sul ricorso (iscritto al n. 22025/2022 R.G.) proposto da:SANTANIELLO GIOVANNI, rappresentato e difeso dagli avv. tipresso gli indirizzi p.e.c. di questi ultimi;- ricorrente -controAGENZIA DELLE ENTRATE;- intima",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2026-03-28",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "573d44df721b56f8",
+            "valid_to": "",
+            "chunk_type": "motivazione",
+            "materia": "",
+            "organo": "cassazione",
+            "numero": "7471",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "b11c5a5eef519f4b_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.6792,
+          "snippet": "seguente ORDINANZA sul ricorso proposto da: CASA OLEARIA ITALIANA S.P.A., in persona del legale rappresentante pro tempore, sedente in San Pietro Morubio, rappresenta e difesa dall’avv. Giuseppe Maria Cipolla, elettivamente domiciliati in Roma, viale G. Mazzini, 134, il tutto come da procura su fogl",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "jdoc_id": "b11c5a5eef519f4b",
+            "organo": "cassazione",
+            "numero": "28116",
+            "anno": 2025,
+            "materia": ""
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "231cb413fa1f9f84_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -5.8298,
+          "snippet": "statuisce che «L'art.21, n. 3, della sesta direttiva del Consiglio 17 maggio 1977, 77/388/CEE,in materia di armonizzazione delle legislazioni degli Stati membri relativealle imposte sulla cifra di affari - Sistema comune di imposta sul valoreaggiunto: base imponibile uniforme, quale modificata dalle",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "jdoc_id": "231cb413fa1f9f84",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "valid_from": "2026-04-16",
+            "materia": "",
+            "valid_to": "",
+            "numero": "9803"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "17e8eb9eb9728fae_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -6.3065,
+          "snippet": "“ accolto l’appello [ dell’Ufficio] limitatamente al recupero dell’imposta” effettuato in relazione alle contestate violazionidell’art. 17 del d.lgs. n. 241/97 (per utilizzo di credito Iva - di importi superiori a euro 5.000,00- in compensazione in anticipo) e dell’art. 10, comma 1, lett. a) n. 7 de",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "jdoc_id": "17e8eb9eb9728fae",
+            "organo": "cassazione",
+            "numero": "7160",
+            "anno": 2025,
+            "materia": ""
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa domanda riguarda la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari, specificando quando si applica il principio di specialità ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997.\n\n**NORMA APPLICABILE**\nIl principio di specialità ex art. 19 D.Lgs. 74/2000 prevede che le sanzioni amministrative non devono essere applicate quando la legge penale stabilisce una pena.\n\n**GIURISPRUDENZA**\nLa Corte di Cassazione ha ritenuto che la disciplina che interessa il criterio di ripartizione dell’onere probatorio tra Amministrazione Finanziaria e contribuente sia stata riordina nel neo-introdotto comma 5-bis all’interno dell’art. 1218 del Codice delle amministrazioni pubbliche.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La giurisprudenza conferma l'applicazione del principio di specialità ex art. 19 D.Lgs. 74/2000 quando la legge penale stabilisce una pena, ma non fornisce dettagli sulle condizioni in cui si applica il cumulo con le sanzioni del D.Lgs. 472/1997.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica normativa o giurisprudenza che definisca con precisione le condizioni in cui si applica il cumulo delle sanzioni tra la legge 74/2000 e il D.Lgs. 472/1997.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La domanda riguarda la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari, specificando quando si applica il principio di specialità ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La domanda riguarda la coordinazione tra le sanzioni amministrative tributarie e le sanzioni penali per i reati tributari, specificando quando si applica il principio di specialità ex art. 19 D.Lgs. 74/2000 e quando invece si applica il cumulo con le sanzioni del D.Lgs. 472/1997.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il principio di specialità ex art. 19 D.Lgs. 74/2000 prevede che le sanzioni amministrative non devono essere applicate quando la legge penale stabilisce una pena.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il principio di specialità ex art. 19 D.Lgs. 74/2000 prevede che le sanzioni amministrative non devono essere applicate quando la legge penale stabilisce una pena.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La Corte di Cassazione ha ritenuto che la disciplina che interessa il criterio di ripartizione dell’onere probatorio tra Amministrazione Finanziaria e contribuente sia stata riordina nel neo-introdotto comma 5-bis all’interno dell’art. 1218 del Codice delle amministrazioni pubbliche.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La Corte di Cassazione ha ritenuto che la disciplina che interessa il criterio di ripartizione dell’onere probatorio tra Amministrazione Finanziaria e contribuente sia stata riordina nel neo-introdotto comma 5-bis all’interno dell’art. 1218 del Codice delle amministrazioni pubbliche.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La giurisprudenza conferma l'applicazione del principio di specialità ex art. 19 D.Lgs. 74/2000 quando la legge penale stabilisce una pena, ma non fornisce dettagli sulle condizioni in cui si applica il cumulo con le sanzioni del D.Lgs. 472/1997.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica normativa o giurisprudenza che definisca con precisione le condizioni in cui si applica il cumulo delle sanzioni tra la legge 74/2000 e il D.Lgs. 472/1997.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.772,
+      "duration_llm_s": 36.343,
+      "duration_total_s": 38.115,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 38.3
+  },
+  {
+    "id": 9,
+    "difficolta": "Difficile",
+    "norma": "c.p.p. / D.Lgs. 74/2000",
+    "modulo": "Penale Tributario / Processuale",
+    "query": "Quali sono i presupposti per disporre il sequestro preventivo finalizzato alla confisca in un procedimento per reato tributario? Quale è il rapporto tra sequestro penale e misure cautelari fiscali?",
+    "response": {
+      "query": "Quali sono i presupposti per disporre il sequestro preventivo finalizzato alla confisca in un procedimento per reato tributario? Quale è il rapporto tra sequestro penale e misure cautelari fiscali?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "746ef28f2363de89_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 3.6724,
+          "snippet": "elettronico sottoposto a sequestro (ex multis, Sez. 2, n. 37409 del 10/09/2024, Rv. 286989). Tuttavia, se il sequestro probatorio riguarda un dispositivo contenente dati informatici, sussiste comunque l’interesse a proporre riesame per la verifica della sussistenza dei presupposti della misura caute",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "3621",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "valid_to": "",
+            "anno": "2026",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "746ef28f2363de89",
+            "materia": "",
+            "valid_from": "2026-01-28"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "aaaf2d1a39e8be87_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 2.4712,
+          "snippet": "e delimitare il perimetro di acquisizione dei dati, e non sui presupposti del sequestro stesso, che per sua natura probatoria rimane atto esclusivo del pubblico ministero. Osserva il ricorrente che, peraltro, questo decreto era stato preceduto da un decreto di sequestro probatorio emesso il 28 maggi",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "valid_to": "",
+            "anno": "2025",
+            "numero": "1026",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2026-01-12",
+            "jdoc_id": "aaaf2d1a39e8be87"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "fa5d3ec506db610b_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.7236,
+          "snippet": ", conla distrazione richiesta.Non si ravvisano però i presupposti per la condanna dellaricorrente ex art. 96 cod. proc. civ. chiesta dalla controricorrente.In considerazione dell’esito del ricorso, ai sensi dell’art. 13 co. 1-quater d.P.R. 30 maggio 2002 n. 115 si deve dare atto della sussistenzadei",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "jdoc_id": "fa5d3ec506db610b",
+            "source_id": "giurisprudenza_cassazione",
+            "numero": "15890",
+            "chunk_type": "dispositivo",
+            "organo": "cassazione",
+            "valid_to": "",
+            "anno": "2026",
+            "materia": "",
+            "valid_from": "2026-05-23"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "dfa6cc1f08c62ad4_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.699,
+          "snippet": ", la possibilità di prescrizioni tecniche. 6. Con Il quarto motivo rappresenta il vizio di violazione di legge per l'omessa considerazione dell'effetto preclusivo, derivante dall'annullamento di un precedente sequestro probatorio assieme all'assenza di una motivazione rafforzata. Si contesta la rite",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2026-05-27",
+            "valid_to": "",
+            "jdoc_id": "dfa6cc1f08c62ad4",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "numero": "19278",
+            "anno": "2026",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "d72e2617a9eb9288_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 0.127,
+          "snippet": ", ha confermato il sequestro, non ha dissequestrato alcunché e ha demandato, inmodo del tutto irrituale, al pubblico ministero ulteriori accertamenti (sul valore dei corrispettiviottenuti dal primo cessionario dei crediti) al fine di determinare l’effettivo ammontare delprofitto del reato.Diversamen",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "jdoc_id": "d72e2617a9eb9288",
+            "valid_to": "",
+            "valid_from": "2026-03-26",
+            "numero": "11608",
+            "anno": "2026",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "56462376c1db3f50_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -0.3651,
+          "snippet": "della sentenza pronunciata ex art. 444 cod. proc. pen. nei riguardi dell'imputato, nella parte relativa alla statuizione della confisca. La cognizione del tribunale in sede di appello cautelare ex art. 322-bis cod. proc. pen. verte, infatti, esclusivamente sulla valutazione dei presupposti per il ma",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "jdoc_id": "56462376c1db3f50",
+            "materia": "",
+            "valid_from": "2025-11-17",
+            "valid_to": "",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2025",
+            "numero": "37380"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "1210ade68f87a1db_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.0855,
+          "snippet": "informatico sia disposto dal giudice o da un organo amministrativo indipendente. CONSIDERATO IN DIRITTO 1. Il primo motivo è fondato. 1.1. Gli artt. 253, comma 1, e 355, comma 2, cod. proc. pen. prevedono espressamente un onere di motivazione del decreto di sequestro probatorio, o di convalida dello",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "valid_from": "2025-11-18",
+            "valid_to": "",
+            "organo": "cassazione",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "jdoc_id": "1210ade68f87a1db",
+            "numero": "37641",
+            "anno": "2025"
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "be85a5f850fc9181_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.2071,
+          "snippet": "Ancora per ciò che specificamente inerisce alla normativa previgente, in tema di procedimento di esecuzione delle pene pecuniarie, giova precisare quanto segue. Allorquando avesse sortito un esito negativo la ordinaria procedura di recupero – alla quale era istituzionalmente demandata, in via primar",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "anno": "2025",
+            "valid_from": "2025-05-06",
+            "organo": "cassazione",
+            "numero": "16709",
+            "materia": "",
+            "jdoc_id": "be85a5f850fc9181",
+            "source_id": "giurisprudenza_cassazione",
+            "chunk_type": "motivazione"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "3bf3245d2f2a8d21_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.796,
+          "snippet": "della custodia cautelare, ove venivanovalorizzati gli stessi elementi –l'omessa custodia del veicolo, il successivo trasporto della droga in assenza di persone da trasferire, la presenza nell'abitacolo di un quantitativo straordinario di sostanza stupefacente – che sono stati ritenuti logicamente es",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_from": "2025-11-24",
+            "organo": "cassazione",
+            "materia": "",
+            "jdoc_id": "3bf3245d2f2a8d21",
+            "chunk_type": "dispositivo",
+            "valid_to": "",
+            "numero": "38171",
+            "anno": "2025",
+            "source_id": "giurisprudenza_cassazione"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "8d4be9153045af43_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.1059,
+          "snippet": "; ha ottenuto copia dell'ordinanza solo in data 22 ottobre 2025 a seguito di accesso agli atti. Ulteriore doglianza, investe la violazione dell'art. 260 -bis cod. proc. pen., per avere il Tribunale ritenuto, in conseguenza dell'annullamento del decreto di sequestro, di dover annullare anche il decre",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "source_id": "giurisprudenza_cassazione",
+            "anno": "2026",
+            "organo": "cassazione",
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "numero": "12805",
+            "jdoc_id": "8d4be9153045af43",
+            "valid_to": "",
+            "valid_from": "2026-04-08"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nIl sequestro preventivo finalizzato alla confisca può essere disposto in un procedimento per reato tributario. Il rapporto tra sequestro penale e misure cautelari fiscali è specificato dalla normativa.\n\n**NORMA APPLICABILE**\nIl sequestro preventivo finalizzato alla confisca è regolato dall'articolo 1218 del Codice di procedura penale (CC). Non esiste una specifica norma per il rapporto tra sequestro penale e misure cautelari fiscali, ma si riferisce al generale articolo 355 del Codice di procedura penale.\n\n**GIURISPRUDENZA**\nLa giurisprudenza della Cassazione sottolinea l'importanza di motivare correttamente il decreto di sequestro probatorio, anche in relazione al rapporto tra misure penali e fiscali. Non esiste una specifica giurisprudenza sul rapporto tra sequestro penale e misure cautelari fiscali.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La valutazione della giurisprudenza suggerisce che la normativa e le pratiche attuali sono sufficienti per gestire il rapporto tra sequestro penale e misure cautelari fiscali, ma potrebbe essere necessario un maggiore specificamento.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica normativa o giurisprudenza che esplori il rapporto tra sequestro penale e misure cautelari fiscali in un contesto tributario.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "Il sequestro preventivo finalizzato alla confisca può essere disposto in un procedimento per reato tributario. Il rapporto tra sequestro penale e misure cautelari fiscali è specificato dalla normativa.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il sequestro preventivo finalizzato alla confisca può essere disposto in un procedimento per reato tributario.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            },
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il rapporto tra sequestro penale e misure cautelari fiscali è specificato dalla normativa.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il sequestro preventivo finalizzato alla confisca è regolato dall'articolo 1218 del Codice di procedura penale (CC). Non esiste una specifica norma per il rapporto tra sequestro penale e misure cautelari fiscali, ma si riferisce al generale articolo 355 del Codice di procedura penale.",
+          "citations": [
+            {
+              "source_id": "CC_ART_1218",
+              "claim": "Il sequestro preventivo finalizzato alla confisca è regolato dall'articolo 1218 del Codice di procedura penale (CC).",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": "GU n.79 del 04/04/1942"
+            },
+            {
+              "source_id": "CC_ART_355",
+              "claim": "Il rapporto tra sequestro penale e misure cautelari fiscali è specificato dal generale articolo 355 del Codice di procedura penale.",
+              "claim_type": "FACT",
+              "source_authority": "NORMATTIVA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La giurisprudenza della Cassazione sottolinea l'importanza di motivare correttamente il decreto di sequestro probatorio, anche in relazione al rapporto tra misure penali e fiscali. Non esiste una specifica giurisprudenza sul rapporto tra sequestro penale e misure cautelari fiscali.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La giurisprudenza della Cassazione sottolinea l'importanza di motivare correttamente il decreto di sequestro probatorio, anche in relazione al rapporto tra misure penali e fiscali.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La valutazione della giurisprudenza suggerisce che la normativa e le pratiche attuali sono sufficienti per gestire il rapporto tra sequestro penale e misure cautelari fiscali, ma potrebbe essere necessario un maggiore specificamento.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica normativa o giurisprudenza che esplori il rapporto tra sequestro penale e misure cautelari fiscali in un contesto tributario.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "MEDIUM",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.198,
+      "duration_llm_s": 36.507,
+      "duration_total_s": 37.706,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "FAIL",
+      "reviewer_action": "RE_RETRIEVAL",
+      "warnings": []
+    },
+    "elapsed_s": 37.7
+  },
+  {
+    "id": 10,
+    "difficolta": "Molto difficile",
+    "norma": "D.Lgs. 74/2000 art. 4 / TUIR",
+    "modulo": "Penale Tributario",
+    "query": "Come si determina la base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000? Quali componenti reddituali del TUIR rilevano per la soglia di punibilità?",
+    "response": {
+      "query": "Come si determina la base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000? Quali componenti reddituali del TUIR rilevano per la soglia di punibilità?",
+      "workspace": "mio-studio",
+      "intent": "fattispecie_analysis",
+      "sources": [
+        {
+          "rank": 1,
+          "doc_id": "68756f1e16fc8e71_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": 1.3059,
+          "snippet": "veva un avviso di accertamento per l’annod’imposta 2006 ai fini Irpef, per aver indicato compensi per euro7.400,00 provenienti da Health Club 2 srl, come “redditi diversi” nonsoggetti a tassazione. Un distinto avviso era notificato anche allaNumero registro generale 25412/2019Numero sezionale 3812/2",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "numero": "15708",
+            "jdoc_id": "68756f1e16fc8e71",
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "organo": "cassazione",
+            "valid_from": "2026-05-22",
+            "valid_to": "",
+            "chunk_type": "motivazione",
+            "anno": "2026"
+          }
+        },
+        {
+          "rank": 2,
+          "doc_id": "5fe5d3de46b2eeab_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -1.9932,
+          "snippet": "to, con ilquale, ai fini IRES, addizionali, IRAP e IVA, erano accertati maggioriricavi per euro 62.752,00 per l’anno d’imposta 2008. Nel corso delcontraddittorio endoprocedimentale al contribuente, che avevadichiarato l’attività di mero intermediario e consulente di venditaNumero registro generale 5",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "motivazione",
+            "numero": "14053",
+            "materia": "",
+            "valid_to": "",
+            "valid_from": "2026-05-13",
+            "jdoc_id": "5fe5d3de46b2eeab",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "anno": "2026"
+          }
+        },
+        {
+          "rank": 3,
+          "doc_id": "ddb8b6ae07ba4c0c_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -2.7864,
+          "snippet": "del 1973 atitolo di omessi versamenti Irpef, Irap e Iva per l’anno d’imposta2007. Dopo aver premesso di non aver ricevuto l’avviso bonario, ilNumero registro generale 29880/2017Numero sezionale 2519/2026contribuente contestava il disconoscimento del credito d’imposta diNumero di raccolta generale 89",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "chunk_type": "motivazione",
+            "source_id": "giurisprudenza_cassazione",
+            "valid_to": "",
+            "anno": "2026",
+            "valid_from": "2026-04-09",
+            "numero": "8964",
+            "organo": "cassazione",
+            "jdoc_id": "ddb8b6ae07ba4c0c"
+          }
+        },
+        {
+          "rank": 4,
+          "doc_id": "b6981076b36b9db8_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -3.2119,
+          "snippet": ", in relazione al reato di cui all'art. 5 D.Lgs. n. 74/2000, per non aver presentato, essendovi l'obbligo, la dichiarazione relativa alla imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto, commesso il 29 dicembre 2018, ed ordinando, ex art. 12-bis D.Igs. n. 74/2000, l",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "chunk_type": "dispositivo",
+            "valid_from": "2026-02-11",
+            "jdoc_id": "b6981076b36b9db8",
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "anno": "2025",
+            "numero": "5436",
+            "valid_to": "",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 5,
+          "doc_id": "5489255bd1dc5b8c_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -4.5838,
+          "snippet": "001VS00337, con il quale l’Agenzia delle entrate accertava unmaggior reddito per l’anno di imposta 2006, rideterminando leimposte (IVA ed IRAP). L’avviso si fondava sul processo verbale diconstatazione redatto dalla Guardia di finanza il 18 luglio 2007 e sulleindagini svolte sui conti correnti banca",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "jdoc_id": "5489255bd1dc5b8c",
+            "anno": "2026",
+            "source_id": "giurisprudenza_cassazione",
+            "chunk_type": "motivazione",
+            "valid_from": "2026-05-25",
+            "materia": "",
+            "valid_to": "",
+            "numero": "16145",
+            "organo": "cassazione"
+          }
+        },
+        {
+          "rank": 6,
+          "doc_id": "ecb1bf479f2ee21e_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -7.4731,
+          "snippet": ". Ricorrono i presupposti processuali per dichiarare la ricorrente tenuta al pagamento di una somma di importo pari al contributo unificato previsto per la presente impugnazione, se dovuto, ai sensi dell’art. 13, comma 1-quater, d.P.R. 30 maggio 2002, n. 115. P.Q.M La Corterigetta il ricorso. Condan",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "valid_to": "",
+            "numero": "25138",
+            "anno": "2025",
+            "jdoc_id": "ecb1bf479f2ee21e",
+            "valid_from": "2025-09-13",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "chunk_type": "dispositivo"
+          }
+        },
+        {
+          "rank": 7,
+          "doc_id": "1fb6e93e956a7e2f_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -8.5116,
+          "snippet": ".Ai sensi dell'art. 13 co. 1-quater d.p.r. n. 115 del 2002 va dato atto delsussistere dei presupposti per il versamento dell'ulteriore importo pari alcontributo unificato dovuto per il ricorso a norma del co. 1-bis dell'art. 13cit. P.Q.Mla corte rigetta il ricorso e condanna Roberto Pilotti alla ref",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "chunk_type": "dispositivo",
+            "valid_from": "2026-05-11",
+            "numero": "13620",
+            "jdoc_id": "1fb6e93e956a7e2f",
+            "anno": "2026",
+            "source_id": "giurisprudenza_cassazione",
+            "organo": "cassazione",
+            "valid_to": ""
+          }
+        },
+        {
+          "rank": 8,
+          "doc_id": "fc899359fab1360a_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -8.5739,
+          "snippet": ", in favore del controricorrente. Occorre dare atto che sussistono i presupposti processuali di cui all’art. 13 comma 1-quater D.P.R. n. 115/2002 per imporre un ulteriore contributo unificato a carico del ricorrente, se dovuto. P.Q.M La Corte rigettail ricorso e condanna la ricorrente al pagamento i",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "organo": "cassazione",
+            "jdoc_id": "fc899359fab1360a",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "materia": "",
+            "valid_from": "2025-06-26",
+            "anno": "2025",
+            "numero": "17277"
+          }
+        },
+        {
+          "rank": 9,
+          "doc_id": "0a961ed657ecb3af_dispositivo",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -8.6772,
+          "snippet": ". Sussistono, infine, i presupposti, ai sensi dell’articolo 13 comma 1quater del d.P.R. n. 115/2002, per il versamento, da parte dellaricorrente, dell’ulteriore importo a titolo di contributo unificato pari a quello previsto per il ricorso a norma del comma 1bis del citato art. 13, se dovuto. P.Q.M ",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "materia": "",
+            "valid_from": "2025-10-24",
+            "organo": "cassazione",
+            "anno": "2025",
+            "valid_to": "",
+            "chunk_type": "dispositivo",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "0a961ed657ecb3af",
+            "numero": "28245"
+          }
+        },
+        {
+          "rank": 10,
+          "doc_id": "22f1615084173cb9_motivazione",
+          "source_id": "giurisprudenza_cassazione",
+          "score": -8.7196,
+          "snippet": "o generale 24581/2018Numero sezionale 3034/2026Numero di raccolta generale 10836/2026Data pubblicazione 23/04/20261. In data 25/06/2014 l’Agenzia delle entrate notificava alcontribuente la cartella n. 112201400038368, per l’importo di euro6.934,09 a titolo di IRPEF, in seguito al controllo formale e",
+          "retrieval_method": "hybrid_rrf",
+          "metadata": {
+            "anno": "2026",
+            "numero": "10836",
+            "valid_from": "2026-04-23",
+            "chunk_type": "motivazione",
+            "materia": "",
+            "source_id": "giurisprudenza_cassazione",
+            "jdoc_id": "22f1615084173cb9",
+            "valid_to": "",
+            "organo": "cassazione"
+          }
+        }
+      ],
+      "retrieval_confidence": "HIGH",
+      "gaps": [],
+      "answer": "**QUALIFICAZIONE**\nLa base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si determina considerando i redditi totali (TUIR) rilevanti per la soglia di punibilità.\n\n**NORMA APPLICABILE**\nIl reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si riferisce alla non presentazione della dichiarazione relativa all'imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto.\n\n**GIURISPRUDENZA**\nLa giurisprudenza della Cassazione evidenzia che i maggiori redditi accertati, come quelli per l’anno d'imposta 2006 e 2008, sono stati considerati nel calcolo dell'imposta evasa. Inoltre, la Cassazione ha confermato l'obbligo di versamento del contributo unificato in base al TUIR.\n\n**VALUTAZIONE**\nVALUTAZIONE PERSONALE: La giurisprudenza conferma che i componenti del TUIR rilevanti per la soglia di punibilità sono considerati nel calcolo dell'imposta evasa. La solidità della valutazione è alta in quanto basata su precedenti della Cassazione.\n\n**GAP ANALYSIS**\nIl Packet manca di una specifica definizione del TUIR e dei suoi componenti, che sarebbe utile per una valutazione più dettagliata.",
+      "analysis_sections": [
+        {
+          "step": "QUALIFICAZIONE",
+          "content": "La base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si determina considerando i redditi totali (TUIR) rilevanti per la soglia di punibilità.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La base imponibile IRPEF/IRES ai fini del calcolo dell'imposta evasa nel reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si determina considerando i redditi totali (TUIR) rilevanti per la soglia di punibilità.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "NORMA APPLICABILE",
+          "content": "Il reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si riferisce alla non presentazione della dichiarazione relativa all'imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "Il reato di dichiarazione infedele ex art. 4 D.Lgs. 74/2000 si riferisce alla non presentazione della dichiarazione relativa all'imposta sui redditi, con conseguente evasione del pagamento dell'ammontare dovuto.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "GIURISPRUDENZA",
+          "content": "La giurisprudenza della Cassazione evidenzia che i maggiori redditi accertati, come quelli per l’anno d'imposta 2006 e 2008, sono stati considerati nel calcolo dell'imposta evasa. Inoltre, la Cassazione ha confermato l'obbligo di versamento del contributo unificato in base al TUIR.",
+          "citations": [
+            {
+              "source_id": "giurisprudenza_cassazione",
+              "claim": "La giurisprudenza della Cassazione evidenzia che i maggiori redditi accertati, come quelli per l’anno d'imposta 2006 e 2008, sono stati considerati nel calcolo dell'imposta evasa. Inoltre, la Cassazione ha confermato l'obbligo di versamento del contributo unificato in base al TUIR.",
+              "claim_type": "FACT",
+              "source_authority": "GIURISPRUDENZA",
+              "gu_reference": ""
+            }
+          ]
+        },
+        {
+          "step": "VALUTAZIONE",
+          "content": "VALUTAZIONE PERSONALE: La giurisprudenza conferma che i componenti del TUIR rilevanti per la soglia di punibilità sono considerati nel calcolo dell'imposta evasa. La solidità della valutazione è alta in quanto basata su precedenti della Cassazione.",
+          "citations": []
+        },
+        {
+          "step": "GAP ANALYSIS",
+          "content": "Il Packet manca di una specifica definizione del TUIR e dei suoi componenti, che sarebbe utile per una valutazione più dettagliata.",
+          "citations": []
+        }
+      ],
+      "overall_confidence": "HIGH",
+      "llm_model": "qwen2.5-7b-instruct",
+      "llm_available": true,
+      "escalation_recommended": false,
+      "duration_retrieval_s": 1.674,
+      "duration_llm_s": 32.182,
+      "duration_total_s": 33.857,
+      "clarification_needed": false,
+      "clarification_question": null,
+      "draft_type": null,
+      "draft_text": "",
+      "draft_rendered": "",
+      "draft_full_document": "",
+      "reviewer_verdict": "PASS",
+      "reviewer_action": "DELIVER",
+      "warnings": []
+    },
+    "elapsed_s": 34.0
+  }
+]

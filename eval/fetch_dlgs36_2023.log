@@ -1,0 +1,14 @@
+[32m2026-05-31 18:50:12.045[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m255[0m - [1mFetch atto: urn:nir:stato:decreto.legislativo:2023-03-31;36[0m
+[32m2026-05-31 18:50:12.045[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m256[0m - [1m  tipo: 'DECRETO LEGISLATIVO'  |  titolo: 'DECRETO LEGISLATIVO 31 marzo 2023, n. 36'[0m
+[32m2026-05-31 18:50:47.425[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  50 articoli scaricati…[0m
+[32m2026-05-31 18:51:16.931[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  100 articoli scaricati…[0m
+[32m2026-05-31 18:51:48.661[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  150 articoli scaricati…[0m
+[32m2026-05-31 18:52:19.711[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  200 articoli scaricati…[0m
+[32m2026-05-31 18:52:49.981[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  250 articoli scaricati…[0m
+[32m2026-05-31 18:53:20.488[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  300 articoli scaricati…[0m
+[32m2026-05-31 18:53:52.473[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  350 articoli scaricati…[0m
+[32m2026-05-31 18:54:33.725[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  400 articoli scaricati…[0m
+[32m2026-05-31 18:55:14.886[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  450 articoli scaricati…[0m
+[32m2026-05-31 18:55:57.967[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  500 articoli scaricati…[0m
+[32m2026-05-31 18:56:40.959[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  550 articoli scaricati…[0m
+[32m2026-05-31 18:56:46.349[0m | [32m[1mSUCCESS [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m305[0m - [32m[1m  urn:nir:stato:decreto.legislativo:2023-03-31;36: 557 articoli scaricati, 557 scritti/aggiornati[0m

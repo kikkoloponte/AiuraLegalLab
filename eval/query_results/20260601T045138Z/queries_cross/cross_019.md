@@ -1,0 +1,130 @@
+# cross_019 — tributario+amministrativo
+
+| Campo | Valore |
+|---|---|
+| **Data** | 2026-06-01 07:10 UTC |
+| **Difficoltà** | media |
+| **Intent** | reasoning → fattispecie_analysis |
+| **Workspace** | normattiva *(remappato da normattiva_cross)* |
+| **Recall@10** | 0.50 ⚠️ (1/2) |
+| **Reviewer** | ✅ PASS / DELIVER |
+| **Confidenza retrieval** | HIGH |
+| **Confidenza analisi** | MEDIUM |
+| **Latenza** | 24.4s (ret 0.3s + llm 23.8s) |
+
+## Query
+
+> Come si impugna il diniego di autotutela tributaria?
+
+## Risposta
+
+**QUALIFICAZIONE**
+Il diniego di autotutela tributaria può essere impugnato secondo le norme amministrative e giurisdizionali vigenti.
+
+**NORMA APPLICABILE**
+Il diniego di autotutela tributaria è regolato dal DECRETO LEGISLATIVO 2 luglio 2010, n. 104, Art. 18.
+
+**GIURISPRUDENZA**
+Non ci sono specifiche giurisprudenze che si riferiscano esplicitamente al diniego di autotutela tributaria.
+
+**VALUTAZIONE**
+VALUTAZIONE PERSONALE: La norma è chiara e specifica, ma la mancanza di giurisprudenza rende la valutazione un po' più incerta.
+
+**GAP ANALYSIS**
+Il Packet non contiene giurisprudenze rilevanti sul tema del diniego di autotutela tributaria.
+
+## Analisi (Chain of Thought)
+
+### QUALIFICAZIONE
+
+Il diniego di autotutela tributaria può essere impugnato secondo le norme amministrative e giurisdizionali vigenti.
+
+*Citazioni: {'source_id': 'urn:nir:stato:decreto.legislativo:2010-07-02;104~art18', 'claim': 'Il diniego di autorizzazione non impedisce la presentazione di una nuova istanza.', 'claim_type': 'FACT', 'source_authority': 'NORMATTIVA', 'gu_reference': 'DECRETO LEGISLATIVO 2 luglio 2010, n. 104'}*
+
+### NORMA APPLICABILE
+
+Il diniego di autotutela tributaria è regolato dal DECRETO LEGISLATIVO 2 luglio 2010, n. 104, Art. 18.
+
+*Citazioni: {'source_id': 'urn:nir:stato:decreto.legislativo:2010-07-02;104~art18', 'claim': 'Il diniego di autorizzazione non impedisce la presentazione di una nuova istanza.', 'claim_type': 'FACT', 'source_authority': 'NORMATTIVA', 'gu_reference': 'DECRETO LEGISLATIVO 2 luglio 2010, n. 104'}*
+
+### GIURISPRUDENZA
+
+Non ci sono specifiche giurisprudenze che si riferiscano esplicitamente al diniego di autotutela tributaria.
+
+### VALUTAZIONE
+
+VALUTAZIONE PERSONALE: La norma è chiara e specifica, ma la mancanza di giurisprudenza rende la valutazione un po' più incerta.
+
+### GAP ANALYSIS
+
+Il Packet non contiene giurisprudenze rilevanti sul tema del diniego di autotutela tributaria.
+
+## Fonti recuperate
+
+| # | URN | Score | Metodo | Attesa |
+|---|---|---|---|---|
+| 1 | `urn:nir:stato:legge:2000-07-27;212~art7` | 0.4474 | hybrid_rrf |  |
+| 2 | `urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art220` | -0.9493 | hybrid_rrf |  |
+| 3 | `urn:nir:stato:decreto.legislativo:2023-03-31;36~art416` | -1.8191 | hybrid_rrf |  |
+| 4 | `urn:nir:stato:legge:2000-07-27;212~art4` | -1.8426 | hybrid_rrf |  |
+| 5 | `urn:nir:stato:decreto.legislativo:2010-07-02;104~art18` | -2.6144 | hybrid_rrf |  |
+| 6 | `urn:nir:stato:legge:2000-07-27;212~art6` | -3.1463 | hybrid_rrf |  |
+| 7 | `urn:nir:stato:legge:2000-07-27;212~art8` | -3.1540 | hybrid_rrf |  |
+| 8 | `urn:nir:stato:decreto.legislativo:2010-07-02;104~art106` | -3.2763 | hybrid_rrf |  |
+| 9 | `urn:nir:stato:regio.decreto:1940-10-28;1443~art291` | -4.3655 | hybrid_rrf |  |
+| 10 | `urn:nir:stato:decreto.legislativo:1997-07-09;241~art36` | -4.6977 | hybrid_rrf |  |
+
+**Recall@10**: 0.50 — trovate 1/2
+
+**Fonti attese non trovate:**
+- `urn:nir:stato:decreto.legislativo:1992-12-31;546~art19`
+
+### Snippet fonti
+
+**[1]** `urn:nir:stato:legge:2000-07-27;212~art7`
+
+> LEGGE 27 luglio 2000, n. 212 Art. 7 Chiarezza e motivazione degli atti 1. Gli atti dell'amministrazione finanziaria ((, autonomamente impugnabili dinanzi agli organi della giurisdizione tributaria,)) sono motivati ((, a pena di annullabilità, indicando specificamente i presupposti, i mezzi di prova)
+
+**[2]** `urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art220`
+
+> DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447 Art. 186 Inosservanza di norme tributarie 1. Quando la legge assoggetta un atto a una imposta o a una tassa, l'inosservanza della norma tributaria non rende inammissibile l'atto né impedisce il suo compimento, salve le sanzioni finanz
+
+**[3]** `urn:nir:stato:decreto.legislativo:2023-03-31;36~art416`
+
+> DECRETO LEGISLATIVO 31 marzo 2023, n. 36  procedimento entro il termine di sessanta giorni dal ricevimento dell'istanza. Il tempo necessario all'ANAC per acquisire le richieste integrazioni non si computa nel termine. 4. Il diniego di autorizzazione non impedisce la presentazione di una nuova istanz
+
+**[4]** `urn:nir:stato:legge:2000-07-27;212~art4`
+
+> LEGGE 27 luglio 2000, n. 212 Art. 4 Utilizzo del decreto-legge in materia tributaria 1. Non si può disporre con decreto-legge l'istituzione di nuovi tributi nè prevedere l'applicazione di tributi esistenti ad altre categorie di soggetti.
+
+**[5]** `urn:nir:stato:decreto.legislativo:2010-07-02;104~art18`
+
+> DECRETO LEGISLATIVO 2 luglio 2010, n. 104 , richiede d'ufficio il regolamento di competenza. L'ordinanza che pronuncia sulla competenza e sulla domanda cautelare può essere impugnata col regolamento di competenza, oppure nei modi ordinari quando insieme con la pronuncia sulla competenza si impugna q
+
+**[6]** `urn:nir:stato:legge:2000-07-27;212~art6`
+
+> LEGGE 27 luglio 2000, n. 212  in materia tributaria. L'amministrazione finanziaria assicura che il contribuente possa ottemperare agli obblighi tributari con il minor numero di adempimenti e nelle forme meno costose e più agevoli. 3-ter. Le amministrazioni interessate provvedono alle attività relati
+
+**[7]** `urn:nir:stato:legge:2000-07-27;212~art8`
+
+> LEGGE 27 luglio 2000, n. 212 Art. 8 Tutela dell'integrità patrimoniale 1. L'obbligazione tributaria può essere estinta anche per compensazione. (15) (21) 2. È ammesso l'accollo del debito d'imposta altrui senza liberazione del contribuente originario. 3. Le disposizioni tributarie non possono stabil
+
+**[8]** `urn:nir:stato:decreto.legislativo:2010-07-02;104~art106`
+
+> DECRETO LEGISLATIVO 2 luglio 2010, n. 104 Art. 101 Contenuto del ricorso in appello 1. Il ricorso in appello deve contenere l'indicazione del ricorrente, del difensore, delle parti nei confronti delle quali è proposta l'impugnazione, della sentenza che si impugna, nonché l'esposizione sommaria dei f
+
+**[9]** `urn:nir:stato:regio.decreto:1940-10-28;1443~art291`
+
+> REGIO DECRETO 28 ottobre 1940, n. 1443 Art. 264. (Impugnazione e discussione). La parte che impugna il conto deve specificare le partite che intende contestare. Se chiede un termine per la specificazione, il giudice istruttore fissa un'udienza per tale scopo. Se le parti, in seguito alla discussione
+
+**[10]** `urn:nir:stato:decreto.legislativo:1997-07-09;241~art36`
+
+> DECRETO LEGISLATIVO 9 luglio 1997, n. 241 Art. 36 (( (Certificazione tributaria). )) (( 1. I revisori contabili iscritti negli albi dei dottori commercialisti, dei ragionieri e periti commerciali e dei consulenti del lavoro che hanno esercitato la professione per almeno cinque anni possono effettuar
+
+## CitationReviewer
+
+| Campo | Valore |
+|---|---|
+| Verdict | ✅ PASS |
+| Action | DELIVER |
+| Warnings | — |
