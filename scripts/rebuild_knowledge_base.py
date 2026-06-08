@@ -60,7 +60,7 @@ import shutil
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -112,7 +112,7 @@ def _update_phase(state: dict, phase: int, status: str, detail: str = "") -> Non
         "name": PHASE_NAMES[phase],
         "status": status,
         "detail": detail,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     _save_checkpoint(state)
 
@@ -128,7 +128,7 @@ def phase0_backup_bm25(dry_run: bool, state: dict) -> None:
         _update_phase(state, 0, "completed", "nessun pkl da backuppare")
         return
 
-    ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     pkl_files = list(BM25_DIR.glob("*.pkl"))
 
     if not pkl_files:
@@ -161,7 +161,6 @@ async def phase1_drop_chunks(
     from aiura_legal.ingestion.mongodb.client import MongoClient
 
     client = MongoClient()
-    await client.connect()
     db = client.db
 
     query: dict = {}
@@ -171,14 +170,12 @@ async def phase1_drop_chunks(
     if dry_run:
         count = await db.chunks.count_documents(query)
         logger.info(f"[DRY-RUN] Eliminerebbe {count} chunk (query: {query})")
-        await client.disconnect()
         _update_phase(state, 1, "completed", f"dry-run: {count} chunk")
         return
 
     result = await db.chunks.delete_many(query)
     deleted = result.deleted_count
     logger.info(f"[Fase 1] Eliminati {deleted} chunk")
-    await client.disconnect()
     _update_phase(state, 1, "completed", f"{deleted} chunk eliminati")
 
 
@@ -195,11 +192,8 @@ async def phase2_normattiva_pipeline(
     from aiura_legal.ingestion.normattiva.pipeline import NormattivaPipeline
     from aiura_legal.ingestion.mongodb.client import MongoClient
 
-    client = MongoClient()
-    await client.connect()
-
     if dry_run:
-        # Conta solo i doc sorgente
+        # Conta solo i doc sorgente (legge da legal_lab — read-only)
         from motor.motor_asyncio import AsyncIOMotorClient
         import os
         mongo_uri = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
@@ -207,13 +201,12 @@ async def phase2_normattiva_pipeline(
         count = await src_client["legal_lab"]["normattiva_docs"].count_documents({})
         logger.info(f"[DRY-RUN] Rechunkerebbe {count} documenti normattiva")
         src_client.close()
-        await client.disconnect()
         _update_phase(state, 2, "completed", f"dry-run: {count} doc sorgente")
         return
 
+    client = MongoClient()
     pipeline = NormattivaPipeline(mongo_db=client.db, workspace=workspace)
     result = await pipeline.chunk_collection()
-    await client.disconnect()
 
     logger.info(
         f"[Fase 2] Completato: {result.docs_processed} doc, "
@@ -239,19 +232,16 @@ async def phase3_dottrina_metadata(
     from aiura_legal.ingestion.mongodb.client import MongoClient
 
     client = MongoClient()
-    await client.connect()
 
     # Verifica se ci sono chunk dottrina
     count = await client.db.chunks.count_documents({"corpus": "dottrina"})
     if count == 0:
         logger.info("[Fase 3] Nessun chunk dottrina trovato — skip")
-        await client.disconnect()
         _update_phase(state, 3, "skipped", "nessun chunk dottrina")
         return
 
     extractor = DottrinaMetadataExtractor(client.db)
     stats = await extractor.run(workspace=workspace, dry_run=dry_run)
-    await client.disconnect()
 
     logger.info(f"[Fase 3] Stats: {stats}")
     _update_phase(
@@ -309,9 +299,7 @@ async def phase5_index_dottrina(
     logger.info("[Fase 5] build_indexes --corpus dottrina...")
     from aiura_legal.ingestion.mongodb.client import MongoClient
     client = MongoClient()
-    await client.connect()
     count = await client.db.chunks.count_documents({"corpus": "dottrina"})
-    await client.disconnect()
     if count == 0:
         logger.info("[Fase 5] Nessun chunk dottrina — skip")
         _update_phase(state, 5, "skipped", "nessun chunk dottrina")
@@ -323,9 +311,7 @@ async def phase6_index_studio(workspace: str, dry_run: bool, state: dict) -> boo
     logger.info("[Fase 6] build_indexes --corpus studio...")
     from aiura_legal.ingestion.mongodb.client import MongoClient
     client = MongoClient()
-    await client.connect()
     count = await client.db.chunks.count_documents({"corpus": "studio"})
-    await client.disconnect()
     if count == 0:
         logger.info("[Fase 6] Nessun chunk studio — skip")
         _update_phase(state, 6, "skipped", "nessun chunk studio")
@@ -342,9 +328,7 @@ async def phase7_index_giurisprudenza(
     logger.info("[Fase 7] build_jurisprudence_indexes...")
     from aiura_legal.ingestion.mongodb.client import MongoClient
     client = MongoClient()
-    await client.connect()
     count = await client.db.chunks.count_documents({"corpus": "giurisprudenza"})
-    await client.disconnect()
     if count == 0:
         logger.info("[Fase 7] Nessun chunk giurisprudenza — skip")
         _update_phase(state, 7, "skipped", "nessun chunk giurisprudenza")
