@@ -3,12 +3,13 @@ AiUra LegalLab — Normattiva parser e classificatore fonte.
 
 fonte_from_doc(doc)       → classifica un documento Normattiva nella tassonomia
                             corpus/fonte usata nei Chunk per il filtraggio subset.
+settore_from_doc(doc)     → classifica il settore giuridico (lista) del documento.
 NormattivaDocAdapter      → converte un documento aiura_legal.normattiva_docs
                             nei campi necessari per la creazione di Chunk tipizzati.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 
@@ -43,6 +44,74 @@ _TIPO_PARTIAL: list[tuple[str, str]] = [
     ("MINISTERIALE",                "dm"),
     ("MINISTERO",                   "dm"),
 ]
+
+
+# ---------------------------------------------------------------------------
+# Tassonomia settore giuridico (Chunk Schema V2)
+# ---------------------------------------------------------------------------
+
+#: Mapping fonte → settore (livello 1: codici maggiori, certezza assoluta)
+_FONTE_TO_SETTORE: dict[str, list[str]] = {
+    "codice_penale":        ["penale"],
+    "codice_proc_penale":   ["penale", "processuale"],
+    "codice_civile":        ["civile"],
+    "codice_proc_civile":   ["civile", "processuale"],
+    "legge_costituzionale": ["costituzionale"],
+}
+
+#: Keyword nel titolo → settore (livello 2: leggi/dlgs/dl generiche)
+#: Ogni tupla: (lista keyword, settore)  — ricerca case-insensitive nel titolo
+_TITLE_KEYWORDS_SETTORE: list[tuple[list[str], list[str]]] = [
+    (["codice penale", "codice di procedura penale"], ["penale"]),   # sicurezza assoluta
+    (["penale", "reato", " pena ", "delitto", "imputab", "antigiurid"], ["penale"]),
+    (["lavoro", "lavorator", "previdenz", "pensioni", "sicurezza sul lavoro",
+      "infortun sul lavoro", "cassa integr"], ["lavoro"]),
+    (["tribut", "fiscal", "impost", " iva ", "irpef", "ires", "accise",
+      "agenzie delle entrate", "catasto"], ["amministrativo"]),
+    (["appalto", "pubblica amministr", "pubblica amm", "concessione",
+      "permesso di costruir", "edilizia", "urbanistic"], ["amministrativo"]),
+    (["processo", "procedur", "giurisdiz", "esecuzione forzata",
+      "fallimento"], ["processuale"]),
+    (["civile", "contratt", "obbligaz", "societ", "commercio",
+      "consumator", "privacy", "dati personali"], ["civile"]),
+    (["costituzion", "parlamento", "ordinamento republic",
+      "regioni", "autonomie"], ["costituzionale"]),
+]
+
+
+def settore_from_doc(doc: dict, fonte: str | None = None) -> list[str]:
+    """
+    Classifica il settore giuridico di un documento Normattiva.
+
+    Ritorna una lista di valori tra:
+    "penale", "civile", "amministrativo", "lavoro",
+    "processuale", "costituzionale", "altro"
+
+    Logica a 3 livelli:
+      1. fonte già nota → _FONTE_TO_SETTORE (certezza assoluta, codici maggiori)
+      2. keyword nel titolo → _TITLE_KEYWORDS_SETTORE (~70% leggi/dlgs)
+      3. fallback → ["altro"]
+
+    Args:
+        doc:   documento MongoDB (normattiva_docs)
+        fonte: risultato di fonte_from_doc(doc) — se None viene ricalcolato
+    """
+    if fonte is None:
+        fonte = fonte_from_doc(doc)
+
+    # Livello 1: fonte nota (codici maggiori)
+    if fonte in _FONTE_TO_SETTORE:
+        return _FONTE_TO_SETTORE[fonte]
+
+    # Livello 2: keyword nel titolo
+    titolo = (doc.get("titolo") or "").lower()
+    if titolo:
+        for keywords, settore in _TITLE_KEYWORDS_SETTORE:
+            if any(kw in titolo for kw in keywords):
+                return settore
+
+    # Livello 3: fallback
+    return ["altro"]
 
 
 def fonte_from_doc(doc: dict) -> str:
@@ -95,8 +164,9 @@ class NormattivaDocAdapter:
     """
     Adatta un documento aiura_legal.normattiva_docs per la creazione di Chunk.
 
-    Calcola i campi di tipizzazione (corpus, fonte, testo_tipo) e normalizza
-    i campi di metadato (source_id, titolo, articolo_num, valid_from, valid_to).
+    Calcola i campi di tipizzazione (corpus, fonte, testo_tipo, settore) e
+    normalizza i campi di metadato (source_id, titolo, articolo_num,
+    titolo_articolo, valid_from, valid_to).
     """
 
     doc_id: str             # _id del documento in normattiva_docs (usato come document_id)
@@ -106,10 +176,12 @@ class NormattivaDocAdapter:
     fonte: str              # calcolato da fonte_from_doc
     testo_tipo: str         # propagato da normattiva_docs.testo_tipo
     titolo: str
+    titolo_articolo: str    # es. "Elemento psicologico del reato" — da normattiva_docs.titolo_articolo
     articolo_num: str
     tipo_provvedimento: str
-    valid_from: Optional[str]   # data_inizio_vigenza (formato yyyymmdd o None)
-    valid_to: Optional[str]     # data_fine_vigenza   (formato yyyymmdd, "99999999"=vigente, o None)
+    settore: list[str] = field(default_factory=list)  # calcolato da settore_from_doc
+    valid_from: Optional[str] = None  # data_inizio_vigenza (formato yyyymmdd o None)
+    valid_to: Optional[str] = None    # data_fine_vigenza   (formato yyyymmdd, "99999999"=vigente, o None)
 
     @classmethod
     def from_mongo_doc(cls, doc: dict) -> "NormattivaDocAdapter":
@@ -122,17 +194,20 @@ class NormattivaDocAdapter:
         """
         raw_id = doc.get("_id")
         doc_id = str(raw_id) if raw_id is not None else doc.get("urn", "")
+        fonte = fonte_from_doc(doc)
 
         return cls(
             doc_id=doc_id,
             source_id=doc.get("urn", ""),
             text=doc.get("text", ""),
             corpus="normattiva",
-            fonte=fonte_from_doc(doc),
+            fonte=fonte,
             testo_tipo=doc.get("testo_tipo", "normativo"),
             titolo=doc.get("titolo", ""),
+            titolo_articolo=doc.get("titolo_articolo", ""),
             articolo_num=doc.get("articolo_num", ""),
             tipo_provvedimento=doc.get("tipo_provvedimento", ""),
+            settore=settore_from_doc(doc, fonte=fonte),
             valid_from=doc.get("data_inizio_vigenza"),
             valid_to=doc.get("data_fine_vigenza"),
         )
@@ -152,7 +227,9 @@ class NormattivaDocAdapter:
             "fonte": self.fonte,
             "testo_tipo": self.testo_tipo,
             "titolo": self.titolo,
+            "titolo_articolo": self.titolo_articolo or None,
             "articolo_num": self.articolo_num,
+            "settore": self.settore,
             "valid_from": self.valid_from,
             "valid_to": self.valid_to,
         }
