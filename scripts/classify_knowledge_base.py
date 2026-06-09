@@ -38,6 +38,10 @@ from loguru import logger
 
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+LMSTUDIO_URL = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234")
+# USE_LMSTUDIO=1 (default) usa LM Studio (OpenAI-compat /v1/chat/completions)
+# USE_LMSTUDIO=0 usa Ollama (/api/generate)
+_USE_LMSTUDIO: bool = os.environ.get("USE_LMSTUDIO", "1") == "1"
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:32b")
 
 SETTORI_VALIDI = [
@@ -81,37 +85,66 @@ def get_mongo_client() -> pymongo.MongoClient:
 
 
 # ---------------------------------------------------------------------------
-# Helpers LLM (Ollama)
+# Helpers LLM (LM Studio OpenAI-compat o Ollama)
 # ---------------------------------------------------------------------------
 
-def _ollama_generate(prompt: str, model: str, timeout: int = 120) -> str:
-    """Chiama Ollama API in modalità sincrona e restituisce il testo generato."""
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.1, "num_predict": 200},
-    }
-    with httpx.Client(timeout=timeout) as client:
-        resp = client.post(f"{OLLAMA_URL}/api/generate", json=payload)
-        resp.raise_for_status()
-        return resp.json().get("response", "")
+def _llm_generate(prompt: str, model: str, timeout: int = 120) -> str:
+    """Chiama LM Studio (default) o Ollama in modalità sincrona."""
+    if _USE_LMSTUDIO:
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.1,
+            "max_tokens": 200,
+            "stream": False,
+        }
+        with httpx.Client(timeout=timeout) as client:
+            resp = client.post(f"{LMSTUDIO_URL}/v1/chat/completions", json=payload)
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"]
+    else:
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.1, "num_predict": 200},
+        }
+        with httpx.Client(timeout=timeout) as client:
+            resp = client.post(f"{OLLAMA_URL}/api/generate", json=payload)
+            resp.raise_for_status()
+            return resp.json().get("response", "")
+
+
+# Alias per retrocompatibilità con le chiamate esistenti nello script
+_ollama_generate = _llm_generate
 
 
 async def _ollama_generate_async(
     prompt: str, model: str, client: httpx.AsyncClient, semaphore: asyncio.Semaphore
 ) -> str:
-    """Chiama Ollama API in modalità asincrona."""
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "stream": False,
-        "options": {"temperature": 0.1, "num_predict": 200},
-    }
+    """Chiama LM Studio (default) o Ollama in modalità asincrona."""
     async with semaphore:
-        resp = await client.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=120)
-        resp.raise_for_status()
-        return resp.json().get("response", "")
+        if _USE_LMSTUDIO:
+            payload = {
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.1,
+                "max_tokens": 200,
+                "stream": False,
+            }
+            resp = await client.post(f"{LMSTUDIO_URL}/v1/chat/completions", json=payload, timeout=120)
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"]
+        else:
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+                "options": {"temperature": 0.1, "num_predict": 200},
+            }
+            resp = await client.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=120)
+            resp.raise_for_status()
+            return resp.json().get("response", "")
 
 
 def _parse_settori_response(raw: str) -> tuple[list[str], float]:
