@@ -91,7 +91,16 @@ class _BM25Sub:
 
     def add(self, docs: list[Document]) -> None:
         for doc in docs:
-            tokens = _tokenize(doc.text)
+            # NOTA: modifica a indexed_text invalida i pkl esistenti — eseguire build_indexes.py per rebuild
+            # Indicizza sommario+titolo_articolo+text[:200] per retrieval semantico più preciso
+            sommario   = doc.metadata.get("sommario", "") or ""
+            titolo     = doc.metadata.get("titolo_articolo", "") or ""
+            testo_trim = doc.text[:200] if doc.text else ""
+            indexed_text = f"{sommario} {titolo} {testo_trim}".strip()
+            # Fallback: se tutti i campi sono vuoti, usa almeno text[:200] — mai stringa vuota nel corpus BM25
+            if not indexed_text:
+                indexed_text = doc.text[:200] if doc.text else " "
+            tokens = _tokenize(indexed_text)
             self.tokenized.append(tokens)
             self.doc_ids.append(doc.id)
             self.doc_snippets.append(doc.text[:300])
