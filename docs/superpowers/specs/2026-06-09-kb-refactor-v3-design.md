@@ -60,6 +60,15 @@ Script: `scripts/classify_knowledge_base.py`
 Hardware target: RTX 5080 16GB, modello locale Qwen2.5 32B Q4 (o equivalente)  
 Modalità: riprendibile da checkpoint JSON locale
 
+### Idempotenza e Resume
+
+**Requisito:** ogni fase è idempotente — se il job si interrompe, può ripartire dal punto in cui si è fermato senza duplicare lavoro o corrompere dati.
+
+**Meccanismo per fase:**
+- **Fasi A, B:** checkpoint file JSON locale (`act_classification.json`, `sommario_progress.json`) con set degli `act_urn` / `chunk_id` già processati. Al riavvio, skip degli ID già presenti nel checkpoint.
+- **Fase C, D, E:** operazioni `$set` MongoDB sono idempotenti per natura — rieseguire sovrascrive con lo stesso valore. Skip automatico via query `{"settore_confidence": {"$gt": 0}}` (già classificati).
+- **Tutti i `$set` bulk** usano `upsert=False` — non creano mai documenti nuovi, aggiornano solo chunk esistenti.
+
 ### Fase A — Normattiva: classificazione a livello di atto (26.217 atti)
 
 **Input per ogni `act_urn`:** `titolo` + primi 5 `titolo_articolo`  
@@ -70,7 +79,8 @@ Settori disponibili: penale, civile, amministrativo, lavoro, tributario,
 processuale, costituzionale, altro.
 Rispondi ONLY con JSON: {"settori": [...], "confidence": 0.0-1.0}
 ```
-**Output:** `act_classification.json` (checkpoint locale)  
+**Output:** `act_classification.json` (checkpoint locale — append-only, non sovrascritto)  
+**Resume:** al riavvio carica il checkpoint, skippa `act_urn` già presenti  
 **Propagazione:** `$set` bulk su tutti i chunk con quell'`act_urn`  
 **Stima:** ~26k chiamate × 0.5s = ~3.6 ore
 
@@ -80,6 +90,7 @@ Rispondi ONLY con JSON: {"settori": [...], "confidence": 0.0-1.0}
 **Skip:** `testo_tipo="formula_ridondante"` — non portano contenuto classificatorio  
 **Prompt LLM:** *"In una frase di massimo 60 token, descrivi l'oggetto giuridico di questo articolo."*  
 **Parallelismo:** batch da 8 richieste concorrenti  
+**Resume:** `sommario_progress.json` traccia i `chunk_id` completati; al riavvio skip chunk già processati  
 **Stima:** ~100k × 0.3s / 8 = ~1 ora
 
 ### Fase C — Giurisprudenza: settore rule-based (zero LLM)
