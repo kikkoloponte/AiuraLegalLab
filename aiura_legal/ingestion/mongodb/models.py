@@ -73,6 +73,9 @@ class Chunk(BaseModel):
     corpus:     str = "studio"     # "normattiva" | "studio"
     fonte:      str = "altro"      # codice_civile | legge | dlgs | dl | dpr | rd | dm | altro
     testo_tipo: str = "normativo"  # "normativo" | "formula"
+    # Chunk Schema v3
+    sommario:            Optional[str] = None   # breve abstract del chunk
+    settore_confidence:  float = 0.0            # confidenza classificazione settore
 
 
 class IngestionJob(BaseModel):
