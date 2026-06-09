@@ -73,6 +73,10 @@ class Chunk(BaseModel):
     corpus:     str = "studio"     # "normattiva" | "studio"
     fonte:      str = "altro"      # codice_civile | legge | dlgs | dl | dpr | rd | dm | altro
     testo_tipo: str = "normativo"  # "normativo" | "formula"
+    # Chunk Schema V3 — context budget
+    sommario:            Optional[str] = None   # sintesi breve (~40 tok) per context budget
+    settore:             str = ""               # es. "civile" | "penale" | "amministrativo"
+    settore_confidence:  float = 0.0            # [0.0, 1.0] — confidence del classifier settore
 
 
 class IngestionJob(BaseModel):
