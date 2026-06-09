@@ -84,6 +84,9 @@ class Chunk(BaseModel):
     anno_pubblicazione: Optional[int] = None   # anno pubblicazione (dottrina)
     rivista:            Optional[str] = None   # slug rivista (dottrina)
     fascicolo:          Optional[str] = None   # es. "10/2017" (dottrina)
+    # Chunk Schema v3
+    sommario:            Optional[str] = None   # breve abstract del chunk (40-60 tok)
+    settore_confidence:  float = 0.0            # confidenza classificazione settore
 
 
 class IngestionJob(BaseModel):
