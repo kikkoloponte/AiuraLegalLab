@@ -81,7 +81,7 @@ export function SourceChip({
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold text-foreground text-[0.7rem]">{TYPE_LABELS[type]}</span>
-        {url && <span className="text-[0.65rem] text-blue-400 flex items-center gap-0.5"><ExternalLink className="w-2.5 h-2.5" />normattiva.it</span>}
+        {url && <span className="text-[0.65rem] text-blue-400 flex items-center gap-0.5"><ExternalLink className="w-2.5 h-2.5" />apri originale</span>}
         {type === 'studio' && <span className="text-[0.65rem] text-purple-400 flex items-center gap-0.5"><FolderOpen className="w-2.5 h-2.5" />vai ai documenti</span>}
       </div>
 
@@ -111,7 +111,7 @@ export function SourceChip({
 
       {/* Hint azione */}
       <p className="text-[0.6rem] text-muted-foreground/50 italic pt-0.5">
-        {url ? 'Clicca per aprire su normattiva.it'
+        {url ? 'Clicca per aprire il documento originale'
           : type === 'studio' ? 'Clicca per aprire i Documenti'
           : type === 'giurisprudenza' ? 'Clicca per copiare il riferimento sentenza'
           : 'Clicca per copiare il riferimento'}

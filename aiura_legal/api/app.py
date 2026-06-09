@@ -473,6 +473,9 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
         return StreamingResponse(_err(), media_type="text/event-stream")
 
     async def _generate():
+        # Accumulatori per la voce history (popolati dagli eventi phase_complete)
+        all_sections: list[dict] = []
+
         try:
             async for event_data in orchestrator.run_sequential(
                 query=req.query,
@@ -487,6 +490,9 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
 
                 if event_type == "phase_complete":
                     phase = event_data["phase"]
+                    # Accumula sezioni per il salvataggio history
+                    for s in phase.sections:
+                        all_sections.append({"step": s.step, "content": s.content, "citations": s.citations})
                     yield _sse_event("phase_complete", _phase_result_to_dict(phase))
 
                 elif event_type == "retrieval_done":
@@ -496,12 +502,45 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
                     })
 
                 elif event_type == "review_done":
+                    # Estrai answer dalla sezione CONCLUSIONE (o dalla prima disponibile)
+                    conclusione = next(
+                        (s["content"] for s in all_sections if s["step"] == "CONCLUSIONE"), ""
+                    )
+                    answer_summary = conclusione[:300] if conclusione else ""
+
+                    # Genera history_id e salva su MongoDB con dati completi
+                    history_id = str(uuid.uuid4())
+                    try:
+                        mongo = MongoClient.get()
+                        await mongo.db["query_history"].insert_one({
+                            "_id":              history_id,
+                            "query":            req.query,
+                            "workspace":        req.workspace,
+                            "intent":           req.intent,
+                            "mode":             "standard",
+                            "verdict":          event_data["verdict"],
+                            "confidence":       event_data["overall_confidence"],
+                            "answer":           conclusione,
+                            "answer_summary":   answer_summary,
+                            "analysis_sections": all_sections,
+                            "sources":          event_data.get("sources", []),
+                            "sources_count":    len(event_data.get("sources", [])),
+                            "duration_total_s": event_data["duration_total_s"],
+                            "created_at":       datetime.now(timezone.utc).isoformat(),
+                        })
+                    except Exception as exc:
+                        logger.warning(f"[/query/stream] history save fallita: {exc}")
+                        history_id = None
+
                     yield _sse_event("review_done", {
-                        "verdict": event_data["verdict"],
-                        "action": event_data["action"],
-                        "warnings": event_data["warnings"],
+                        "verdict":          event_data["verdict"],
+                        "action":           event_data["action"],
+                        "warnings":         event_data["warnings"],
                         "overall_confidence": event_data["overall_confidence"],
                         "duration_total_s": event_data["duration_total_s"],
+                        "sources":          event_data.get("sources", []),
+                        "gaps":             event_data.get("gaps", []),
+                        "history_id":       history_id,
                     })
 
                 elif event_type == "clarification_needed":

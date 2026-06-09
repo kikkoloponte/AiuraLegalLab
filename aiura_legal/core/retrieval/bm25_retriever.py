@@ -414,7 +414,11 @@ class BM25Retriever:
         corpus per corpus la prima volta che quel corpus viene ricercato.
         """
         saved = 0
-        for sub in self._subs.values():
+        for corpus, sub in self._subs.items():
+            logger.debug(
+                f"BM25.save(): corpus={corpus!r} doc_ids={len(sub.doc_ids)} "
+                f"dirty={sub.dirty} pkl_exists={sub.index_path.exists()}"
+            )
             if sub.dirty:
                 sub.save()
                 saved += 1
@@ -423,7 +427,7 @@ class BM25Retriever:
                 sub.save()
                 saved += 1
         if saved == 0:
-            logger.debug("BM25: nessun sub-indice da salvare (tutti in sync)")
+            logger.info("BM25.save(): nessun sub-indice da salvare (tutti dirty=False o doc_ids=0)")
 
         # bm25_meta.json aggregato per ispezione / kb_sync
         meta = {
@@ -489,6 +493,13 @@ class BM25Retriever:
     def __len__(self) -> int:
         return sum(len(sub) for sub in self._subs.values())
 
+    def __bool__(self) -> bool:
+        # Sempre True: l'oggetto è valido indipendentemente dal numero di doc
+        # caricati in memoria (i sub-indici sono lazy-loaded da pkl).
+        # Senza __bool__, Python usa __len__ → 0 quando i pkl non sono ancora
+        # caricati → `if bm25:` valuta False e salta l'intera sezione BM25.
+        return True
+
     # ------------------------------------------------------------------
     # Migrazione legacy bm25.pkl → 4 pkl per-corpus
     # ------------------------------------------------------------------
@@ -504,8 +515,15 @@ class BM25Retriever:
         legacy = self._ws / "indices" / "bm25.pkl"
         if not legacy.exists():
             return
-        # Se almeno uno dei sub-indici per-corpus esiste, la migrazione è già avvenuta
-        if any(sub.index_path.exists() for sub in self._subs.values()):
+        # Ottimizzazione: se tutti i pkl per-corpus esistono già (creati da build_indexes
+        # o build_jurisprudence_indexes), non serve leggere bm25.pkl (1 GB+).
+        # Rinomina il legacy senza caricarlo e termina.
+        if all(sub.index_path.exists() for sub in self._subs.values()):
+            logger.info(
+                "BM25: tutti i pkl per-corpus già presenti — "
+                "rinomino bm25.pkl legacy senza caricarlo."
+            )
+            legacy.rename(legacy.with_suffix(".pkl.migrated"))
             return
 
         logger.info("BM25: rilevato pkl legacy monolitico — avvio migrazione per-corpus...")

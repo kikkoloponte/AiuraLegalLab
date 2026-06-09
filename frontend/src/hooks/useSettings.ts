@@ -8,7 +8,15 @@ export interface LLMSettings {
   lmstudio_model:           string
   lmstudio_timeout:         number
   llm_temperature:          number
-  llm_max_tokens_per_phase: number
+  llm_max_tokens_per_phase: number  // legacy fallback — non esposto in UI
+  // Parametri runtime LLM
+  llm_n_ctx:                number
+  llm_n_batch:              number
+  // Max output tokens per fase IQRAC
+  llm_max_tokens_fase1:     number
+  llm_max_tokens_fase2:     number
+  llm_max_tokens_fase3:     number
+  llm_max_tokens_fase4:     number
   retrieval_top_k_rerank:   number
   retrieval_top_k_retrieve: number
 }
@@ -22,6 +30,12 @@ const DEFAULTS: LLMSettings = {
   lmstudio_timeout:         300,
   llm_temperature:          0.10,
   llm_max_tokens_per_phase: 1800,
+  llm_n_ctx:                8192,
+  llm_n_batch:              256,
+  llm_max_tokens_fase1:     700,
+  llm_max_tokens_fase2:     1100,
+  llm_max_tokens_fase3:     900,
+  llm_max_tokens_fase4:     1000,
   retrieval_top_k_rerank:   6,
   retrieval_top_k_retrieve: 20,
 }

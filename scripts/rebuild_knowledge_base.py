@@ -106,7 +106,7 @@ def _save_checkpoint(state: dict) -> None:
     )
 
 
-def _update_phase(state: dict, phase: int, status: str, detail: str = "") -> None:
+def _update_phase(state: dict, phase: int, status: str, detail: str = "", dry_run: bool = False) -> None:
     state[str(phase)] = {
         "phase": phase,
         "name": PHASE_NAMES[phase],
@@ -114,7 +114,8 @@ def _update_phase(state: dict, phase: int, status: str, detail: str = "") -> Non
         "detail": detail,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-    _save_checkpoint(state)
+    if not dry_run:
+        _save_checkpoint(state)
 
 
 # ---------------------------------------------------------------------------
@@ -125,7 +126,7 @@ def phase0_backup_bm25(dry_run: bool, state: dict) -> None:
     logger.info("[Fase 0] Backup BM25 pkl esistenti...")
     if not BM25_DIR.exists():
         logger.info("[Fase 0] Nessuna directory BM25 trovata — skip backup")
-        _update_phase(state, 0, "completed", "nessun pkl da backuppare")
+        _update_phase(state, 0, "completed", "nessun pkl da backuppare", dry_run=dry_run)
         return
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -133,7 +134,7 @@ def phase0_backup_bm25(dry_run: bool, state: dict) -> None:
 
     if not pkl_files:
         logger.info("[Fase 0] Nessun file pkl trovato — skip backup")
-        _update_phase(state, 0, "completed", "nessun pkl da backuppare")
+        _update_phase(state, 0, "completed", "nessun pkl da backuppare", dry_run=dry_run)
         return
 
     backup_dir = BM25_DIR.parent / f"bm25_backup_{ts}"
@@ -145,7 +146,7 @@ def phase0_backup_bm25(dry_run: bool, state: dict) -> None:
     else:
         logger.info(f"[DRY-RUN] Copierebbe {len(pkl_files)} pkl in {backup_dir}")
 
-    _update_phase(state, 0, "completed", f"{len(pkl_files)} pkl in {backup_dir}")
+    _update_phase(state, 0, "completed", f"{len(pkl_files)} pkl in {backup_dir}", dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -170,13 +171,13 @@ async def phase1_drop_chunks(
     if dry_run:
         count = await db.chunks.count_documents(query)
         logger.info(f"[DRY-RUN] Eliminerebbe {count} chunk (query: {query})")
-        _update_phase(state, 1, "completed", f"dry-run: {count} chunk")
+        _update_phase(state, 1, "completed", f"dry-run: {count} chunk", dry_run=dry_run)
         return
 
     result = await db.chunks.delete_many(query)
     deleted = result.deleted_count
     logger.info(f"[Fase 1] Eliminati {deleted} chunk")
-    _update_phase(state, 1, "completed", f"{deleted} chunk eliminati")
+    _update_phase(state, 1, "completed", f"{deleted} chunk eliminati", dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -201,7 +202,7 @@ async def phase2_normattiva_pipeline(
         count = await src_client["legal_lab"]["normattiva_docs"].count_documents({})
         logger.info(f"[DRY-RUN] Rechunkerebbe {count} documenti normattiva")
         src_client.close()
-        _update_phase(state, 2, "completed", f"dry-run: {count} doc sorgente")
+        _update_phase(state, 2, "completed", f"dry-run: {count} doc sorgente", dry_run=dry_run)
         return
 
     client = MongoClient()
@@ -214,7 +215,8 @@ async def phase2_normattiva_pipeline(
     )
     _update_phase(
         state, 2, "completed",
-        f"{result.docs_processed} doc, {result.chunks_created} chunk"
+        f"{result.docs_processed} doc, {result.chunks_created} chunk",
+        dry_run=dry_run,
     )
 
 
@@ -237,7 +239,7 @@ async def phase3_dottrina_metadata(
     count = await client.db.chunks.count_documents({"corpus": "dottrina"})
     if count == 0:
         logger.info("[Fase 3] Nessun chunk dottrina trovato — skip")
-        _update_phase(state, 3, "skipped", "nessun chunk dottrina")
+        _update_phase(state, 3, "skipped", "nessun chunk dottrina", dry_run=dry_run)
         return
 
     extractor = DottrinaMetadataExtractor(client.db)
@@ -246,7 +248,8 @@ async def phase3_dottrina_metadata(
     logger.info(f"[Fase 3] Stats: {stats}")
     _update_phase(
         state, 3, "completed",
-        f"updated={stats['updated']} skipped={stats['skipped']} errors={stats['errors']}"
+        f"updated={stats['updated']} skipped={stats['skipped']} errors={stats['errors']}",
+        dry_run=dry_run,
     )
 
 
@@ -264,7 +267,7 @@ def _run_build_indexes(
     """Esegue build_indexes.py per un corpus via subprocess. Ritorna True se OK."""
     if dry_run:
         logger.info(f"[DRY-RUN] Eseguirebbe: build_indexes.py --corpus {corpus}")
-        _update_phase(state, phase, "completed", f"dry-run: {corpus}")
+        _update_phase(state, phase, "completed", f"dry-run: {corpus}", dry_run=dry_run)
         return True
 
     cmd = [
@@ -280,11 +283,11 @@ def _run_build_indexes(
 
     if result.returncode != 0:
         logger.error(f"[Fase {phase}] FALLITA (returncode={result.returncode})")
-        _update_phase(state, phase, "failed", f"returncode={result.returncode}")
+        _update_phase(state, phase, "failed", f"returncode={result.returncode}", dry_run=dry_run)
         return False
 
     logger.info(f"[Fase {phase}] Completata in {elapsed:.0f}s")
-    _update_phase(state, phase, "completed", f"{elapsed:.0f}s")
+    _update_phase(state, phase, "completed", f"{elapsed:.0f}s", dry_run=dry_run)
     return True
 
 
@@ -302,7 +305,7 @@ async def phase5_index_dottrina(
     count = await client.db.chunks.count_documents({"corpus": "dottrina"})
     if count == 0:
         logger.info("[Fase 5] Nessun chunk dottrina — skip")
-        _update_phase(state, 5, "skipped", "nessun chunk dottrina")
+        _update_phase(state, 5, "skipped", "nessun chunk dottrina", dry_run=dry_run)
         return True
     return _run_build_indexes("dottrina", workspace, dry_run, state, 5)
 
@@ -314,7 +317,7 @@ async def phase6_index_studio(workspace: str, dry_run: bool, state: dict) -> boo
     count = await client.db.chunks.count_documents({"corpus": "studio"})
     if count == 0:
         logger.info("[Fase 6] Nessun chunk studio — skip")
-        _update_phase(state, 6, "skipped", "nessun chunk studio")
+        _update_phase(state, 6, "skipped", "nessun chunk studio", dry_run=dry_run)
         return True
     return _run_build_indexes("studio", workspace, dry_run, state, 6)
 
@@ -331,12 +334,12 @@ async def phase7_index_giurisprudenza(
     count = await client.db.chunks.count_documents({"corpus": "giurisprudenza"})
     if count == 0:
         logger.info("[Fase 7] Nessun chunk giurisprudenza — skip")
-        _update_phase(state, 7, "skipped", "nessun chunk giurisprudenza")
+        _update_phase(state, 7, "skipped", "nessun chunk giurisprudenza", dry_run=dry_run)
         return True
 
     if dry_run:
         logger.info(f"[DRY-RUN] Eseguirebbe: build_jurisprudence_indexes.py --organo {organi}")
-        _update_phase(state, 7, "completed", "dry-run")
+        _update_phase(state, 7, "completed", "dry-run", dry_run=dry_run)
         return True
 
     ok = True
@@ -357,7 +360,7 @@ async def phase7_index_giurisprudenza(
         else:
             logger.info(f"[Fase 7] organo={organo} completato in {elapsed:.0f}s")
 
-    _update_phase(state, 7, "completed" if ok else "failed", f"organi={organi}")
+    _update_phase(state, 7, "completed" if ok else "failed", f"organi={organi}", dry_run=dry_run)
     return ok
 
 
@@ -404,7 +407,7 @@ async def main(args: argparse.Namespace) -> None:
     for phase in range(start_phase, 8):
         if phase in skip_phases:
             logger.info(f"[Fase {phase}] SKIP (--skip-phase)")
-            _update_phase(state, phase, "skipped", "--skip-phase")
+            _update_phase(state, phase, "skipped", "--skip-phase", dry_run=dry_run)
             continue
 
         phase_name = PHASE_NAMES[phase]
@@ -446,7 +449,7 @@ async def main(args: argparse.Namespace) -> None:
 
         except Exception as exc:
             logger.exception(f"[Fase {phase}] Eccezione inattesa: {exc}")
-            _update_phase(state, phase, "failed", str(exc))
+            _update_phase(state, phase, "failed", str(exc), dry_run=dry_run)
             logger.error(f"Usa --from-phase {phase} per riprendere dopo aver risolto il problema.")
             sys.exit(1)
 

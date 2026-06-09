@@ -63,7 +63,7 @@ export function Chat() {
           <div ref={bottomRef} />
         </div>
 
-        <ChatInput onSend={(q, mode) => sendQuery(q, mode)} loading={loading} />
+        <ChatInput onSend={(q) => sendQuery(q)} loading={loading} />
       </div>
 
       {/* Pannello grafo (laterale destro) */}
