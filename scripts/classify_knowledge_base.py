@@ -75,6 +75,52 @@ FONTE_SETTORE_MAP: dict[str, list[str]] = {
     "mef":             ["tributario"],
 }
 
+# Keyword → settore per pre-classificazione rapida senza LLM.
+# Ordine: più specifico prima. Primo match vince.
+_KEYWORD_RULES: list[tuple[list[str], list[str], float]] = [
+    # (keywords_nel_titolo_lowercase, settori, confidence)
+    (["codice penale", "procedura penale", "processo penale", "codice di procedura penale"], ["penale", "processuale"], 0.95),
+    (["penale", "reato", "delitto", "contravvenzione", "pena detentiva", "reclusione"], ["penale"], 0.90),
+    (["codice civile", "procedura civile", "codice di procedura civile"], ["civile", "processuale"], 0.95),
+    (["diritto civile", "obbligazioni", "contratti", "proprietà", "successioni", "famiglia"], ["civile"], 0.85),
+    (["imposta sul reddito", "irpef", "ires", "iva", "accise", "tribut", "fiscale", "fisco", "catasto", "imposte", "tasse", "agevolazioni fiscali"], ["tributario"], 0.90),
+    (["lavoro", "lavoratori", "lavoratore", "occupazione", "contratto di lavoro", "licenziamento", "sindacato", "sciopero", "inps", "inail", "previdenza", "pensione", "cassa integrazione"], ["lavoro"], 0.90),
+    (["appalto pubblico", "contratti pubblici", "codice degli appalti", "pubblica amministrazione", "tar", "consiglio di stato", "procedimento amministrativo", "urbanistica", "edilizia", "esproprio", "demanio"], ["amministrativo"], 0.88),
+    (["costituzione", "costituzionale", "corte costituzionale", "diritti fondamentali", "parlamento", "governo", "referendum"], ["costituzionale"], 0.90),
+    (["processo", "procedura", "giurisdizione", "competenza", "appello", "cassazione", "tribunale"], ["processuale"], 0.75),
+    (["ambiente", "rifiuti", "inquinamento", "paesaggio", "tutela ambientale"], ["amministrativo"], 0.82),
+    (["sicurezza sul lavoro", "infortuni sul lavoro", "d.lgs. 81", "dlgs 81"], ["lavoro"], 0.95),
+    (["immigrazione", "stranieri", "asilo", "cittadinanza"], ["amministrativo"], 0.85),
+    (["codice del consumo", "consumatori", "tutela del consumatore"], ["civile"], 0.85),
+    (["privacy", "protezione dei dati", "gdpr", "trattamento dati"], ["amministrativo", "civile"], 0.80),
+    (["antimafia", "criminalità organizzata", "camorra", "mafia", "ndrangheta"], ["penale"], 0.92),
+    (["bancario", "credito", "banca", "testo unico bancario", "intermediazione finanziaria", "borsa", "finanza"], ["civile", "tributario"], 0.80),
+]
+
+
+def _extract_year_from_urn(act_urn: str) -> int | None:
+    """Estrae l'anno da un URN normattiva (es. urn:nir:stato:legge:1948-03-16;262 → 1948)."""
+    import re as _re
+    m = _re.search(r':(\d{4})-\d{2}-\d{2}[;~]', act_urn)
+    if m:
+        return int(m.group(1))
+    return None
+
+
+def _keyword_classify(titolo: str, snippet: str = "") -> tuple[list[str], float] | None:
+    """Classifica il settore tramite keyword matching su titolo e testo.
+    Restituisce (settori, confidence) se trova un match, None altrimenti.
+    Il titolo ha priorità; lo snippet abbassa la confidence di 0.05 (meno affidabile).
+    """
+    titolo_lower = titolo.lower()
+    snippet_lower = snippet.lower()[:500]
+    for keywords, settori, confidence in _KEYWORD_RULES:
+        if any(kw in titolo_lower for kw in keywords):
+            return settori, confidence
+        if snippet_lower and any(kw in snippet_lower for kw in keywords):
+            return settori, max(0.5, confidence - 0.1)
+    return None
+
 
 # ---------------------------------------------------------------------------
 # Helpers MongoDB
@@ -88,20 +134,39 @@ def get_mongo_client() -> pymongo.MongoClient:
 # Helpers LLM (LM Studio OpenAI-compat o Ollama)
 # ---------------------------------------------------------------------------
 
-def _llm_generate(prompt: str, model: str, timeout: int = 120) -> str:
+_JSON_SYSTEM = (
+    "Sei un classificatore JSON per il diritto italiano. "
+    "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido nel formato richiesto. "
+    "Non scrivere codice Python, non aggiungere spiegazioni, nessun testo fuori dal JSON."
+)
+
+
+def _llm_generate(
+    prompt: str, model: str, timeout: int = 120, system: str | None = None
+) -> str:
     """Chiama LM Studio (default) o Ollama in modalità sincrona."""
     if _USE_LMSTUDIO:
+        messages: list[dict] = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt})
         payload = {
             "model": model,
-            "messages": [{"role": "user", "content": prompt}],
+            "messages": messages,
             "temperature": 0.1,
-            "max_tokens": 200,
+            "max_tokens": 1024,
             "stream": False,
         }
+        # Disabilita il reasoning per modelli Gemma 4 / thinking models (classificazione non lo richiede)
+        if os.environ.get("DISABLE_THINKING", "1") == "1":
+            payload["enable_thinking"] = False
         with httpx.Client(timeout=timeout) as client:
             resp = client.post(f"{LMSTUDIO_URL}/v1/chat/completions", json=payload)
             resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"]
+            msg = resp.json()["choices"][0]["message"]
+            # Modelli reasoning (es. Gemma 4) mettono il thinking in reasoning_content
+            # e la risposta in content. Se content è vuoto, usa reasoning_content come fallback.
+            return msg.get("content") or msg.get("reasoning_content") or ""
     else:
         payload = {
             "model": model,
@@ -125,16 +190,21 @@ async def _ollama_generate_async(
     """Chiama LM Studio (default) o Ollama in modalità asincrona."""
     async with semaphore:
         if _USE_LMSTUDIO:
+            messages: list[dict] = [
+                {"role": "system", "content": _JSON_SYSTEM},
+                {"role": "user", "content": prompt},
+            ]
             payload = {
                 "model": model,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
                 "temperature": 0.1,
-                "max_tokens": 200,
+                "max_tokens": 2048,  # sommario: articolo completo + ragionamento
                 "stream": False,
             }
-            resp = await client.post(f"{LMSTUDIO_URL}/v1/chat/completions", json=payload, timeout=120)
+            resp = await client.post(f"{LMSTUDIO_URL}/v1/chat/completions", json=payload, timeout=300)
             resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"]
+            msg = resp.json()["choices"][0]["message"]
+            return msg.get("content") or msg.get("reasoning_content") or ""
         else:
             payload = {
                 "model": model,
@@ -142,57 +212,157 @@ async def _ollama_generate_async(
                 "stream": False,
                 "options": {"temperature": 0.1, "num_predict": 200},
             }
-            resp = await client.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=120)
+            resp = await client.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=300)
             resp.raise_for_status()
             return resp.json().get("response", "")
 
 
 def _parse_settori_response(raw: str) -> tuple[list[str], float]:
-    """Parse risposta LLM JSON per classificazione settori."""
+    """Parse risposta LLM JSON per classificazione settori.
+
+    Strategia robusta: cerca il primo oggetto JSON che contenga 'settori',
+    evitando di catturare tutto il testo (es. codice Python generato per errore).
+    """
+    import re as _re
     raw = raw.strip()
-    # Cerca blocco JSON nella risposta
-    start = raw.find("{")
-    end = raw.rfind("}") + 1
-    if start >= 0 and end > start:
+
+    # 1. Cerca specificamente {"settori": ...} con regex (più preciso)
+    pattern = _re.compile(
+        r'\{[^{}]*"settori"\s*:\s*\[[^\]]*\][^{}]*"confidence"\s*:\s*([\d.]+)[^{}]*\}',
+        _re.DOTALL,
+    )
+    m = pattern.search(raw)
+    if m:
         try:
-            data = json.loads(raw[start:end])
+            data = json.loads(m.group(0))
             settori = data.get("settori", ["altro"])
             confidence = float(data.get("confidence", 0.0))
-            # Filtra settori non validi
             settori = [s for s in settori if s in SETTORI_VALIDI]
             if not settori:
                 settori = ["altro"]
-            confidence = max(0.0, min(1.0, confidence))
-            return settori, confidence
+            return settori, max(0.0, min(1.0, confidence))
         except (json.JSONDecodeError, ValueError, TypeError):
             pass
+
+    # 2. Fallback: prova ogni coppia {…} dal più corto al più lungo
+    for m2 in _re.finditer(r'\{[^{}]+\}', raw, _re.DOTALL):
+        try:
+            data = json.loads(m2.group(0))
+            if "settori" in data:
+                settori = data.get("settori", ["altro"])
+                confidence = float(data.get("confidence", 0.0))
+                settori = [s for s in settori if s in SETTORI_VALIDI]
+                if not settori:
+                    settori = ["altro"]
+                return settori, max(0.0, min(1.0, confidence))
+        except (json.JSONDecodeError, ValueError, TypeError):
+            continue
+
     return ["altro"], 0.0
 
 
-def _build_settore_prompt(act_urn: str, titolo: str, titoli_articoli: list[str]) -> str:
-    articoli_str = "\n".join(f"  - {t}" for t in titoli_articoli[:5])
-    return f"""Classifica l'atto normativo italiano nei settori giuridici appropriati.
+def _build_settore_prompt(
+    act_urn: str,
+    titolo: str,
+    titoli_articoli: list[str],
+    testi_articoli: list[str] | None = None,
+) -> str:
+    articoli_str = "\n".join(f"  - {t}" for t in titoli_articoli[:5] if t.strip())
+    # Se i titoli_articoli sono tutti vuoti/generici includi snippet di testo
+    snippet_block = ""
+    useful_titles = [t for t in titoli_articoli[:5] if len(t.strip()) > 20]
+    if not useful_titles and testi_articoli:
+        snippets = [t[:600].strip() for t in testi_articoli[:3] if t.strip()]
+        if snippets:
+            snippet_str = "\n".join(f"  [{i+1}] {s}" for i, s in enumerate(snippets))
+            snippet_block = f"\nPrimi testi (estratto):\n{snippet_str}"
+    return (
+        f"Classifica questo atto normativo italiano. "
+        f"Rispondi con un oggetto JSON con campi 'settori' (array) e 'confidence' (float 0-1).\n\n"
+        f"Atto: {act_urn}\n"
+        f"Titolo: {titolo}\n"
+        f"Titoli articoli:\n{articoli_str or '  (non disponibili)'}"
+        f"{snippet_block}\n\n"
+        f"Settori validi: penale, civile, amministrativo, lavoro, tributario, processuale, costituzionale, altro\n"
+        f"Scegli 1-3 settori. Risposta JSON:"
+    )
 
-Atto: {act_urn}
-Titolo: {titolo}
-Primi articoli:
-{articoli_str}
 
-Rispondi SOLO con JSON valido nel formato:
-{{"settori": ["settore1", "settore2"], "confidence": 0.85}}
+def _build_batch_settore_prompt(acts: list[dict]) -> str:
+    """Prompt per classificare N atti in una sola chiamata LLM.
 
-Settori disponibili: penale, civile, amministrativo, lavoro, tributario, processuale, costituzionale, altro
+    acts: lista di dict con chiavi act_urn, titolo, snippet (testo breve).
+    Ritorna un JSON array: [{"act_urn": ..., "settori": [...], "confidence": 0.9}, ...]
+    """
+    lines = []
+    for i, a in enumerate(acts):
+        snippet = a.get("snippet", "")[:300]
+        lines.append(
+            f'{i+1}. act_urn="{a["act_urn"]}"\n'
+            f'   titolo="{a["titolo"]}"\n'
+            f'   testo="{snippet}"'
+        )
+    acts_str = "\n\n".join(lines)
+    return (
+        f"Classifica i seguenti {len(acts)} atti normativi italiani.\n"
+        f"Per ognuno indica i settori giuridici pertinenti e la confidence (0.0-1.0).\n"
+        f"Settori validi: penale, civile, amministrativo, lavoro, tributario, processuale, costituzionale, altro\n\n"
+        f"Atti da classificare:\n\n{acts_str}\n\n"
+        f'Rispondi ESCLUSIVAMENTE con un JSON array:\n'
+        f'[{{"act_urn": "...", "settori": ["..."], "confidence": 0.9}}, ...]\n'
+        f"Un oggetto per ogni atto, nello stesso ordine. JSON array:"
+    )
 
-Scegli i settori più pertinenti (1-3 max). JSON:"""
+
+def _parse_batch_settore_response(raw: str, acts: list[dict]) -> list[tuple[list[str], float]]:
+    """Parse risposta batch LLM. Ritorna lista di (settori, confidence) nella stessa sequenza di acts."""
+    import re as _re
+    raw = raw.strip()
+    # Cerca array JSON nella risposta
+    start = raw.find("[")
+    end = raw.rfind("]") + 1
+    if start >= 0 and end > start:
+        try:
+            data = json.loads(raw[start:end])
+            if isinstance(data, list):
+                results = []
+                for item in data:
+                    settori = item.get("settori", ["altro"])
+                    confidence = float(item.get("confidence", 0.0))
+                    settori = [s for s in settori if s in SETTORI_VALIDI] or ["altro"]
+                    results.append((settori, max(0.0, min(1.0, confidence))))
+                if len(results) == len(acts):
+                    return results
+        except (json.JSONDecodeError, ValueError, TypeError):
+            pass
+    # Fallback: prova a estrarre oggetti singoli per ogni act_urn
+    results = []
+    for act in acts:
+        pattern = _re.compile(
+            rf'"act_urn"\s*:\s*"{_re.escape(act["act_urn"])}"[^}}]*"settori"\s*:\s*\[([^\]]*)\][^}}]*"confidence"\s*:\s*([\d.]+)',
+            _re.DOTALL,
+        )
+        m = pattern.search(raw)
+        if m:
+            try:
+                settori = json.loads(f"[{m.group(1)}]")
+                confidence = float(m.group(2))
+                settori = [s for s in settori if s in SETTORI_VALIDI] or ["altro"]
+                results.append((settori, max(0.0, min(1.0, confidence))))
+                continue
+            except (json.JSONDecodeError, ValueError):
+                pass
+        results.append((["altro"], 0.0))
+    return results
 
 
 def _build_sommario_prompt(testo: str) -> str:
-    testo_trunc = testo[:800]
+    # Batch offline: nessun limite di contesto, passa l'articolo completo
     return f"""Genera un sommario conciso (40-60 parole) del seguente articolo normativo italiano.
 Il sommario deve catturare l'essenza della norma in modo chiaro e preciso.
 
 Articolo:
-{testo_trunc}
+{testo}
 
 Sommario (solo testo, no JSON, no prefissi):"""
 
@@ -227,6 +397,47 @@ def _save_checkpoint(checkpoint_dir: Path, filename: str, data: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Helper condiviso — applica classificazione a un atto e aggiorna chunks
+# ---------------------------------------------------------------------------
+
+def _apply_classification(
+    act: dict,
+    settori: list[str],
+    confidence: float,
+    checkpoint_dir: Path,
+    coll_source: Any,
+    coll_chunks: Any,
+) -> None:
+    """Salva checkpoint e aggiorna i chunk normattiva corrispondenti a questo atto.
+
+    I chunk non hanno 'act_urn': vengono trovati tramite source_id che corrisponde
+    ai valori di normattiva_docs.urn per quell'atto.
+    """
+    act_urn = act["act_urn"]
+    titolo = act.get("titolo", "")
+
+    _append_checkpoint(
+        checkpoint_dir, "act_classification.json",
+        act_urn, {"settori": settori, "confidence": confidence, "titolo": titolo},
+    )
+
+    # Recupera tutti gli URN articolo dell'atto (normattiva_docs.urn → chunks.source_id)
+    article_urns = act.get("article_urns") or []
+    if not article_urns:
+        # Carica on-demand se non pre-caricati
+        article_urns = coll_source.distinct("urn", {"act_urn": act_urn})
+
+    if article_urns:
+        result = coll_chunks.update_many(
+            {"source_id": {"$in": article_urns}, "corpus": "normattiva"},
+            {"$set": {"settore": settori, "settore_confidence": confidence}},
+        )
+        logger.debug(f"  {act_urn} → {settori} ({confidence:.2f}) — {result.modified_count} chunks aggiornati")
+    else:
+        logger.debug(f"  {act_urn} → {settori} ({confidence:.2f}) — nessun article_urn trovato")
+
+
+# ---------------------------------------------------------------------------
 # FASE A — Classificazione atti normattiva (act-level)
 # ---------------------------------------------------------------------------
 
@@ -253,70 +464,96 @@ def fase_a(workspace: str, model: str, batch_size: int, checkpoint_dir: Path) ->
         logger.info(f"Trovati {len(act_urns)} act_urn distinti")
 
         processed = 0
+        kw_classified = 0
+        llm_classified = 0
         interrupted = False
 
+        # --- Step 1: pre-carica titoli di tutti gli atti non ancora classificati ---
+        todo_acts: list[dict] = []
         for act_urn in act_urns:
             if act_urn in already_done:
                 continue
+            # Recupera titolo e un testo di esempio da normattiva_docs
+            docs = list(coll_source.find(
+                {"act_urn": act_urn},
+                {"titolo": 1, "titolo_articolo": 1, "text": 1, "urn": 1},
+                limit=5,
+            ))
+            titolo = docs[0].get("titolo", "") if docs else act_urn
+            snippet = next((d.get("text", "") for d in docs if d.get("text")), "")
+            article_urns = [d["urn"] for d in docs if d.get("urn")]
+            todo_acts.append({
+                "act_urn": act_urn,
+                "titolo": titolo,
+                "snippet": snippet,
+                "article_urns": article_urns,
+            })
 
-            try:
-                # Carica titolo + primi 5 titoli articoli
-                docs = list(coll_source.find(
-                    {"act_urn": act_urn},
-                    {"titolo": 1, "titolo_articolo": 1},
-                    limit=10,
-                ))
-                if not docs:
-                    # Fallback: cerca per urn
-                    docs = list(coll_source.find(
-                        {"urn": act_urn},
-                        {"titolo": 1, "titolo_articolo": 1},
-                        limit=10,
-                    ))
+        logger.info(f"Fase A: {len(todo_acts)} atti da classificare ({len(already_done)} già nel checkpoint)")
 
-                titolo = docs[0].get("titolo", "") if docs else ""
-                titoli_articoli = [
-                    d.get("titolo_articolo", "") for d in docs
-                    if d.get("titolo_articolo")
-                ][:5]
+        # --- Step 2: pre-classification (zero LLM) ---
+        needs_llm: list[dict] = []
+        pre_1948_skipped = 0
+        for act in todo_acts:
+            # Prima: keyword matching (ha priorità — una legge del 1930 sul codice penale è "penale")
+            kw_result = _keyword_classify(act["titolo"], act.get("snippet", ""))
+            if kw_result:
+                settori, confidence = kw_result
+                _apply_classification(act, settori, confidence, checkpoint_dir, coll_source, coll_chunks)
+                kw_classified += 1
+                continue
 
-                prompt = _build_settore_prompt(act_urn, titolo, titoli_articoli)
+            # Poi: atti pre-Costituzione senza keyword → "altro" senza LLM
+            act_year = _extract_year_from_urn(act["act_urn"])
+            if act_year is not None and act_year < 1948:
+                _apply_classification(act, ["altro"], 0.5, checkpoint_dir, coll_source, coll_chunks)
+                kw_classified += 1
+                pre_1948_skipped += 1
+                continue
 
-                raw = _ollama_generate(prompt, model)
-                settori, confidence = _parse_settori_response(raw)
+            needs_llm.append(act)
 
-                logger.debug(f"act_urn={act_urn} → settori={settori} confidence={confidence:.2f}")
+        if pre_1948_skipped:
+            logger.info(f"  Pre-1948 skip: {pre_1948_skipped} atti → ['altro'] senza LLM")
 
-                # Salva checkpoint (append-only)
-                entry = {"settori": settori, "confidence": confidence, "titolo": titolo}
-                _append_checkpoint(checkpoint_dir, "act_classification.json", act_urn, entry)
+        logger.info(
+            f"Keyword pre-classification: {kw_classified} atti classificati, "
+            f"{len(needs_llm)} rimandati a LLM"
+        )
 
-                # Aggiorna chunks in aiura_legal_lab_db
-                result = coll_chunks.update_many(
-                    {"act_urn": act_urn, "corpus": "normattiva"},
-                    {"$set": {"settore": settori, "settore_confidence": confidence}},
-                )
-                logger.debug(f"  chunks aggiornati: {result.modified_count}")
+        # --- Step 3: batch LLM per gli atti ambigui (10 per prompt) ---
+        LLM_BATCH = 5
+        try:
+            for batch_start in range(0, len(needs_llm), LLM_BATCH):
+                batch = needs_llm[batch_start:batch_start + LLM_BATCH]
+                try:
+                    prompt = _build_batch_settore_prompt(batch)
+                    raw = _ollama_generate(prompt, model, timeout=600, system=_JSON_SYSTEM)
+                    logger.debug(f"  batch raw [{batch_start}]: {repr(raw[:300])}")
+                    results = _parse_batch_settore_response(raw, batch)
+                    for act, (settori, confidence) in zip(batch, results):
+                        _apply_classification(act, settori, confidence, checkpoint_dir, coll_source, coll_chunks)
+                        llm_classified += 1
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    logger.error(f"Errore batch LLM (atti {batch_start}-{batch_start+len(batch)}): {e}")
+                    for act in batch:
+                        _apply_classification(act, ["altro"], 0.0, checkpoint_dir, coll_source, coll_chunks)
 
-                processed += 1
-                if processed % 100 == 0:
-                    logger.info(f"Fase A: {processed} atti classificati...")
+                processed = kw_classified + llm_classified
+                if processed % 500 == 0:
+                    logger.info(f"Fase A: {processed}/{len(todo_acts)} atti classificati...")
 
-            except KeyboardInterrupt:
-                interrupted = True
-                logger.warning("Interrotto da utente. Checkpoint salvato.")
-                break
-            except Exception as e:
-                logger.error(f"Errore per act_urn={act_urn}: {e}")
-                _append_checkpoint(
-                    checkpoint_dir, "act_classification.json",
-                    act_urn, {"settori": ["altro"], "confidence": 0.0, "error": str(e)}
-                )
+        except KeyboardInterrupt:
+            interrupted = True
+            logger.warning("Interrotto da utente. Checkpoint salvato.")
 
-        if not interrupted:
-            logger.info(f"Fase A completata: {processed} atti classificati")
-        else:
-            logger.info(f"Fase A interrotta: {processed} atti classificati prima dell'interruzione")
+        total = kw_classified + llm_classified
+        logger.info(
+            f"Fase A {'completata' if not interrupted else 'interrotta'}: "
+            f"{total} atti ({kw_classified} keyword, {llm_classified} LLM)"
+        )
     finally:
         client.close()
 
