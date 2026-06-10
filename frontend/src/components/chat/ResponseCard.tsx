@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ChevronDown, ChevronRight, FileText, Download, BookOpen, Scale, BookMarked } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { ChevronDown, ChevronRight, FileText, Download, BookOpen, Scale } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -35,10 +35,6 @@ export interface LegalResponse {
   summary: string
   full_analysis?: string
   analysis_sections?: AnalysisSection[]
-  analysis_fase_1?: AnalysisSection[]
-  analysis_fase_2?: AnalysisSection[]
-  mode?: 'standard' | 'deep'
-  fase_2_available?: boolean
   verdict: 'PASS' | 'FAIL' | 'WARN' | 'RE_RETRIEVAL'
   confidence: 'HIGH' | 'MEDIUM' | 'LOW'
   sources: Source[]
@@ -88,10 +84,25 @@ function stepColor(step: string) {
 // StepAccordion — singolo step espandibile
 // ---------------------------------------------------------------------------
 
-function StepAccordion({ section, defaultOpen = false }: { section: AnalysisSection; defaultOpen?: boolean }) {
+function StepAccordion({
+  section,
+  sources = [],
+  defaultOpen = false,
+}: {
+  section: AnalysisSection
+  sources?: Source[]
+  defaultOpen?: boolean
+}) {
   const [open, setOpen] = useState(defaultOpen)
   const label = stepLabel(section.step)
   const color = stepColor(section.step)
+
+  // Lookup veloce source_id → Source per citazioni cliccabili
+  const sourceMap = useMemo(() => {
+    const m: Record<string, Source> = {}
+    sources.forEach((s) => { m[s.source_id] = s })
+    return m
+  }, [sources])
 
   return (
     <div className={cn('border-l-2 ml-1', color.split(' ')[1])}>
@@ -114,13 +125,37 @@ function StepAccordion({ section, defaultOpen = false }: { section: AnalysisSect
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{section.content}</ReactMarkdown>
           </div>
           {section.citations.length > 0 && (
-            <div className="mt-2 space-y-1">
-              {section.citations.map((c, i) => (
-                <div key={i} className="text-xs text-muted-foreground bg-muted/30 rounded px-2 py-1 flex flex-wrap gap-x-2">
-                  <span className="font-mono text-primary/80">{c.source_id}</span>
-                  {c.claim && <span className="italic opacity-75">"{c.claim.slice(0, 80)}{c.claim.length > 80 ? '…' : ''}"</span>}
-                </div>
-              ))}
+            <div className="mt-2 space-y-1.5">
+              {section.citations.map((c, i) => {
+                const src = sourceMap[c.source_id]
+                if (src) {
+                  return (
+                    <div key={i} className="flex flex-col gap-0.5">
+                      <SourceChip
+                        sourceId={src.source_id}
+                        docId={src.doc_id}
+                        label={src.label}
+                        type={src.type}
+                        url={src.url}
+                        snippet={src.snippet}
+                        metadata={src.metadata}
+                      />
+                      {c.claim && (
+                        <span className="text-xs text-muted-foreground/70 italic pl-1">
+                          "{c.claim.slice(0, 100)}{c.claim.length > 100 ? '…' : ''}"
+                        </span>
+                      )}
+                    </div>
+                  )
+                }
+                // fallback: source_id non nel Packet (citazione non verificata)
+                return (
+                  <div key={i} className="text-xs text-muted-foreground bg-muted/30 rounded px-2 py-1 flex flex-wrap gap-x-2">
+                    <span className="font-mono text-primary/80">{c.source_id}</span>
+                    {c.claim && <span className="italic opacity-75">"{c.claim.slice(0, 80)}{c.claim.length > 80 ? '…' : ''}"</span>}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
@@ -137,12 +172,14 @@ function PhaseBlock({
   title,
   icon,
   sections,
+  sources = [],
   defaultOpen = false,
   badge,
 }: {
   title: string
   icon: React.ReactNode
   sections: AnalysisSection[]
+  sources?: Source[]
   defaultOpen?: boolean
   badge?: React.ReactNode
 }) {
@@ -173,6 +210,7 @@ function PhaseBlock({
             <StepAccordion
               key={s.step + i}
               section={s}
+              sources={sources}
               defaultOpen={s.step === 'CONCLUSIONE'}
             />
           ))}
@@ -196,10 +234,7 @@ export function ResponseCard({ response, className, onGraphOpen }: ResponseCardP
   const navigate = useNavigate()
   const { toast } = useToast()
 
-  const isDeep = response.mode === 'deep'
   const hasSections = (response.analysis_sections?.length ?? 0) > 0
-  const hasFase1 = (response.analysis_fase_1?.length ?? 0) > 0
-  const hasFase2 = (response.analysis_fase_2?.length ?? 0) > 0
 
   const handleExportPdf = () => {
     const printWindow = window.open('', '_blank')
@@ -272,41 +307,19 @@ export function ResponseCard({ response, className, onGraphOpen }: ResponseCardP
         <p className="text-sm text-foreground leading-relaxed">{response.summary}</p>
       </div>
 
-      {/* Analisi strutturata — mode=deep */}
-      {isDeep && (hasFase1 || hasFase2) && (
-        <>
-          <PhaseBlock
-            title="Fase 1 — Analisi normativa"
-            icon={<Scale className="w-3.5 h-3.5" />}
-            sections={response.analysis_fase_1 ?? []}
-            defaultOpen={true}
-          />
-          <PhaseBlock
-            title="Fase 2 — Analisi giurisprudenziale"
-            icon={<BookMarked className="w-3.5 h-3.5" />}
-            sections={response.analysis_fase_2 ?? []}
-            defaultOpen={true}
-            badge={
-              !response.fase_2_available
-                ? <span className="text-xs text-yellow-400 bg-yellow-950/50 rounded px-1.5 py-0.5">parziale</span>
-                : undefined
-            }
-          />
-        </>
-      )}
-
-      {/* Analisi strutturata — mode=standard */}
-      {!isDeep && hasSections && (
+      {/* Analisi strutturata IQRAC */}
+      {hasSections && (
         <PhaseBlock
           title="Analisi IQRAC"
           icon={<Scale className="w-3.5 h-3.5" />}
           sections={response.analysis_sections ?? []}
+          sources={response.sources}
           defaultOpen={true}
         />
       )}
 
       {/* Fallback testo libero (parse failed) */}
-      {!hasSections && !hasFase1 && response.full_analysis && (
+      {!hasSections && response.full_analysis && (
         <div className="border-b border-border px-4 py-3 prose prose-sm dark:prose-invert max-w-none text-sm">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{response.full_analysis}</ReactMarkdown>
         </div>

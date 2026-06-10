@@ -70,9 +70,23 @@ class Chunk(BaseModel):
     valid_to: Optional[datetime] = None
     token_count: int = 0
     # Tipizzazione subset retrieval (SPEC §16)
-    corpus:     str = "studio"     # "normattiva" | "studio"
+    corpus:     str = "studio"     # "normattiva" | "studio" | "giurisprudenza" | "dottrina"
     fonte:      str = "altro"      # codice_civile | legge | dlgs | dl | dpr | rd | dm | altro
     testo_tipo: str = "normativo"  # "normativo" | "formula"
+    # Settore giuridico — lista per supportare chunk multi-settore (es. procedura penale)
+    # Valori: "penale" | "civile" | "amministrativo" | "lavoro" | "processuale" | "costituzionale" | "altro"
+    # Campo opzionale: chunk senza settore non vengono esclusi dal retrieval
+    settore:    list[str] = Field(default_factory=list)
+    # Metadati titolo articolo (normattiva) e dottrina
+    titolo_articolo:    Optional[str] = None   # propagato da normattiva_docs.titolo_articolo
+    titolo_doc:         Optional[str] = None   # titolo documento/articolo (dottrina)
+    autore:             Optional[str] = None   # autore/i (dottrina)
+    anno_pubblicazione: Optional[int] = None   # anno pubblicazione (dottrina)
+    rivista:            Optional[str] = None   # slug rivista (dottrina)
+    fascicolo:          Optional[str] = None   # es. "10/2017" (dottrina)
+    # Chunk Schema v3
+    sommario:            Optional[str] = None   # sintesi breve (~40 tok) per context budget e BM25
+    settore_confidence:  float = 0.0            # [0.0, 1.0] — confidence classificazione settore
 
 
 class IngestionJob(BaseModel):

@@ -89,18 +89,26 @@ class OllamaClient:
         temperature: float = 0.1,
         max_tokens: int = 2048,
         system: Optional[str] = None,
+        n_ctx: int = 0,
+        n_batch: int = 0,
     ) -> str:
         if self._circuit_is_open():
             raise httpx.ConnectError("All connection attempts failed")
+
+        options: dict = {
+            "temperature": temperature,
+            "num_predict": max_tokens,
+        }
+        if n_ctx > 0:
+            options["num_ctx"] = n_ctx
+        if n_batch > 0:
+            options["num_batch"] = n_batch
 
         payload: dict = {
             "model": self.model,
             "prompt": prompt,
             "stream": False,
-            "options": {
-                "temperature": temperature,
-                "num_predict": max_tokens,
-            },
+            "options": options,
         }
         if system:
             payload["system"] = system

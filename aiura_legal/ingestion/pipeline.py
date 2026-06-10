@@ -66,10 +66,18 @@ class Tier1Pipeline:
     ) -> None:
         self.db = mongo_db
         self.workspace = workspace
-        self.corpus = corpus if corpus in ("studio", "dottrina") else "studio"
+        self.corpus = corpus if corpus in ("studio", "dottrina", "prassi") else "studio"
         self.extractor = DocumentExtractor()
         self.anonymizer = anonymizer or LegalAnonymizer(use_spacy=False)
-        self.chunker = chunker or Chunker()
+        # NOTA: modifica chunk size invalida chunk esistenti — richiede rebuild completo
+        # dottrina e prassi: chunk più piccoli (256/32) per precisione semantica
+        # studio: invariato (512/64)
+        if chunker is not None:
+            self.chunker = chunker
+        elif self.corpus in ("dottrina", "prassi"):
+            self.chunker = Chunker(max_tokens=256, overlap=32)
+        else:
+            self.chunker = Chunker()
         self._graph_builder = graph_builder
         self._workspace_path = workspace_path
 

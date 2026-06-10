@@ -108,6 +108,14 @@ async def build(
             logger.warning("Reset Qdrant: {}", exc)
         already_indexed: set[str] = set()
     else:
+        # BUGFIX: i sub-indici BM25 sono lazy-loaded (caricati solo al primo search()).
+        # build_jurisprudence_indexes.py non chiama mai search(), quindi _doc_ids
+        # sarebbe sempre vuoto senza questo caricamento esplicito. Carichiamo solo
+        # il sub "giurisprudenza" per non allocare memoria inutile per normattiva/studio.
+        giuri_sub = bm25._subs.get("giurisprudenza")
+        if giuri_sub is not None and giuri_sub.index_path.exists() and not giuri_sub.doc_ids:
+            giuri_sub.load()
+
         # BM25 salva chunk_id nel formato "{doc_id}_{tipo_chunk}"
         # (es. "1b87b6fbcf64a881_motivazione").
         # I chunk normativi NON hanno underscore nel loro ID (sono ObjectId plain).

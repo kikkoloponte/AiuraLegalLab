@@ -14,7 +14,7 @@ from typing import Optional
 
 from loguru import logger
 
-from aiura_legal.ingestion.chunker import Chunker
+from aiura_legal.ingestion.chunker import Chunker, NormattivaChunker
 from aiura_legal.ingestion.normattiva.parser import NormattivaDocAdapter
 from aiura_legal.core.graph.builder import LegalGraphBuilder
 
@@ -40,8 +40,8 @@ class NormattivaPipeline:
     """
     Legge da `aiura_legal.normattiva_docs`, chunka e salva in `aiura_legal.chunks`.
 
-    Ogni documento Normattiva (= un articolo) viene chunked con la sliding window
-    standard (512 token, overlap 64). I chunk ottengono corpus="normattiva",
+    Ogni documento Normattiva (= un articolo) viene chunked con NormattivaChunker
+    adattivo (≤400 token→intero, ≤800→256/32, >800→256/64). I chunk ottengono corpus="normattiva",
     fonte=fonte_from_doc(), testo_tipo dal documento sorgente.
 
     Utilizzo tipico:
@@ -62,7 +62,8 @@ class NormattivaPipeline:
     ) -> None:
         self.db = mongo_db
         self.workspace = workspace
-        self.chunker = chunker or Chunker()
+        # NOTA: modifica chunk size invalida chunk esistenti — richiede rebuild completo
+        self.chunker = chunker or NormattivaChunker()
         self.skip_formule = skip_formule
         self.upsert = upsert
         self.batch_size = batch_size

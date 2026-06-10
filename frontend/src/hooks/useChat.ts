@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import type { LegalResponse } from '@/components/chat/ResponseCard'
 
 export interface ChatMessage {
@@ -52,6 +53,8 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
     let url: string | undefined
     if (sourceId.startsWith('urn:nir:')) {
       url = `https://www.normattiva.it/uri-res/N2Ls?${sourceId}`
+    } else if (meta.source_url) {
+      url = meta.source_url
     }
 
     return {
@@ -66,16 +69,12 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
   })
 
   const sections = (data.analysis_sections as AnalysisSectionRaw[] ?? [])
-  const fase1   = (data.analysis_fase_1  as AnalysisSectionRaw[] ?? [])
-  const fase2   = (data.analysis_fase_2  as AnalysisSectionRaw[] ?? [])
-  const mode    = String(data.mode ?? 'standard') as 'standard' | 'deep'
 
   // Summary: preferisce QUESTIONE, poi QUALIFICAZIONE, poi CONCLUSIONE, poi answer
-  const allSections = mode === 'deep' ? [...fase1, ...fase2] : sections
   const summaryStep =
-    allSections.find((s) => s.step === 'QUESTIONE') ??
-    allSections.find((s) => s.step === 'QUALIFICAZIONE') ??
-    allSections.find((s) => s.step === 'CONCLUSIONE')
+    sections.find((s) => s.step === 'QUESTIONE') ??
+    sections.find((s) => s.step === 'QUALIFICAZIONE') ??
+    sections.find((s) => s.step === 'CONCLUSIONE')
   const summary = (summaryStep?.content ?? String(data.answer ?? '').slice(0, 400)) || 'Nessuna risposta disponibile.'
 
   const verdict    = String(data.reviewer_verdict ?? 'PASS') as LegalResponse['verdict']
@@ -84,10 +83,6 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
   return {
     summary,
     analysis_sections: sections as LegalResponse['analysis_sections'],
-    analysis_fase_1:   fase1   as LegalResponse['analysis_fase_1'],
-    analysis_fase_2:   fase2   as LegalResponse['analysis_fase_2'],
-    mode,
-    fase_2_available: Boolean(data.fase_2_available ?? false),
     verdict,
     confidence,
     sources,
@@ -108,8 +103,9 @@ export function useChat(workspace: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
   const [agentStatus, setAgentStatus] = useState('')
+  const queryClient = useQueryClient()
 
-  const sendQuery = useCallback(async (query: string, mode: 'standard' | 'deep' = 'standard') => {
+  const sendQuery = useCallback(async (query: string) => {
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: query }
     const aiId = crypto.randomUUID()
     const aiMsg: ChatMessage = {
@@ -136,7 +132,7 @@ export function useChat(workspace: string) {
           query,
           workspace,
           intent: 'fattispecie_analysis',
-          mode,
+          mode: 'standard',
         }),
       })
 
@@ -205,8 +201,54 @@ export function useChat(workspace: string) {
             finalVerdict = String(event.verdict ?? 'PASS')
             finalConfidence = String(event.overall_confidence ?? 'MEDIUM')
 
+            const rawSources = (event.sources as Array<Record<string, unknown>>) ?? []
+            const finalSources = rawSources.map((s) => {
+              const sourceId = String(s.source_id ?? '')
+              const meta = (s.metadata as Record<string, string> | undefined) ?? {}
+              const corpus = meta.corpus ?? ''
+
+              let type: 'normativa' | 'giurisprudenza' | 'studio' = 'normativa'
+              if (corpus === 'giurisprudenza' || sourceId.startsWith('giurisprudenza_')) type = 'giurisprudenza'
+              else if (corpus === 'studio') type = 'studio'
+
+              let label = sourceId
+              if (type === 'giurisprudenza') {
+                const organoMap: Record<string, string> = {
+                  cassazione: 'Cass.', tar: 'TAR', consiglio_stato: 'Cons. St.',
+                  corte_cost: 'Corte Cost.', corte_conti: 'Corte Conti',
+                }
+                const o = organoMap[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
+                const n = meta.numero ? `n.${meta.numero}` : ''
+                const y = meta.anno   ? `/${meta.anno}`   : ''
+                label = [o, n + y].filter(Boolean).join(' ') || sourceId
+              } else if (meta.articolo && meta.titolo) {
+                label = `${meta.articolo} — ${meta.titolo}`.slice(0, 60)
+              } else if (meta.articolo) {
+                label = meta.articolo
+              } else if (meta.titolo) {
+                label = meta.titolo.slice(0, 50)
+              } else if (sourceId.length > 40) {
+                label = sourceId.slice(sourceId.lastIndexOf(':') + 1)
+              }
+
+              return {
+                source_id: sourceId,
+                doc_id:    String(s.doc_id ?? ''),
+                label,
+                type,
+                snippet:  String(s.snippet ?? ''),
+                url:      sourceId.startsWith('urn:nir:')
+                            ? `https://www.normattiva.it/uri-res/N2Ls?${sourceId}`
+                            : undefined,
+                metadata: meta,
+              }
+            })
+
             const finalResponse = _buildFinalResponse(
-              query, accumulatedSections, finalVerdict, finalConfidence
+              query, accumulatedSections, finalVerdict, finalConfidence,
+              finalSources,
+              (event.gaps as string[]) ?? [],
+              String(event.history_id ?? '') || undefined,
             )
             setMessages((prev) =>
               prev.map((m) =>
@@ -215,6 +257,8 @@ export function useChat(workspace: string) {
                   : m
               )
             )
+            // Invalida la cache cronologia così la pagina /history si aggiorna
+            queryClient.invalidateQueries({ queryKey: ['history', workspace] })
 
           } else if (event.type === 'status') {
             // Backward compat con eventi status legacy
@@ -267,7 +311,7 @@ export function useChat(workspace: string) {
       setLoading(false)
       setAgentStatus('')
     }
-  }, [workspace])
+  }, [workspace, queryClient])
 
   const clear = useCallback(() => setMessages([]), [])
 
@@ -289,7 +333,6 @@ function _buildPartialResponse(
   return {
     summary,
     analysis_sections: sections as import('@/components/chat/ResponseCard').LegalResponse['analysis_sections'],
-    mode: 'standard',
     verdict: 'PASS',
     confidence: 'MEDIUM',
     sources: [],
@@ -302,6 +345,9 @@ function _buildFinalResponse(
   sections: AnalysisSectionRaw[],
   verdict: string,
   confidence: string,
+  sources: import('@/components/chat/ResponseCard').LegalResponse['sources'] = [],
+  gaps: string[] = [],
+  historyId?: string,
 ): import('@/components/chat/ResponseCard').LegalResponse {
   const summary = sections.find((s) => s.step === 'QUESTIONE')?.content
     ?? sections.find((s) => s.step === 'CONCLUSIONE')?.content
@@ -310,10 +356,10 @@ function _buildFinalResponse(
   return {
     summary,
     analysis_sections: sections as import('@/components/chat/ResponseCard').LegalResponse['analysis_sections'],
-    mode: 'standard',
     verdict: verdict as import('@/components/chat/ResponseCard').LegalResponse['verdict'],
     confidence: confidence as import('@/components/chat/ResponseCard').LegalResponse['confidence'],
-    sources: [],
-    gaps: [],
+    sources,
+    gaps,
+    history_id: historyId,
   }
 }

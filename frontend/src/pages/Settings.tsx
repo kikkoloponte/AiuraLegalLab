@@ -289,7 +289,7 @@ export function Settings() {
         </Section>
 
         {/* ── Sezione 3: Parametri LLM ── */}
-        <Section title="Parametri LLM" description="Temperatura e lunghezza delle risposte per fase IQRAC">
+        <Section title="Parametri LLM" description="Temperatura, finestra di contesto e limiti di generazione per fase IQRAC">
           <Field label={`Temperatura: ${settings.llm_temperature.toFixed(2)}`} hint="Valori bassi = risposte più deterministiche. Consigliato 0.05–0.15 per analisi legale.">
             <Slider
               value={settings.llm_temperature}
@@ -299,15 +299,81 @@ export function Settings() {
             />
           </Field>
 
-          <Field label="Max tokens per fase IQRAC" hint="Token massimi generati per ogni fase (Framing/Normativa/Giurisprudenza/Sintesi). Range: 500–4000.">
-            <Input
-              type="number"
-              value={settings.llm_max_tokens_per_phase}
-              onChange={(v) => update('llm_max_tokens_per_phase', Math.max(500, Math.min(4000, parseInt(v) || 1800)))}
-              min={500} max={4000}
-              disabled={isDisabled}
-            />
+          <Field
+            label="Context Length — n_ctx"
+            hint="Finestra KV-Cache (token). 8192 per GPU 6–8 GB VRAM, 16384 per GPU 12 GB+. Per LM Studio: impostare anche nel pannello Model → Context Length."
+          >
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                value={settings.llm_n_ctx}
+                onChange={(v) => update('llm_n_ctx', Math.max(2048, Math.min(32768, parseInt(v) || 8192)))}
+                min={2048} max={32768} step={256}
+                disabled={isDisabled}
+              />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">2048 – 32768</span>
+            </div>
           </Field>
+
+          <Field
+            label="Batch Size — n_batch"
+            hint="Token elaborati in parallelo durante l'ingest del prompt. Ridurre a 128–256 su GPU con VRAM limitata (6–8 GB) per evitare picchi di consumo."
+          >
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                value={settings.llm_n_batch}
+                onChange={(v) => update('llm_n_batch', Math.max(128, Math.min(512, parseInt(v) || 256)))}
+                min={128} max={512} step={64}
+                disabled={isDisabled}
+              />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">128 – 512</span>
+            </div>
+          </Field>
+
+          {/* Sottosezione max_tokens per fase */}
+          <div className="pt-1">
+            <p className="text-xs font-medium text-foreground mb-3">Limite token di output per fase IQRAC</p>
+            <div className="space-y-3">
+              {(
+                [
+                  { key: 'llm_max_tokens_fase1', label: 'Fase 1 — Framing',          min: 400, max: 1200, def: 700 },
+                  { key: 'llm_max_tokens_fase2', label: 'Fase 2 — Normativa',         min: 600, max: 1600, def: 1100, warn: true },
+                  { key: 'llm_max_tokens_fase3', label: 'Fase 3 — Giurisprudenza',    min: 500, max: 1400, def: 900 },
+                  { key: 'llm_max_tokens_fase4', label: 'Fase 4 — Sintesi',           min: 600, max: 1600, def: 1000 },
+                ] as const
+              ).map(({ key, label, min, max, def, warn }) => (
+                <div key={key} className="grid grid-cols-[1fr_auto_auto] items-center gap-3">
+                  <span className="text-xs text-foreground/80 flex items-center gap-1.5">
+                    {label}
+                    {warn && (
+                      <span
+                        title="Valore critico: valori troppo alti causano loop sintattici su modelli 7B"
+                        className="text-[10px] bg-amber-950/60 text-amber-400 border border-amber-700/40 rounded px-1 py-0.5"
+                      >
+                        anti-loop
+                      </span>
+                    )}
+                  </span>
+                  <input
+                    type="number"
+                    value={settings[key]}
+                    min={min} max={max} step={64}
+                    disabled={isDisabled}
+                    onChange={(e) =>
+                      update(key, Math.max(min, Math.min(max, parseInt(e.target.value) || def)))
+                    }
+                    className={cn(
+                      'w-24 bg-muted border border-border rounded-md px-2 py-1 text-sm text-foreground text-right',
+                      'focus:outline-none focus:ring-1 focus:ring-primary transition-colors',
+                      'disabled:opacity-50 disabled:cursor-not-allowed',
+                    )}
+                  />
+                  <span className="text-xs text-muted-foreground/60 whitespace-nowrap">{min}–{max}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </Section>
 
         {/* ── Sezione 4: Retrieval ── */}

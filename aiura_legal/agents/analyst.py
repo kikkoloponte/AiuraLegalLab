@@ -28,7 +28,13 @@ from aiura_legal.core.types import ResearchPacket, SearchResult
 class LlmBehaviorSettings(BaseSettings):
     model_config = ConfigDict(env_file=".env", extra="ignore")
     llm_temperature:          float = 0.10
-    llm_max_tokens_per_phase: int   = 1800
+    llm_max_tokens_per_phase: int   = 1800   # legacy fallback per analyze/analyze_deep
+    llm_n_ctx:                int   = 8192
+    llm_n_batch:              int   = 256
+    llm_max_tokens_fase1:     int   = 700
+    llm_max_tokens_fase2:     int   = 1100
+    llm_max_tokens_fase3:     int   = 900
+    llm_max_tokens_fase4:     int   = 1000
 
 
 _llm_settings = LlmBehaviorSettings()
@@ -158,6 +164,73 @@ def _norm_step(raw: str) -> str:
     return raw.strip()
 
 
+def _fix_missing_commas(text: str) -> str:
+    """
+    Inserisce virgole mancanti tra proprietà JSON consecutive.
+
+    Artefatto LLM comune: il modello chiude una stringa lunga e inizia la
+    proprietà successiva senza virgola:
+        "...long content..."
+        "citations": [...]
+    →
+        "...long content...",
+        "citations": [...]
+
+    Usa due passate:
+    - chiusura stringa seguita da apertura stringa-chiave: `" "key":`
+    - chiusura stringa seguita da chiusura array/oggetto poi altra chiave
+    """
+    # Virgola mancante tra "...valore..." e "prossima-chiave":
+    fixed = re.sub(r'(")\s*\n(\s*"[^"]+"\s*:)', r'\1,\n\2', text)
+    # Virgola mancante tra true/false/null/numero e "prossima-chiave":
+    fixed = re.sub(r'(true|false|null|\d)\s*\n(\s*"[^"]+"\s*:)', r'\1,\n\2', fixed)
+    return fixed
+
+
+def _extract_json_balanced(text: str) -> Optional[dict]:
+    """
+    Estrae il primo oggetto JSON bilanciato usando un contatore di parentesi.
+    Più robusto dei regex per JSON con nesting profondo o stringhe complesse.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape_next = False
+    for i, ch in enumerate(text[start:], start):
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\" and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                candidate = text[start : i + 1]
+                # Prova direttamente
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError:
+                    pass
+                # Prova con fix commas
+                fixed = _fix_missing_commas(candidate)
+                try:
+                    return json.loads(fixed)
+                except json.JSONDecodeError:
+                    pass
+                return _repair_truncated_json(fixed)
+    return None
+
+
 def _repair_truncated_json(text: str) -> Optional[dict]:
     """
     Tenta di riparare un JSON troncato da max_tokens chiudendo le strutture aperte.
@@ -213,7 +286,7 @@ def _format_source(i: int, s: SearchResult) -> list[str]:
     if meta.get("chunk_type"):
         chunk_label = {"massima": "Massima", "motivazione": "Motivazione", "dispositivo": "Dispositivo"}
         lines.append(f"    estratto: {chunk_label.get(meta['chunk_type'], meta['chunk_type'])}")
-    lines.append(f"    testo:    {s.snippet[:800]}")
+    lines.append(f"    testo:    {s.snippet[:400]}")
     return lines
 
 
@@ -255,8 +328,9 @@ class PhaseResult:
     duration_s: float = 0.0
     parse_ok: bool = True
     # Campi estratti dalla Fase 1 per guidare il retrieval delle fasi successive
-    questione_retrieval: str = ""     # query per retrieval normativa (da Fase 1)
+    questione_retrieval: str = ""       # query per retrieval normativa (da Fase 1)
     qualificazione_retrieval: str = ""  # query per retrieval giurisprudenza (da Fase 1)
+    settore_giuridico: str = ""         # settore estratto dalla Fase 1 (penale|civile|amministrativo|lavoro|tributario)
 
 
 # ---------------------------------------------------------------------------
@@ -337,29 +411,53 @@ class AnalystAgent:
     def _extract_json(self, raw: str) -> Optional[dict]:
         """
         Estrae il primo oggetto JSON valido dalla risposta LLM.
-        Se il JSON è troncato (max_tokens raggiunto) tenta un repair
-        aggiungendo le parentesi di chiusura mancanti.
+
+        Strategia a cascata:
+        1. Estrae il blocco tra ```json ... ``` (greedy — cattura l'intero oggetto)
+        2. Prova tutto il testo con regex greedy {.*}
+        3. Per ogni candidato: prova json.loads, poi fix-commas, poi repair-truncation
+        4. Ultimo fallback: bracket counter per estrarre JSON bilanciato
         """
-        for pattern in [
-            r"```json\s*(\{.*?\})\s*```",
-            r"```\s*(\{.*?\})\s*```",
-            r"(\{.*\})",
-            r"(\{.*)",          # JSON troncato — manca la chiusura
-        ]:
-            m = re.search(pattern, raw, re.DOTALL)
-            if not m:
-                continue
-            candidate = m.group(1)
-            # Prova il JSON così com'è
+        candidates: list[str] = []
+
+        # 1. Dentro blocco ```json ... ``` (greedy, non .*? che ferma al primo })
+        for pat in [r"```json\s*(\{.*\})\s*```", r"```\s*(\{.*\})\s*```"]:
+            m = re.search(pat, raw, re.DOTALL)
+            if m:
+                candidates.append(m.group(1))
+
+        # 2. Tutto il testo: da { a ultima }
+        m = re.search(r"(\{.*\})", raw, re.DOTALL)
+        if m:
+            candidates.append(m.group(1))
+
+        # 3. JSON troncato (manca la chiusura)
+        m = re.search(r"(\{.*)", raw, re.DOTALL)
+        if m:
+            candidates.append(m.group(1))
+
+        # 4. Bracket counter come fallback finale
+        candidates.append(raw)  # cerca in tutto il testo
+
+        for candidate in candidates:
+            # a) JSON così com'è
             try:
                 return json.loads(candidate)
             except json.JSONDecodeError:
                 pass
-            # Repair: chiudi array e oggetto aperti
-            repaired = _repair_truncated_json(candidate)
+            # b) Fix virgole mancanti tra proprietà (artefatto LLM comune)
+            fixed = _fix_missing_commas(candidate)
+            try:
+                return json.loads(fixed)
+            except json.JSONDecodeError:
+                pass
+            # c) Repair troncamento (aggiunge } ] mancanti)
+            repaired = _repair_truncated_json(fixed)
             if repaired is not None:
                 return repaired
-        return None
+
+        # d) Bracket counter: estrae JSON bilanciato ignorando testo circostante
+        return _extract_json_balanced(raw)
 
     def _parse_response(
         self, raw: str
@@ -564,19 +662,32 @@ class AnalystAgent:
         parts = ["FRAMING GIURIDICO (Fase 1) — non ripetere questi step:", "─" * 50]
         for s in sections:
             if s.content:
-                parts.append(f"{s.step}: {s.content[:500]}")
+                content = s.content[:300]
+                if len(s.content) > 300:
+                    content += "…"
+                parts.append(f"{s.step}: {content}")
+        # Aggiungi settore giuridico se disponibile (guida retrieval e coerenza)
+        if data.get("settore_giuridico"):
+            parts.append(f"settore_giuridico: {data['settore_giuridico']}")
         parts.append("─" * 50)
         return "\n".join(parts)
 
     @staticmethod
-    def _build_phase_context(phase_results: list["PhaseResult"]) -> str:
-        """Riassunto compatto di tutte le fasi precedenti."""
+    def _build_phase_context(phase_results: list["PhaseResult"], max_chars_per_section: int = 250) -> str:
+        """Riassunto compatto di tutte le fasi precedenti.
+
+        Limita ogni sezione a `max_chars_per_section` caratteri per contenere
+        il contesto entro limiti gestibili per il modello.
+        """
         parts = ["ANALISI PRECEDENTE — non ripetere questi step:", "─" * 50]
         for pr in phase_results:
             parts.append(f"\n[Fase {pr.phase}: {pr.name}]")
             for s in pr.sections:
                 if s.content:
-                    parts.append(f"{s.step}: {s.content[:400]}")
+                    content = s.content[:max_chars_per_section]
+                    if len(s.content) > max_chars_per_section:
+                        content += "…"
+                    parts.append(f"{s.step}: {content}")
         parts.append("─" * 50)
         return "\n".join(parts)
 
@@ -621,17 +732,24 @@ class AnalystAgent:
 
         # ── Fase 1: Framing ───────────────────────────────────────────
         t0 = time.monotonic()
+        _budget_f1 = _llm_settings.llm_max_tokens_fase1 - 50
         prompt_f1 = (
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Produci i 3 step di framing IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE.\n"
-            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+            "OGNI sezione: massimo 80 parole nel campo content. citations[] = array vuoto.\n"
+            f"BUDGET TOKEN: la risposta JSON DEVE terminare entro {_budget_f1} token. "
+            "Chiudi subito il JSON quando raggiungi QUESTIONE.\n"
+            "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f1 = ""
         data_f1: dict = {}
         try:
             raw_f1 = await self._ollama.generate(
                 prompt=prompt_f1, temperature=temperature,
-                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_FRAMING,
+                max_tokens=_llm_settings.llm_max_tokens_fase1,
+                system=_SYSTEM_PROMPT_FRAMING,
+                n_ctx=_llm_settings.llm_n_ctx,
+                n_batch=_llm_settings.llm_n_batch,
             )
             data_f1 = self._extract_json(raw_f1) or {}
         except Exception as exc:
@@ -647,6 +765,32 @@ class AnalystAgent:
         if not qualificazione_retrieval:
             qualificazione_retrieval = query
 
+        # Estrai settore_giuridico dalla Fase 1 (tassonomia: penale|civile|amministrativo|lavoro|tributario)
+        _SETTORI_VALIDI = frozenset({"penale", "civile", "amministrativo", "lavoro", "tributario"})
+        settore_giuridico = str(data_f1.get("settore_giuridico", "")).strip().lower()
+        if settore_giuridico not in _SETTORI_VALIDI:
+            # Fallback: inferisci dal testo della QUALIFICAZIONE
+            _qualificazione_content = next(
+                (s.content for s in sections_f1 if s.step == "QUALIFICAZIONE"), ""
+            ).lower()
+            _full_text = _qualificazione_content + " " + query.lower()
+            if any(kw in _full_text for kw in ("penale", "reato", "dolo", "colpa", "imputabil")):
+                settore_giuridico = "penale"
+            elif any(kw in _full_text for kw in ("licenziamento", "rapporto di lavoro", "ccnl", "inps")):
+                settore_giuridico = "lavoro"
+            elif any(kw in _full_text for kw in ("appalto pubblic", "atto amministrativ", "tar ", "autotutela")):
+                settore_giuridico = "amministrativo"
+            elif any(kw in _full_text for kw in ("tribut", "fiscal", "iva ", "irpef", "accertament")):
+                settore_giuridico = "tributario"
+            elif any(kw in _full_text for kw in ("contratt", "obbligaz", "risarciment", "inadempiment")):
+                settore_giuridico = "civile"
+            else:
+                settore_giuridico = ""
+        if settore_giuridico:
+            logger.info(f"[S3 Seq] settore_giuridico estratto da Fase 1: {settore_giuridico!r}")
+        else:
+            logger.info("[S3 Seq] settore_giuridico non riconosciuto — retrieval senza filtro settore")
+
         phase1 = PhaseResult(
             phase=1, name="FRAMING",
             sections=sections_f1,
@@ -657,6 +801,7 @@ class AnalystAgent:
             parse_ok=ok_f1,
             questione_retrieval=questione_retrieval,
             qualificazione_retrieval=qualificazione_retrieval,
+            settore_giuridico=settore_giuridico,
         )
         completed_phases.append(phase1)
         logger.info(
@@ -672,13 +817,13 @@ class AnalystAgent:
             import asyncio as _asyncio
             try:
                 norm_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_normativa, questione_retrieval
+                    phase_retriever.retrieve_normativa, questione_retrieval, 6, settore_giuridico
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval normativa fallito: {exc}")
             try:
                 dott_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_dottrina, questione_retrieval
+                    phase_retriever.retrieve_dottrina, questione_retrieval, 4, settore_giuridico
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval dottrina fallito: {exc}")
@@ -704,6 +849,7 @@ class AnalystAgent:
             dott_lines.append("=" * 60)
             ctx_dott = "\n".join(dott_lines) + "\n\n"
 
+        _budget_f2 = _llm_settings.llm_max_tokens_fase2 - 80
         prompt_f2 = (
             f"{framing_summary}\n\n"
             f"{ctx_norm}\n\n"
@@ -714,13 +860,21 @@ class AnalystAgent:
             "Per INTERPRETAZIONE puoi citare anche la DOTTRINA (se presente) a supporto "
             "dei criteri ermeneutici, con il relativo source_id.\n"
             "Ogni claim DEVE avere source_id dal Packet.\n"
-            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+            "VINCOLI STRINGENTI:\n"
+            "- OGNI sezione: massimo 100 parole nel campo content\n"
+            "- citations[]: massimo 3 elementi per sezione\n"
+            f"- BUDGET TOKEN: genera il JSON in meno di {_budget_f2} token totali\n"
+            "- NON annidare JSON dentro stringhe, NON usare blocchi ```json\n"
+            "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo, niente testo prima/dopo.\n"
         )
         raw_f2 = ""
         try:
             raw_f2 = await self._ollama.generate(
-                prompt=prompt_f2, temperature=temperature,
-                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_NORMATIVA,
+                prompt=prompt_f2, temperature=0.0,          # deterministico: riduce deriva sintattica
+                max_tokens=_llm_settings.llm_max_tokens_fase2,
+                system=_SYSTEM_PROMPT_NORMATIVA,
+                n_ctx=_llm_settings.llm_n_ctx,
+                n_batch=_llm_settings.llm_n_batch,
             )
         except Exception as exc:
             logger.warning(f"[S3 Seq Fase2] Ollama errore: {exc}")
@@ -748,7 +902,11 @@ class AnalystAgent:
             try:
                 import asyncio as _asyncio
                 giuri_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_giurisprudenza, qualificazione_retrieval
+                    phase_retriever.retrieve_giurisprudenza,
+                    qualificazione_retrieval,   # query stretta: qualificazione + questione
+                    6,
+                    settore_giuridico,
+                    questione_retrieval,         # query ampia: backbone concettuale
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval giurisprudenza fallito: {exc}")
@@ -762,19 +920,27 @@ class AnalystAgent:
         t2 = time.monotonic()
         ctx_giuri = self._format_phase_sources(giuri_sources)
         phase_context = self._build_phase_context(completed_phases)
+        _budget_f3 = _llm_settings.llm_max_tokens_fase3 - 80
         prompt_f3 = (
             f"{phase_context}\n\n"
             f"{ctx_giuri}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Produci il passo GIURISPRUDENZA analizzando le sentenze nel Packet.\n"
             "Ogni sentenza citata DEVE avere source_id dalla sezione FONTI PER QUESTA FASE.\n"
-            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+            "VINCOLI:\n"
+            "- GIURISPRUDENZA: massimo 120 parole nel campo content\n"
+            "- citations[]: massimo 3 elementi\n"
+            f"- BUDGET TOKEN: il JSON DEVE terminare entro {_budget_f3} token\n"
+            "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f3 = ""
         try:
             raw_f3 = await self._ollama.generate(
                 prompt=prompt_f3, temperature=temperature,
-                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ,
+                max_tokens=_llm_settings.llm_max_tokens_fase3,
+                system=_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ,
+                n_ctx=_llm_settings.llm_n_ctx,
+                n_batch=_llm_settings.llm_n_batch,
             )
         except Exception as exc:
             logger.warning(f"[S3 Seq Fase3] Ollama errore: {exc}")
@@ -799,18 +965,26 @@ class AnalystAgent:
         # ── Fase 4: Sintesi ───────────────────────────────────────────
         t3 = time.monotonic()
         full_context = self._build_phase_context(completed_phases)
+        _budget_f4 = _llm_settings.llm_max_tokens_fase4 - 80
         prompt_f4 = (
             f"{full_context}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
             "Sii operativo e preciso. Usa 'VALUTAZIONE PERSONALE:' per valutazioni non grounded.\n"
-            "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
+            "VINCOLI:\n"
+            "- OGNI sezione: massimo 100 parole nel campo content\n"
+            "- citations[]: massimo 2 elementi per sezione (richiama source_id già citati)\n"
+            f"- BUDGET TOKEN: il JSON DEVE terminare entro {_budget_f4} token totali\n"
+            "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f4 = ""
         try:
             raw_f4 = await self._ollama.generate(
                 prompt=prompt_f4, temperature=temperature,
-                max_tokens=max_tokens_per_phase, system=_SYSTEM_PROMPT_SINTESI,
+                max_tokens=_llm_settings.llm_max_tokens_fase4,
+                system=_SYSTEM_PROMPT_SINTESI,
+                n_ctx=_llm_settings.llm_n_ctx,
+                n_batch=_llm_settings.llm_n_batch,
             )
         except Exception as exc:
             logger.warning(f"[S3 Seq Fase4] Ollama errore: {exc}")

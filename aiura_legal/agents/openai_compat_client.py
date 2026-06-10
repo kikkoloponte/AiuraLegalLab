@@ -120,14 +120,23 @@ class OpenAICompatClient:
         temperature: float,
         max_tokens: int,
         stream: bool = False,
+        n_ctx: int = 0,
+        n_batch: int = 0,
     ) -> dict:
-        return {
+        payload: dict = {
             "model": self.model,
             "messages": messages,
             "temperature": temperature,
             "max_tokens": max_tokens,
             "stream": stream,
         }
+        # n_ctx / n_batch: ignorati da LM Studio ma salvati come memo
+        # e rispettati da backend compatibili (llama.cpp, vLLM con estensioni)
+        if n_ctx > 0:
+            payload["n_ctx"] = n_ctx
+        if n_batch > 0:
+            payload["n_batch"] = n_batch
+        return payload
 
     @staticmethod
     def _extract_content(choice: dict) -> str:
@@ -161,12 +170,14 @@ class OpenAICompatClient:
         temperature: float = 0.1,
         max_tokens: int = 4096,
         system: Optional[str] = None,
+        n_ctx: int = 0,
+        n_batch: int = 0,
     ) -> str:
         if self._circuit_is_open():
             raise httpx.ConnectError("All connection attempts failed")
 
         messages = self._build_messages(prompt, system)
-        payload = self._build_payload(messages, temperature, max_tokens)
+        payload = self._build_payload(messages, temperature, max_tokens, n_ctx=n_ctx, n_batch=n_batch)
 
         async with httpx.AsyncClient(timeout=self._httpx_timeout) as client:
             try:

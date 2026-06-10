@@ -507,6 +507,20 @@ class LegalOrchestrator:
                 warnings=[f"Reviewer non disponibile: {exc}"],
             )
 
+        # Serializza le fonti del Research Packet per il frontend
+        serialized_sources = [
+            {
+                "rank":             i + 1,
+                "doc_id":           s.doc_id,
+                "source_id":        s.source_id,
+                "score":            round(s.score, 4),
+                "snippet":          s.snippet[:500],
+                "retrieval_method": s.retrieval_method,
+                "metadata":         s.metadata,
+            }
+            for i, s in enumerate(packet.sources)
+        ]
+
         yield {
             "event": "review_done",
             "verdict": review.verdict,
@@ -514,4 +528,8 @@ class LegalOrchestrator:
             "warnings": review.warnings,
             "overall_confidence": last_phase.overall_confidence if last_phase else "LOW",
             "duration_total_s": round(time.monotonic() - t_total, 3),
+            "sources": serialized_sources,
+            "gaps": list(dict.fromkeys(
+                g for phase in (last_phase,) if phase for g in phase.gaps
+            )),
         }

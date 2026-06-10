@@ -38,6 +38,12 @@ _WHITELIST: list[str] = [
     "LMSTUDIO_TIMEOUT",
     "LLM_TEMPERATURE",
     "LLM_MAX_TOKENS_PER_PHASE",
+    "LLM_N_CTX",
+    "LLM_N_BATCH",
+    "LLM_MAX_TOKENS_FASE1",
+    "LLM_MAX_TOKENS_FASE2",
+    "LLM_MAX_TOKENS_FASE3",
+    "LLM_MAX_TOKENS_FASE4",
     "RETRIEVAL_TOP_K_RERANK",
     "RETRIEVAL_TOP_K_RETRIEVE",
     "QDRANT_URL",
@@ -52,6 +58,12 @@ _DEFAULTS: dict[str, str] = {
     "LMSTUDIO_TIMEOUT":          "300",
     "LLM_TEMPERATURE":           "0.10",
     "LLM_MAX_TOKENS_PER_PHASE":  "1800",
+    "LLM_N_CTX":                 "8192",
+    "LLM_N_BATCH":               "256",
+    "LLM_MAX_TOKENS_FASE1":      "700",
+    "LLM_MAX_TOKENS_FASE2":      "1100",
+    "LLM_MAX_TOKENS_FASE3":      "900",
+    "LLM_MAX_TOKENS_FASE4":      "1000",
     "RETRIEVAL_TOP_K_RERANK":    "6",
     "RETRIEVAL_TOP_K_RETRIEVE":  "20",
     "QDRANT_URL":                "http://localhost:6333",
@@ -68,11 +80,19 @@ class LLMSettings(BaseModel):
     ollama_model_main:        str   = "qwen2.5:7b"
     lmstudio_base_url:        str   = "http://127.0.0.1:1234"
     lmstudio_model:           str   = "qwen2.5-7b-instruct"
-    lmstudio_timeout:         float = Field(300.0, ge=30, le=600)
-    llm_temperature:          float = Field(0.10,  ge=0.0, le=1.0)
-    llm_max_tokens_per_phase: int   = Field(1800,  ge=500, le=4000)
-    retrieval_top_k_rerank:   int   = Field(6,     ge=1,   le=20)
-    retrieval_top_k_retrieve: int   = Field(20,    ge=5,   le=50)
+    lmstudio_timeout:         float = Field(300.0,  ge=30,   le=600)
+    llm_temperature:          float = Field(0.10,   ge=0.0,  le=1.0)
+    llm_max_tokens_per_phase: int   = Field(1800,   ge=500,  le=4000)
+    # Parametri runtime LLM
+    llm_n_ctx:                int   = Field(8192,   ge=2048, le=32768)
+    llm_n_batch:              int   = Field(256,    ge=128,  le=512)
+    # Max output tokens per fase IQRAC
+    llm_max_tokens_fase1:     int   = Field(1024,   ge=512,  le=2048)
+    llm_max_tokens_fase2:     int   = Field(1024,   ge=512,  le=2560)
+    llm_max_tokens_fase3:     int   = Field(1024,   ge=512,  le=2048)
+    llm_max_tokens_fase4:     int   = Field(1536,   ge=512,  le=2700)
+    retrieval_top_k_rerank:   int   = Field(6,      ge=1,    le=20)
+    retrieval_top_k_retrieve: int   = Field(20,     ge=5,    le=50)
 
     @field_validator("ollama_base_url", "lmstudio_base_url")
     @classmethod
@@ -178,6 +198,12 @@ def _settings_from_env() -> LLMSettings:
         lmstudio_timeout         = float(g("LMSTUDIO_TIMEOUT") or 300),
         llm_temperature          = float(g("LLM_TEMPERATURE") or 0.10),
         llm_max_tokens_per_phase = int(g("LLM_MAX_TOKENS_PER_PHASE") or 1800),
+        llm_n_ctx                = int(g("LLM_N_CTX") or 8192),
+        llm_n_batch              = int(g("LLM_N_BATCH") or 256),
+        llm_max_tokens_fase1     = int(g("LLM_MAX_TOKENS_FASE1") or 700),
+        llm_max_tokens_fase2     = int(g("LLM_MAX_TOKENS_FASE2") or 1100),
+        llm_max_tokens_fase3     = int(g("LLM_MAX_TOKENS_FASE3") or 900),
+        llm_max_tokens_fase4     = int(g("LLM_MAX_TOKENS_FASE4") or 1000),
         retrieval_top_k_rerank   = int(g("RETRIEVAL_TOP_K_RERANK") or 6),
         retrieval_top_k_retrieve = int(g("RETRIEVAL_TOP_K_RETRIEVE") or 20),
     )
@@ -279,6 +305,12 @@ async def save_settings(
         "LMSTUDIO_TIMEOUT":          str(int(body.lmstudio_timeout)),
         "LLM_TEMPERATURE":           f"{body.llm_temperature:.2f}",
         "LLM_MAX_TOKENS_PER_PHASE":  str(body.llm_max_tokens_per_phase),
+        "LLM_N_CTX":                 str(body.llm_n_ctx),
+        "LLM_N_BATCH":               str(body.llm_n_batch),
+        "LLM_MAX_TOKENS_FASE1":      str(body.llm_max_tokens_fase1),
+        "LLM_MAX_TOKENS_FASE2":      str(body.llm_max_tokens_fase2),
+        "LLM_MAX_TOKENS_FASE3":      str(body.llm_max_tokens_fase3),
+        "LLM_MAX_TOKENS_FASE4":      str(body.llm_max_tokens_fase4),
         "RETRIEVAL_TOP_K_RERANK":    str(body.retrieval_top_k_rerank),
         "RETRIEVAL_TOP_K_RETRIEVE":  str(body.retrieval_top_k_retrieve),
     }
