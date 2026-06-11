@@ -8,6 +8,7 @@ Ottimizzazioni latenza:
   - L'intera pipeline può essere eseguita in asyncio.to_thread dall'orchestrator
 """
 from __future__ import annotations
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from typing import Optional
@@ -17,7 +18,7 @@ from pydantic_settings import BaseSettings
 
 from aiura_legal.core.types import Document, QueryIntent, ResearchPacket, SearchResult
 from aiura_legal.core.retrieval.bm25_retriever import BM25Retriever
-from aiura_legal.core.retrieval.vector_retriever import VectorRetriever
+from aiura_legal.core.retrieval.vector_retriever import VectorRetriever, _to_qdrant_id
 from aiura_legal.core.retrieval.reranker import CrossEncoderReranker
 from aiura_legal.core.graph.retriever import GraphRetriever
 
@@ -61,6 +62,29 @@ _BIFASICO_INTENTS = {
 
 def _rrf_score(rank: int, k: int = _RRF_K) -> float:
     return 1.0 / (k + rank + 1)
+
+
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
+)
+
+
+def _fusion_key(doc_id: str) -> str:
+    """
+    Chiave di fusione RRF uniforme tra retriever.
+
+    BM25 e graph ritornano l'ID originale (Mongo _id 24-hex o jdoc "hex16_tipo");
+    Qdrant ritorna UUID v5 derivato da quell'ID (punti legacy senza mongo_id nel
+    payload) oppure l'ID originale (punti nuovi). Convertendo gli ID non-UUID
+    con _to_qdrant_id, lo stesso chunk produce la stessa chiave da qualunque
+    retriever provenga — i punteggi RRF si sommano invece di duplicarsi.
+
+    NOTA: la chiave è solo interna alla fusione. SearchResult.doc_id resta
+    l'ID originale (S5 reviewer e frontend ne dipendono).
+    """
+    if _UUID_RE.match(doc_id):
+        return doc_id.lower()
+    return _to_qdrant_id(doc_id)
 
 
 class HybridRetriever:
@@ -268,29 +292,38 @@ class HybridRetriever:
         w_vec: float,
         w_graph: float,
     ) -> list[SearchResult]:
+        """
+        Fonde i risultati con Reciprocal Rank Fusion.
+
+        La chiave di fusione è l'UUID Qdrant derivato dall'ID originale
+        (_fusion_key): lo stesso chunk ritornato da BM25 e Vector somma i
+        punteggi RRF in un unico risultato. Il SearchResult mantenuto è il
+        primo incontrato in ordine BM25 → Vector → Graph, così doc_id resta
+        l'ID originale quando disponibile.
+        """
         scores: dict[str, float] = {}
         best_result: dict[str, SearchResult] = {}
 
         for rank, r in enumerate(bm25_results):
-            rrf = w_bm25 * _rrf_score(rank)
-            scores[r.doc_id] = scores.get(r.doc_id, 0.0) + rrf
-            best_result[r.doc_id] = r
+            key = _fusion_key(r.doc_id)
+            scores[key] = scores.get(key, 0.0) + w_bm25 * _rrf_score(rank)
+            best_result[key] = r
 
         for rank, r in enumerate(vector_results):
-            rrf = w_vec * _rrf_score(rank)
-            scores[r.doc_id] = scores.get(r.doc_id, 0.0) + rrf
-            if r.doc_id not in best_result:
-                best_result[r.doc_id] = r
+            key = _fusion_key(r.doc_id)
+            scores[key] = scores.get(key, 0.0) + w_vec * _rrf_score(rank)
+            if key not in best_result:
+                best_result[key] = r
 
         for rank, r in enumerate(graph_results):
-            rrf = w_graph * _rrf_score(rank)
-            scores[r.doc_id] = scores.get(r.doc_id, 0.0) + rrf
-            if r.doc_id not in best_result:
-                best_result[r.doc_id] = r
+            key = _fusion_key(r.doc_id)
+            scores[key] = scores.get(key, 0.0) + w_graph * _rrf_score(rank)
+            if key not in best_result:
+                best_result[key] = r
 
         fused: list[SearchResult] = []
-        for doc_id, fused_score in sorted(scores.items(), key=lambda x: x[1], reverse=True):
-            r = best_result[doc_id]
+        for key, fused_score in sorted(scores.items(), key=lambda x: x[1], reverse=True):
+            r = best_result[key]
             r.score = fused_score
             r.retrieval_method = "hybrid_rrf"
             fused.append(r)
