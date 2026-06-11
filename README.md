@@ -1,8 +1,10 @@
 # AiUra LegalLab
 
-Sistema multi-agente per ricerca e analisi legale con **Citation Contract**: ogni risposta cita esclusivamente fonti presenti nel Research Packet, verificate dal Reviewer (S5) prima di raggiungere l'avvocato.
+Sistema multi-agente per ricerca e analisi legale con **Citation Contract**: ogni risposta cita esclusivamente fonti presenti nel Research Packet, verificate dal Reviewer (S5) prima di raggiungere l'avvocato. Inferenza LLM **interamente in locale** (Ollama / LM Studio) per garantire privacy e riservatezza dei dati dello studio.
 
-**Stack:** MongoDB · BM25 · ChromaDB · Ollama (qwen2.5:7b) · FastAPI 8765 · 7 Pi Skills
+**Stack:** MongoDB · BM25 per-corpus · Qdrant · Ollama / LM Studio · FastAPI 8765 · React · Pi Skills
+
+📚 **Documentazione completa: [docs/README.md](docs/README.md)** — features, manuale operativo, setup knowledge base, design specs.
 
 ---
 
@@ -12,8 +14,9 @@ Sistema multi-agente per ricerca e analisi legale con **Citation Contract**: ogn
 |---|---|---|
 | Python | 3.11+ | testato su 3.11 e 3.12 |
 | MongoDB | 6.0+ | locale o Atlas |
-| Ollama | ultimo stabile | con `qwen2.5:7b` scaricato |
-| RAM | 8 GB | ChromaDB + sentence-transformer in memoria |
+| Ollama **o** LM Studio | ultimo stabile | con un modello 7B+ scaricato (default `qwen2.5:7b`) |
+| Node.js | 20+ | solo per il frontend React |
+| RAM | 8 GB | Qdrant + sentence-transformer in memoria |
 | LegalAgentLab | — | MongoDB `legal_lab.normattiva_docs` accessibile (READ-ONLY) |
 
 ---
@@ -36,10 +39,10 @@ python -m spacy download it_core_news_lg
 
 # 4. Configura l'ambiente
 cp .env.example .env
-# Edita .env con i tuoi URI MongoDB e le impostazioni Ollama
+# Edita .env con i tuoi URI MongoDB e le impostazioni del backend LLM
 
 # 5. Scarica il modello LLM (se non già presente)
-ollama pull qwen2.5:7b
+ollama pull qwen2.5:7b          # oppure carica un modello in LM Studio
 
 # 6. Costruisci gli indici dal corpus LegalAgentLab
 python scripts/build_indexes.py --workspace mio-studio
@@ -57,24 +60,39 @@ LEGALAGENTLAB_MONGODB_DATABASE=legal_lab
 LEGALAGENTLAB_CHUNKS_COLLECTION=normattiva_docs
 LEGALAGENTLAB_TEXT_FIELD=text
 
-# Ollama
+# Backend LLM: "ollama" oppure "lmstudio" (OpenAI-compatibile)
+AIURA_LLM_BACKEND=lmstudio
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL_MAIN=qwen2.5:7b
+LMSTUDIO_BASE_URL=http://127.0.0.1:1234
+LMSTUDIO_MODEL=qwen2.5-7b-instruct
+
+# Qdrant (vuoto = embedded mode locale)
+QDRANT_URL=http://localhost:6333
+
+# PII Vault — obbligatoria in produzione (hex, 64 caratteri)
+AIURA_PII_KEY=
 ```
+
+Tutti i parametri LLM (backend, modello, temperatura, max token per fase, top-k retrieval) sono modificabili anche dalla **Settings UI** del frontend, con riavvio automatico dell'API.
 
 ---
 
 ## Avvio rapido
 
 ```bash
-# Avvia l'API (porta 8765)
+# API (porta 8765)
 python -m aiura_legal.api
 
 # oppure con uvicorn per il reload automatico in sviluppo
 uvicorn aiura_legal.api.app:app --host 127.0.0.1 --port 8765 --reload
+
+# Frontend React (porta 5173)
+cd frontend && npm install && npm run dev
 ```
 
-Swagger UI disponibile su: http://127.0.0.1:8765/docs
+- Swagger UI: http://127.0.0.1:8765/docs
+- Frontend: http://localhost:5173 (Chat, Documenti, Grafo, Storico, Settings, Wiki)
 
 ---
 
@@ -99,9 +117,16 @@ curl -X POST http://127.0.0.1:8765/workspace/mio-studio
 ### Ingest documento
 
 ```bash
+# Documento dello studio (default corpus=studio)
 curl -X POST http://127.0.0.1:8765/ingest \
   -F "file=@contratto_locazione.pdf" \
   -F "workspace=mio-studio"
+
+# Manuale o articolo accademico (corpus=dottrina)
+curl -X POST http://127.0.0.1:8765/ingest \
+  -F "file=@manuale_diritto_civile.pdf" \
+  -F "workspace=mio-studio" \
+  -F "corpus=dottrina"
 ```
 
 ```json
@@ -118,6 +143,7 @@ curl -X POST http://127.0.0.1:8765/ingest \
 ### Query legale
 
 ```bash
+# Risposta sincrona completa
 curl -X POST http://127.0.0.1:8765/query \
   -H "Content-Type: application/json" \
   -d '{
@@ -126,6 +152,11 @@ curl -X POST http://127.0.0.1:8765/query \
     "intent": "norma_lookup",
     "top_k": 10
   }'
+
+# Sequential IQRAC con streaming SSE (una notifica per fase completata)
+curl -N -X POST http://127.0.0.1:8765/query/stream \
+  -H "Content-Type: application/json" \
+  -d '{"query": "...", "workspace": "mio-studio", "intent": "fattispecie_analysis"}'
 ```
 
 **Valori `intent` disponibili:**
@@ -143,11 +174,25 @@ Gli intenti **bifasici** eseguono due round di retrieval separati: prima recuper
 le fonti normative (BM25-heavy), poi le fonti giurisprudenziali (Vector-heavy).
 S3 riceve le due sezioni distinte e ragiona nell'ordine corretto: norma → interpretazione → giurisprudenza.
 
-### Lista workspace
+---
+
+## Knowledge base
 
 ```bash
-curl http://127.0.0.1:8765/workspace
+# Indici normattiva + dottrina + studio
+python scripts/build_indexes.py --workspace mio-studio
+
+# Giurisprudenza (Cassazione, TAR/CdS, Corte dei Conti)
+python scripts/sync_jurisprudence.py --initial-load        # primo caricamento
+python scripts/sync_jurisprudence.py                       # sync settimanale
+python scripts/build_jurisprudence_indexes.py --workspace mio-studio --organo cassazione
+
+# Dottrina open access
+python scripts/sync_dottrina.py --no-upload
+python scripts/upload_dottrina.py
 ```
+
+Guida completa (tempi, fonti, troubleshooting): [docs/KNOWLEDGE_BASE_SETUP.md](docs/KNOWLEDGE_BASE_SETUP.md)
 
 ---
 
@@ -163,11 +208,11 @@ python eval/run_eval.py --queries path/to/queries.jsonl
 # Filtra per modulo legislativo
 python eval/run_eval.py --module cod_civ
 
-# Sovrascrive il workspace definito nel JSONL
-python eval/run_eval.py --workspace normattiva
+# Suite completa 130 query su 6 domini
+python scripts/run_query_suite.py
 ```
 
-I report vengono scritti in `eval/results/`:
+I report vengono scritti in `eval/results/` e `eval/query_results/` (gitignored):
 - `eval_<timestamp>.json` — dati completi
 - `eval_<timestamp>.md`  — tabella summary per modulo
 
@@ -195,24 +240,6 @@ I report vengono scritti in `eval/results/`:
 
 ---
 
-## Verifica indici (campione 1000 doc)
-
-```bash
-# Build + smoke test su 1000 chunk da LegalAgentLab
-python scripts/verify_indexes.py
-
-# Campione più grande
-python scripts/verify_indexes.py --limit 5000
-
-# Query smoke personalizzate
-python scripts/verify_indexes.py \
-  --smoke-queries "responsabilità medica" "appalto pubblico" "successione testamentaria"
-```
-
-Produce `scripts/build_report.json` con verdict `OK` / `WARN` / `FAIL`.
-
----
-
 ## Test
 
 ```bash
@@ -228,26 +255,24 @@ pytest tests/test_retrieval.py -v
 ## Architettura
 
 ```
-Incoming file
-     │
-     ▼
-Tier1Pipeline
-  ├── DocumentExtractor  (PDF/DOCX/TXT)
-  ├── PII Anonymizer     (regex + spaCy)
-  ├── MongoDB documents
-  └── Chunker  →  MongoDB chunks  (corpus="studio")
-                         │
-               Giurisprudenza (upload PDF sentenza)
-                 └── JurisprudenceCoordinator → chunks (corpus="giurisprudenza")
+Incoming file                       Fonti pubbliche
+     │                                   │
+     ▼                                   ▼
+Tier1Pipeline                  sync_jurisprudence.py / sync_dottrina.py
+  ├── DocumentExtractor          ├── Scrapers (Cassazione, TAR/CdS, C.Conti)
+  ├── PII Anonymizer             └── JurisprudenceCoordinator
+  ├── MongoDB documents                  │
+  └── Chunker → chunks  (corpus=studio|dottrina)   chunks (corpus=giurisprudenza)
                          │
                          ▼
                build_indexes.py
-                 ├── BM25Retriever   → workspaces/<ws>/indices/bm25.pkl
-                 └── VectorRetriever → workspaces/<ws>/indices/chromadb/
+                 ├── BM25Retriever   → indices/bm25_<corpus>.pkl  (per-corpus)
+                 ├── VectorRetriever → Qdrant (embedded o server)
+                 └── LegalGraphBuilder → graph.json (NetworkX)
                          │
                          ▼
-POST /query
-  └── HybridRetriever
+POST /query  ·  POST /query/stream (SSE)
+  └── S1 Clarifier → S2 HybridRetriever
        │
        ├─ percorso STANDARD (NORMA_LOOKUP, GIURISPRUDENZA_SEARCH)
        │    └── singolo round RRF → CrossEncoder → ResearchPacket
@@ -255,17 +280,16 @@ POST /query
        └─ percorso BIFASICO (FATTISPECIE_ANALYSIS, RISCHIO_CONTRATTUALE, …)
             ├── Round 1 — normativa  (BM25-heavy, corpus=normattiva)
             └── Round 2 — giurisprudenza (Vector-heavy, corpus=giurisprudenza)
-                 fonti normativa first → ResearchPacket (source_layer taggato)
                          │
                          ▼
-                  AnalystAgent S3
-                  schema IQRAC 9-step
-                    RICOSTRUZIONE_FATTO → QUALIFICAZIONE → QUESTIONE
-                    → FONTI_NORMATIVE → INTERPRETAZIONE → GIURISPRUDENZA
-                    → SUSSUNZIONE → OBIEZIONI → CONCLUSIONE
+              S3 Analyst — Sequential IQRAC (4 fasi, una chiamata LLM ciascuna)
+                Fase 1 FRAMING        → RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE
+                Fase 2 NORMATIVA      → FONTI_NORMATIVE, INTERPRETAZIONE   (re-query normattiva+dottrina)
+                Fase 3 GIURISPRUDENZA → GIURISPRUDENZA                     (re-query giurisprudenza)
+                Fase 4 SINTESI        → SUSSUNZIONE, OBIEZIONI, CONCLUSIONE
                          │
                          ▼
-                CitationReviewer S5
+                S5 CitationReviewer
                   verdict: PASS / WARN / BLOCK
                          │
                          ▼
@@ -279,7 +303,7 @@ POST /query
 | S0 | Supervisor | Routing e orchestrazione |
 | S1 | Clarifier | Chiarimento query (max 2 turni) |
 | S2 | Researcher | Retrieval bifasico — Research Packet con layer normativa/giurisprudenza |
-| S3 | Analyst | Ragionamento IQRAC 9-step (metodologia giuridica italiana) |
+| S3 | Analyst | Ragionamento IQRAC 9-step in 4 fasi sequenziali (framing, normativa, giurisprudenza, sintesi) |
 | S4 | Drafter | Generazione atti/pareri |
 | S5 | Reviewer | Citation Contract enforcement |
 | S6 | Annotator | Document Intelligence asincrona |
@@ -292,13 +316,14 @@ POST /query
 |---|---|---|
 | `503` su `/query` | Indici non costruiti per il workspace | `python scripts/build_indexes.py --workspace <nome>` |
 | `422` su `/query` — intent non valido | Valore `intent` non riconosciuto | Vedi tabella valori intent sopra |
-| Ollama timeout (120s) | Modello non caricato o GPU occupata | `ollama pull qwen2.5:7b` — verifica `ollama ps` |
+| LLM timeout | Modello non caricato o GPU occupata | `ollama ps` / verifica LM Studio — modello caricato? |
 | `MongoDB ping failed` | URI errato o `mongod` non avviato | Controlla `.env` + `mongod --version` |
-| ChromaDB vuoto dopo build | LegalAgentLab DB non raggiungibile | Verifica `LEGALAGENTLAB_MONGODB_URI` in `.env` |
+| Qdrant vuoto dopo build | LegalAgentLab DB non raggiungibile | Verifica `LEGALAGENTLAB_MONGODB_URI` in `.env` |
 | `spaCy model not found` | Download spaCy saltato | `python -m spacy download it_core_news_lg` |
 | PII non anonimizzate | Testo < 50 caratteri o solo whitespace | Il layer 2 (spaCy) richiede testo di almeno una frase |
 | `eval/run_eval.py` — API non raggiungibile | API spenta | `python -m aiura_legal.api` prima di lanciare l'eval |
-| Round giurisprudenza vuoto negli intenti bifasici | Chunk indicizzati prima della v2 (senza `corpus=giurisprudenza`) | Re-indicizzare: `python scripts/build_indexes.py --workspace <nome>` |
+| Round giurisprudenza vuoto negli intenti bifasici | Chunk indicizzati senza `corpus=giurisprudenza` | Re-indicizzare: `python scripts/build_jurisprudence_indexes.py` |
+| Prima query lenta (~20s) | Cold start embeddings | Normale: il warm-up parte in background all'avvio API |
 
 ---
 
@@ -307,29 +332,24 @@ POST /query
 ```
 AiUraLegalLab/
 ├── aiura_legal/
-│   ├── agents/          # OllamaClient
-│   ├── api/             # FastAPI app, schemas
+│   ├── agents/          # Orchestrator, Analyst, Clarifier, Drafter, Annotator, client LLM
+│   ├── api/             # FastAPI app, routers (jurisprudence, graph, settings), schemas
 │   ├── core/
-│   │   ├── anonymizer/  # PII Layer 1+2
-│   │   ├── retrieval/   # BM25, Vector, Reranker, Hybrid
-│   │   └── reviewer/    # CitationReviewer
-│   ├── ingestion/
-│   │   ├── mongodb/     # client, models
-│   │   ├── extractor.py
-│   │   ├── chunker.py
-│   │   ├── pipeline.py
-│   │   └── watcher.py
-│   └── core/types.py
-├── eval/
-│   ├── evaluator.py     # metriche core
-│   ├── run_eval.py      # CLI runner
-│   └── results/         # output JSON + Markdown
-├── scripts/
-│   ├── build_indexes.py
-│   └── verify_indexes.py
-├── tests/
-│   └── script_json/     # file JSONL per l'eval
-├── workspaces/          # indici BM25 + ChromaDB per workspace
-├── .pi/skills/          # 7 agenti Pi Skills
-└── docs/
+│   │   ├── anonymizer/  # PII Layer 1 (regex) + Layer 2 (spaCy)
+│   │   ├── graph/       # LegalGraphBuilder, GraphRetriever
+│   │   ├── retrieval/   # BM25 per-corpus, Qdrant, Reranker, Hybrid, PhaseRetriever
+│   │   ├── reviewer/    # CitationReviewer (S5)
+│   │   └── vault/       # PII Vault AES-256-GCM
+│   ├── ingestion/       # extractor, chunker, Tier1Pipeline, watcher, normattiva/, dottrina/
+│   ├── jurisprudence/   # scrapers, parser, coordinator, anonymizer bridge
+│   ├── prassi/          # scraper Agenzia Entrate
+│   ├── wiki/            # wiki auto-generata (store, writer, engine, lint)
+│   └── workers/         # Tier 2 embed worker
+├── frontend/            # React + TypeScript (Chat, Documents, Graph, History, Settings, Wiki)
+├── eval/                # run_eval.py, run_bench.py, results/ (gitignored)
+├── scripts/             # build_indexes, sync_*, mirror_normattiva, classify_knowledge_base, …
+├── tests/               # 660+ test (mongomock-motor)
+├── workspaces/          # dati runtime per-installazione (gitignored)
+├── .pi/skills/          # prompt agenti Pi Skills
+└── docs/                # documentazione (vedi docs/README.md)
 ```

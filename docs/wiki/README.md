@@ -59,5 +59,5 @@ MongoDB: aiura_legal_lab_db (localhost:27017)
 
 Indici: workspaces/mio-studio/indices/
 ├── bm25.pkl           (~700 MB)
-└── chromadb/          (~2.9 GB)
+└── qdrant/            (~2 GB, o Qdrant server)
 ```

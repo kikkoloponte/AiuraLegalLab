@@ -1,6 +1,10 @@
-# AiUra LegalLab — Backlog
+# AiUra LegalLab — Backlog (storico milestone)
 # Formato: [P] Titolo | Effort S/M/L/XL | Dipende da | Profilo
 # Aggiornato: 2026-05-31 (run5: R=0.721, corpus 91 atti / 17062 chunk)
+#
+# NOTA: per lo stato corrente e le metriche aggiornate vedi
+#   docs/wiki/05-backlog.md  (snapshot 2026-06-05: KB 316k sentenze, debito tecnico)
+#   docs/FEATURES.md         (features implementate + roadmap consolidata)
 
 ---
 

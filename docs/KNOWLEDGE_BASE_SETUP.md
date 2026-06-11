@@ -6,7 +6,7 @@
 ## Panoramica
 
 La knowledge base è composta da tre corpora distinti che confluiscono
-negli stessi indici BM25 + ChromaDB:
+negli stessi indici BM25 (per-corpus) + Qdrant:
 
 | Corpus | Fonte | Documenti | Tempo download | Tempo indicizzazione |
 |--------|-------|-----------|---------------|---------------------|
@@ -352,7 +352,7 @@ python scripts/build_indexes.py --workspace mio-studio
 ```
 
 - Legge `aiura_legal_lab_db.chunks` (corpus=normattiva)
-- Costruisce BM25 (`bm25.pkl` ~2.7 GB) + ChromaDB
+- Costruisce BM25 per-corpus (`bm25_<corpus>.pkl`) + Qdrant
 - **Tempo stimato: 2–4 ore**
 - Output: `workspaces/mio-studio/indices/`
 
@@ -364,7 +364,7 @@ python scripts/index_jurisprudence.py --workspace mio-studio
 
 - Legge `aiura_legal_lab_db.jurisprudence` (~316K doc → ~700K chunk)
 - Accumula tutti in RAM → **una sola** BM25Okapi build
-- **Tempo stimato: 1–2 ore** (build BM25 + ChromaDB batch 2000)
+- **Tempo stimato: 1–2 ore** (build BM25 + Qdrant batch 2000)
 - RAM necessaria: ~4–8 GB durante la build
 - Idempotente
 
@@ -387,8 +387,8 @@ Idempotente.
 python -m aiura_legal.api
 ```
 
-All'avvio il **warm-up ChromaDB** parte automaticamente in background:
-carica l'indice HNSW in RAM (~20s). Le query successive saranno veloci.
+All'avvio il **warm-up indici** parte automaticamente in background:
+carica HNSW (Qdrant) e il modello di embedding in RAM (~20s). Le query successive saranno veloci.
 
 ---
 
@@ -458,7 +458,7 @@ class SourceChannel(str, Enum):
 `build_indexes.py` non è stato eseguito ancora (o i file sono stati
 cancellati). Eseguire prima la fase 3A.
 
-### "ChromaDB cold start lento (~20s)"
+### "Prima query lenta (~20s, cold start)"
 Normale alla prima query dopo riavvio API. Il warm-up automatico lo
 pre-carica all'avvio — le query successive sono ~1.4s.
 
@@ -469,7 +469,7 @@ del workspaces\mio-studio\indices\bm25.pkl
 del workspaces\mio-studio\indices\bm25.pkl.bak
 del workspaces\mio-studio\indices\bm25_meta.json
 del workspaces\mio-studio\indices\bm25_meta.json.bak
-rmdir /s /q workspaces\mio-studio\indices\chromadb
+rmdir /s /q workspaces\mio-studio\indices\qdrant
 
 # Ricostruisci (fasi 3A + 3B)
 python scripts/build_indexes.py --workspace mio-studio
@@ -482,9 +482,9 @@ python scripts/index_jurisprudence.py --workspace mio-studio
 
 | Risorsa | Dimensione |
 |---------|-----------|
-| `bm25.pkl` | ~2.7 GB |
+| `bm25_<corpus>.pkl` | ~2.7 GB totali |
 | `bm25_meta.json` | ~85 MB |
-| `chromadb/` | ~1–2 GB |
+| Qdrant (embedded `qdrant/` o server) | ~1–2 GB |
 | `graph.json` | ~78 MB |
 | MongoDB `jurisprudence` | ~5 GB |
 | MongoDB `normattiva_docs` | ~800 MB |

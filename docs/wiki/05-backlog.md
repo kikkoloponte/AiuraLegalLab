@@ -100,7 +100,7 @@ Aggiornato al **5 giugno 2026**.
 | — Corte dei Conti | 267 |
 | Archi nel grafo | 733.598 (da ricostruire) |
 | BM25 documenti totali | 102.684 (da ricostruire) |
-| ChromaDB dimensione | 2.9 GB (da ricostruire) |
+| Qdrant dimensione | ~2 GB |
 | Golden test PASS rate | 60% (6/10) |
 | Golden test fonti giurisp. | 100% (10/10) |
 | Tempo risposta medio | ~30s (qwen2.5-7b locale) |
