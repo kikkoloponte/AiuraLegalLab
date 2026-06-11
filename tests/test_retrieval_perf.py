@@ -314,9 +314,13 @@ class TestIntegrationPerf:
     def retriever(self):
         from aiura_legal.core.retrieval.hybrid_retriever import HybridRetriever
         r = HybridRetriever(_WS_PATH)
-        # Warm-up: forza il lazy BM25 build prima dei test di latenza
-        # così i tempi misurati non includono la prima build dell'indice
-        r.bm25._ensure_bm25()
+        # Warm-up: carica i pkl per-corpus e forza il build BM25Okapi
+        # così i tempi misurati non includono load/build dell'indice
+        r.bm25.load_all()
+        for sub in r.bm25._subs.values():
+            sub._ensure_bm25()
+        # Warm-up vector: carica il modello SentenceTransformer (lazy load ~30s su CPU)
+        r.vector.search("warm-up", top_k=1)
         return r
 
     def test_single_round_norma_lookup_latency(self, retriever):
@@ -415,7 +419,8 @@ class TestIntegrationPerf:
         results = retriever.bm25.search(q, top_k=20)
         elapsed = time.perf_counter() - t0
         print(f"\n[BM25] {elapsed:.3f}s  risultati={len(results)}")
-        assert elapsed < 2.0, f"BM25 troppo lento: {elapsed:.3f}s"
+        # Soglia tarata su ~595k doc totali (4 sub-indici, search senza filtro corpus)
+        assert elapsed < 5.0, f"BM25 troppo lento: {elapsed:.3f}s"
 
     def test_vector_search_alone_latency(self, retriever):
         """Vector (ChromaDB+SentenceTransformer) — baseline per capire il collo di bottiglia."""

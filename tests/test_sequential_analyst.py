@@ -234,7 +234,11 @@ async def test_analyze_sequential_graceful_on_ollama_error():
 # ---------------------------------------------------------------------------
 
 def test_phase_retriever_retrieve_normativa_calls_search_round():
-    """retrieve_normativa() deve chiamare _search_round con filtro normattiva."""
+    """retrieve_normativa() esegue 3 round: normattiva, golden Art. 43, prassi.
+
+    La query criminal ("art. 43") attiva la golden source injection;
+    il round prassi è sempre eseguito a supporto della normativa.
+    """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
         _make_source("ART_1", "normativa")
@@ -243,14 +247,21 @@ def test_phase_retriever_retrieve_normativa_calls_search_round():
 
     results = pr.retrieve_normativa("dolo eventuale art. 43", top_k=4)
 
-    mock_retriever._search_round.assert_called_once()
-    call_kwargs = mock_retriever._search_round.call_args
-    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 3, f"Attesi 3 round (main+golden+prassi), eseguiti {len(calls)}"
+    # Round principale e golden Art. 43 su corpus normattiva
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    assert calls[1].kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    # Round supplementare su corpus prassi
+    assert calls[2].kwargs.get("chunk_filter") == {"corpus": "prassi"}
     assert all(r.source_layer == "normativa" for r in results)
 
 
 def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
-    """retrieve_giurisprudenza() deve chiamare _search_round con filtro giurisprudenza."""
+    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden ThyssenKrupp.
+
+    La query criminal ("ThyssenKrupp") attiva la golden source injection.
+    """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
         _make_source("CASS_1", "giurisprudenza")
@@ -259,9 +270,10 @@ def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
 
     results = pr.retrieve_giurisprudenza("ThyssenKrupp dolo eventuale", top_k=4)
 
-    mock_retriever._search_round.assert_called_once()
-    call_kwargs = mock_retriever._search_round.call_args
-    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 2, f"Attesi 2 round (main+golden), eseguiti {len(calls)}"
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    assert calls[1].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
     assert all(r.source_layer == "giurisprudenza" for r in results)
 
 

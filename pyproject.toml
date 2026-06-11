@@ -58,6 +58,9 @@ include = ["aiura_legal*"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+# I test integration misurano latenze reali su indici su disco: sensibili al
+# carico macchina, vanno eseguiti espliciti con: pytest -m integration
+addopts = "-m \"not integration\""
 markers = [
     "integration: test che richiedono indici su disco (workspaces/)",
     "slow: test lenti (>5s) — escludi con -m 'not slow'",
