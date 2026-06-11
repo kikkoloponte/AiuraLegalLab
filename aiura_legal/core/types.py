@@ -39,6 +39,7 @@ class SearchResult:
     source_id: str = ""
     retrieval_method: str = ""
     source_layer: str = "normativa"  # "normativa" | "giurisprudenza" | "dottrina" | "studio"
+    full_text: str = ""              # testo completo da MongoDB (source_texts) — "" = usa snippet
 
 
 @dataclass

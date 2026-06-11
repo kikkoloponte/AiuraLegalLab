@@ -26,6 +26,7 @@ from aiura_legal.agents.drafter import DraftResult, DrafterAgent
 from aiura_legal.agents.ollama_client import OllamaClient
 from aiura_legal.core.retrieval.hybrid_retriever import HybridRetriever, _BIFASICO_INTENTS
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
+from aiura_legal.core.retrieval.source_texts import fetch_full_texts
 from aiura_legal.core.reviewer.reviewer import CitationReviewer
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
 
@@ -252,6 +253,8 @@ class LegalOrchestrator:
                 valid_on=valid_on,
                 chunk_filter=chunk_filter,
             )
+        # Testo pieno delle fonti per il prompt S3 (flag AIURA_FULLTEXT_CONTEXT)
+        await fetch_full_texts(packet.sources)
         duration_retrieval = time.monotonic() - t0
         logger.info(
             f"[Orchestrator] S2 done: {len(packet.sources)} fonti, "
@@ -453,6 +456,9 @@ class LegalOrchestrator:
             logger.error(f"[Orchestrator Seq] S2 retrieval errore: {exc}")
             yield {"event": "error", "message": f"Retrieval fallito: {exc}"}
             return
+
+        # Testo pieno delle fonti per il prompt S3 (flag AIURA_FULLTEXT_CONTEXT)
+        await fetch_full_texts(packet.sources)
 
         yield {
             "event": "retrieval_done",

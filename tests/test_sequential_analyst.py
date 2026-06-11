@@ -285,3 +285,127 @@ def test_phase_retriever_empty_query_returns_empty():
     assert pr.retrieve_normativa("") == []
     assert pr.retrieve_giurisprudenza("  ") == []
     mock_retriever._search_round.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Test full-text nel prompt (AIURA_FULLTEXT_CONTEXT) — anti-regressione 0.2
+# ---------------------------------------------------------------------------
+
+_MARKER = "MARCATORE_OLTRE_TRECENTO_CARATTERI"
+
+
+def _capture_ollama(captured: list[dict]) -> MagicMock:
+    """OllamaClient mock che registra i kwargs di ogni generate()."""
+    ollama = MagicMock()
+    ollama.model = "test"
+    responses = [
+        _phase_json(
+            ["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+            questione_retrieval="clausola penale riduzione giudice",
+        ),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(**kwargs):
+        captured.append(kwargs)
+        n = len(captured) - 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    return ollama
+
+
+def _packet_with_full_text() -> ResearchPacket:
+    """Packet con full_text lungo: il marcatore compare solo dopo il 300o char."""
+    norm = _make_source("ART_1382_CC", "normativa", snippet="A" * 300)
+    norm.full_text = "B" * 320 + f" {_MARKER} " + "C" * 400
+    giuri = _make_source("giurisprudenza_cass_1_2020", "giurisprudenza", snippet="D" * 300)
+    giuri.full_text = "E" * 320 + f" {_MARKER}_GIURI " + "F" * 400
+    return ResearchPacket(
+        query_original="clausola penale",
+        query_intent=QueryIntent.FATTISPECIE_ANALYSIS,
+        sources=[norm, giuri],
+        retrieval_confidence="HIGH",
+    )
+
+
+async def test_prompt_normativa_contiene_testo_oltre_300_char(monkeypatch):
+    """Con il flag attivo, il prompt della fase NORMATIVA contiene testo
+    della fonte oltre il 300o carattere (non solo lo snippet)."""
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "1")
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="clausola penale", packet=_packet_with_full_text(), phase_retriever=None
+    ):
+        pass
+
+    prompt_fase2 = captured[1]["prompt"]
+    assert _MARKER in prompt_fase2, (
+        "il prompt NORMATIVA deve contenere il full_text della fonte, non lo snippet"
+    )
+
+
+async def test_prompt_flag_off_usa_snippet(monkeypatch):
+    """Con AIURA_FULLTEXT_CONTEXT=0 il comportamento storico (snippet) e ripristinato."""
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "0")
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="clausola penale", packet=_packet_with_full_text(), phase_retriever=None
+    ):
+        pass
+
+    prompt_fase2 = captured[1]["prompt"]
+    assert _MARKER not in prompt_fase2
+    assert "A" * 200 in prompt_fase2  # snippet presente
+
+
+async def test_prompt_anti_overflow_token_budget(monkeypatch):
+    """Token totali (system+prompt) di ogni fase <= n_ctx - max_tokens fase,
+    anche con fonti dal full_text enorme."""
+    import tiktoken
+    from aiura_legal.agents.analyst import _llm_settings
+
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "1")
+    enc = tiktoken.get_encoding("cl100k_base")
+
+    huge = "parola giuridica ricorrente " * 4000  # >> budget per fonte
+
+    def _huge_source(doc_id: str, layer: str) -> SearchResult:
+        s = _make_source(doc_id, layer, snippet="x" * 300)
+        s.full_text = huge
+        return s
+
+    pr = MagicMock(spec=PhaseRetriever)
+    pr.retrieve_normativa.return_value = [
+        _huge_source(f"NORM_{i}", "normativa") for i in range(6)
+    ]
+    pr.retrieve_dottrina.return_value = [
+        _huge_source(f"DOTT_{i}", "dottrina") for i in range(4)
+    ]
+    pr.retrieve_giurisprudenza.return_value = [
+        _huge_source(f"giurisprudenza_{i}", "giurisprudenza") for i in range(6)
+    ]
+
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="responsabilita contrattuale", packet=_packet_with_full_text(),
+        phase_retriever=pr,
+    ):
+        pass
+
+    assert len(captured) == 4
+    for n, kwargs in enumerate(captured, 1):
+        total = len(enc.encode(kwargs.get("system", ""))) + len(enc.encode(kwargs["prompt"]))
+        budget = _llm_settings.llm_n_ctx - kwargs["max_tokens"]
+        assert total <= budget, (
+            f"fase {n}: prompt {total} token > budget {budget} "
+            f"(n_ctx={_llm_settings.llm_n_ctx} - max_tokens={kwargs['max_tokens']})"
+        )

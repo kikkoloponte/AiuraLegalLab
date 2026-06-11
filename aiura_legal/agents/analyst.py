@@ -22,6 +22,8 @@ from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 from aiura_legal.agents.ollama_client import OllamaClient
+from aiura_legal.core.retrieval.context_budget import ContextBudgetManager
+from aiura_legal.core.retrieval.source_texts import fetch_full_texts, fulltext_enabled
 from aiura_legal.core.types import ResearchPacket, SearchResult
 
 
@@ -258,7 +260,25 @@ def _repair_truncated_json(text: str) -> Optional[dict]:
     return None
 
 
-def _format_source(i: int, s: SearchResult) -> list[str]:
+# Budget manager condiviso: decide quanto testo di ogni fonte entra nel prompt
+_budget_mgr = ContextBudgetManager()
+
+
+def _source_texts_for_prompt(sources: list[SearchResult], corpus: str) -> list[str]:
+    """
+    Testo da mostrare nel prompt per ogni fonte.
+
+    Con AIURA_FULLTEXT_CONTEXT=1 (default): full_text troncato secondo il
+    budget per corpus di ContextBudgetManager (fallback snippet se il fetch
+    non ha trovato il documento).
+    Con AIURA_FULLTEXT_CONTEXT=0: comportamento storico snippet[:400].
+    """
+    if not fulltext_enabled():
+        return [s.snippet[:400] for s in sources]
+    return _budget_mgr.budget_texts(sources, corpus)
+
+
+def _format_source(i: int, s: SearchResult, text: Optional[str] = None) -> list[str]:
     meta = s.metadata or {}
     lines = [f"\n[{i}] source_id: {s.source_id}"]
     # Normativa
@@ -286,7 +306,7 @@ def _format_source(i: int, s: SearchResult) -> list[str]:
     if meta.get("chunk_type"):
         chunk_label = {"massima": "Massima", "motivazione": "Motivazione", "dispositivo": "Dispositivo"}
         lines.append(f"    estratto: {chunk_label.get(meta['chunk_type'], meta['chunk_type'])}")
-    lines.append(f"    testo:    {s.snippet[:400]}")
+    lines.append(f"    testo:    {text if text is not None else s.snippet[:400]}")
     return lines
 
 
@@ -379,13 +399,15 @@ class AnalystAgent:
             "=" * 60,
         ]
         if norm:
+            norm_texts = _source_texts_for_prompt(norm, "normativa")
             lines.append("\n## FONTI NORMATIVE\n")
-            for i, s in enumerate(norm, 1):
-                lines.extend(_format_source(i, s))
+            for i, (s, t) in enumerate(zip(norm, norm_texts), 1):
+                lines.extend(_format_source(i, s, t))
         if giuri:
+            giuri_texts = _source_texts_for_prompt(giuri, "giurisprudenza")
             lines.append("\n## GIURISPRUDENZA\n")
-            for i, s in enumerate(giuri, 1):
-                lines.extend(_format_source(i, s))
+            for i, (s, t) in enumerate(zip(giuri, giuri_texts), 1):
+                lines.extend(_format_source(i, s, t))
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -524,9 +546,10 @@ class AnalystAgent:
         norm = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
         if not norm:
             return "NESSUNA FONTE NORMATIVA NEL RESEARCH PACKET."
+        texts = _source_texts_for_prompt(norm, "normativa")
         lines = ["FONTI NORMATIVE — usa SOLO questi source_id:", "=" * 60]
-        for i, s in enumerate(norm, 1):
-            lines.extend(_format_source(i, s))
+        for i, (s, t) in enumerate(zip(norm, texts), 1):
+            lines.extend(_format_source(i, s, t))
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -534,9 +557,10 @@ class AnalystAgent:
         giuri = [s for s in packet.sources if self._effective_layer(s) == "giurisprudenza"]
         if not giuri:
             return "NESSUNA GIURISPRUDENZA NEL RESEARCH PACKET."
+        texts = _source_texts_for_prompt(giuri, "giurisprudenza")
         lines = ["GIURISPRUDENZA — usa SOLO questi source_id:", "=" * 60]
-        for i, s in enumerate(giuri, 1):
-            lines.extend(_format_source(i, s))
+        for i, (s, t) in enumerate(zip(giuri, texts), 1):
+            lines.extend(_format_source(i, s, t))
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -692,13 +716,18 @@ class AnalystAgent:
         return "\n".join(parts)
 
     @staticmethod
-    def _format_phase_sources(sources: list[SearchResult]) -> str:
-        """Serializza fonti di fase in formato leggibile per il prompt."""
+    def _format_phase_sources(sources: list[SearchResult], corpus: str = "normativa") -> str:
+        """Serializza fonti di fase in formato leggibile per il prompt.
+
+        `corpus` seleziona il budget token di ContextBudgetManager
+        (full_text_slots/summary_slots) quando AIURA_FULLTEXT_CONTEXT=1.
+        """
         if not sources:
             return "NESSUNA FONTE DISPONIBILE PER QUESTA FASE."
+        texts = _source_texts_for_prompt(sources, corpus)
         lines = ["FONTI PER QUESTA FASE — usa SOLO questi source_id:", "=" * 60]
-        for i, s in enumerate(sources, 1):
-            lines.extend(_format_source(i, s))
+        for i, (s, t) in enumerate(zip(sources, texts), 1):
+            lines.extend(_format_source(i, s, t))
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -835,17 +864,23 @@ class AnalystAgent:
                 if self._effective_layer(s) == "normativa"
             ]
 
+        # Testo pieno per le fonti di fase (no-op se AIURA_FULLTEXT_CONTEXT=0
+        # o se le fonti sono già arricchite dall'orchestrator dopo S2)
+        await fetch_full_texts(norm_sources)
+        await fetch_full_texts(dott_sources)
+
         # ── Fase 2: Normativa + Dottrina ──────────────────────────────
         t1 = time.monotonic()
-        ctx_norm = self._format_phase_sources(norm_sources)
+        ctx_norm = self._format_phase_sources(norm_sources, corpus="normativa")
         framing_summary = self._build_framing_summary(sections_f1, data_f1)
 
         # Sezione dottrina opzionale — presente solo se ci sono fonti
         ctx_dott = ""
         if dott_sources:
+            dott_texts = _source_texts_for_prompt(dott_sources, "dottrina")
             dott_lines = ["DOTTRINA — usa questi source_id per l'INTERPRETAZIONE:", "=" * 60]
-            for i, s in enumerate(dott_sources, 1):
-                dott_lines.extend(_format_source(i, s))
+            for i, (s, t) in enumerate(zip(dott_sources, dott_texts), 1):
+                dott_lines.extend(_format_source(i, s, t))
             dott_lines.append("=" * 60)
             ctx_dott = "\n".join(dott_lines) + "\n\n"
 
@@ -916,9 +951,11 @@ class AnalystAgent:
                 if self._effective_layer(s) == "giurisprudenza"
             ]
 
+        await fetch_full_texts(giuri_sources)
+
         # ── Fase 3: Giurisprudenza ────────────────────────────────────
         t2 = time.monotonic()
-        ctx_giuri = self._format_phase_sources(giuri_sources)
+        ctx_giuri = self._format_phase_sources(giuri_sources, corpus="giurisprudenza")
         phase_context = self._build_phase_context(completed_phases)
         _budget_f3 = _llm_settings.llm_max_tokens_fase3 - 80
         prompt_f3 = (

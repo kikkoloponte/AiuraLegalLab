@@ -1,5 +1,5 @@
 """
-Test per ContextBudgetManager — context budget fisso 4k con sommario-first.
+Test per ContextBudgetManager — context budget per n_ctx=8192 con full-text-first.
 """
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import tiktoken
 import pytest
 
 from aiura_legal.core.retrieval.context_budget import ContextBudgetManager, _count_tokens
+from aiura_legal.core.types import SearchResult
 from aiura_legal.ingestion.mongodb.models import Chunk
 
 
@@ -29,39 +30,55 @@ def _make_chunk(
     )
 
 
+def _make_result(
+    doc_id: str,
+    full_text: str = "",
+    snippet: str = "snippet breve",
+    sommario: str | None = None,
+) -> SearchResult:
+    meta = {"corpus": "normattiva"}
+    if sommario:
+        meta["sommario"] = sommario
+    return SearchResult(
+        doc_id=doc_id,
+        score=1.0,
+        snippet=snippet,
+        source_id=f"urn:nir:{doc_id}",
+        metadata=meta,
+        full_text=full_text,
+    )
+
+
 # ---------------------------------------------------------------------------
-# Test 1: format_chunks — top-1 full text, gli altri sommario
+# Test 1: format_chunks — top-3 full text (normativa), gli altri sommario
 # ---------------------------------------------------------------------------
 
-def test_format_chunks_normativa_top1_full_rest_summary():
+def test_format_chunks_normativa_top3_full_rest_summary():
     mgr = ContextBudgetManager()
 
     chunks = [
-        _make_chunk("Testo completo articolo 1 molto lungo " * 20, source_id="norm_1", sommario="Sintesi articolo 1"),
-        _make_chunk("Testo completo articolo 2 molto lungo " * 20, source_id="norm_2", sommario="Sintesi articolo 2"),
-        _make_chunk("Testo completo articolo 3 molto lungo " * 20, source_id="norm_3", sommario="Sintesi articolo 3"),
-        _make_chunk("Testo completo articolo 4 molto lungo " * 20, source_id="norm_4", sommario="Sintesi articolo 4"),
+        _make_chunk(f"Testo completo articolo {i} molto lungo " * 20,
+                    source_id=f"norm_{i}", sommario=f"Sintesi articolo {i}")
+        for i in range(1, 6)
     ]
 
     result = mgr.format_chunks(chunks, "normativa")
 
-    # Il chunk 1 deve avere il testo completo (non "(sintesi)")
+    # I chunk 1-3 devono avere il testo completo (non "(sintesi)")
     assert "[1] norm_1\n" in result
-    assert "(sintesi)" not in result.split("[2]")[0]  # sezione 1 senza "(sintesi)"
+    assert "[2] norm_2\n" in result
+    assert "[3] norm_3\n" in result
+    assert "(sintesi)" not in result.split("[4]")[0]
 
-    # I chunk 2-4 devono avere "(sintesi)"
-    assert "[2] norm_2 (sintesi)" in result
-    assert "[3] norm_3 (sintesi)" in result
+    # I chunk 4-5 devono avere "(sintesi)" con il sommario
     assert "[4] norm_4 (sintesi)" in result
-
-    # Il testo dei sommari deve comparire
-    assert "Sintesi articolo 2" in result
-    assert "Sintesi articolo 3" in result
+    assert "[5] norm_5 (sintesi)" in result
     assert "Sintesi articolo 4" in result
+    assert "Sintesi articolo 5" in result
 
 
 # ---------------------------------------------------------------------------
-# Test 2: fallback text[:150] quando sommario=None
+# Test 2: fallback testo troncato quando sommario=None
 # ---------------------------------------------------------------------------
 
 def test_format_chunks_sommario_none_fallback():
@@ -69,16 +86,75 @@ def test_format_chunks_sommario_none_fallback():
 
     long_text = "A" * 500  # 500 caratteri, nessun sommario
     chunks = [
-        _make_chunk("Primo articolo " * 30, source_id="n1", sommario="Sommario primo"),
-        _make_chunk(long_text, source_id="n2", sommario=None),  # fallback
+        _make_chunk("Primo articolo " * 30, source_id=f"n{i}", sommario=f"Sommario {i}")
+        for i in range(1, 4)
+    ] + [
+        _make_chunk(long_text, source_id="n4", sommario=None),  # slot sintesi, fallback testo
     ]
 
     result = mgr.format_chunks(chunks, "normativa")
 
-    # n2 usa fallback: text[:150]
-    assert "[2] n2 (sintesi)" in result
-    # Il testo del fallback deve essere presente (primi 150 caratteri di long_text)
-    assert "A" * 50 in result  # almeno 50 'A' sono presenti nel risultato
+    # n4 è oltre i 3 full-text slot → sintesi con fallback sul testo
+    assert "[4] n4 (sintesi)" in result
+    assert "A" * 50 in result  # parte del testo è presente come fallback
+
+
+# ---------------------------------------------------------------------------
+# Test 2b: budget_texts con SearchResult — full_text usato se presente
+# ---------------------------------------------------------------------------
+
+def test_budget_texts_search_result_full_text():
+    mgr = ContextBudgetManager()
+
+    results = [
+        _make_result("d1", full_text="Testo pieno dell'articolo. " * 30),
+        _make_result("d2", full_text="", snippet="Solo snippet disponibile."),
+    ]
+
+    texts = mgr.budget_texts(results, "normativa")
+
+    assert "Testo pieno dell'articolo." in texts[0]
+    # Senza full_text il fallback è lo snippet
+    assert "Solo snippet disponibile." in texts[1]
+
+
+def test_budget_texts_search_result_truncates_to_budget():
+    mgr = ContextBudgetManager()
+
+    long_full = "parola " * 2000  # >> 400 token
+    results = [_make_result("d1", full_text=long_full)]
+
+    texts = mgr.budget_texts(results, "normativa")
+
+    assert _count_tokens(texts[0]) <= 400
+
+
+def test_budget_texts_giurisprudenza_top3_500_tokens():
+    mgr = ContextBudgetManager()
+
+    long_full = "motivazione della corte " * 1000
+    results = [
+        SearchResult(doc_id=f"g{i}", score=1.0, snippet="snip",
+                     source_id=f"giuri_{i}", metadata={"corpus": "giurisprudenza"},
+                     full_text=long_full)
+        for i in range(4)
+    ]
+
+    texts = mgr.budget_texts(results, "giurisprudenza")
+
+    for t in texts[:3]:
+        assert 400 < _count_tokens(t) <= 500   # full text slot
+    assert _count_tokens(texts[3]) <= 60       # summary slot
+
+
+def test_budget_prassi_no_full_text():
+    mgr = ContextBudgetManager()
+
+    results = [_make_result("p1", full_text="testo di prassi " * 200)]
+    texts = mgr.budget_texts(results, "prassi")
+
+    # Prassi: zero full-text slot → solo sintesi
+    assert _count_tokens(texts[0]) <= 60
 
 
 # ---------------------------------------------------------------------------
@@ -133,9 +209,10 @@ def test_research_packet_total_tokens_within_budget():
     )
 
     total_tokens = _count_tokens(result)
-    # Budget massimo: 800 (normativa) + 600 (giurisprudenza) + 200 (dottrina) + 100 slack = 1700
-    assert total_tokens <= 1700, (
-        f"Research packet supera il budget: {total_tokens} > 1700 token"
+    # Budget massimo n_ctx=8192: 1380 (normativa) + 1620 (giurisprudenza)
+    # + 320 (dottrina) + 200 slack (label/markers) = 3520
+    assert total_tokens <= 3520, (
+        f"Research packet supera il budget: {total_tokens} > 3520 token"
     )
 
 
