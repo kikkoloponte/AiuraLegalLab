@@ -32,6 +32,17 @@ Write-Host "Sleep disabilitato. Il PC resterà acceso per tutta la pipeline." -F
 
 New-Item -ItemType Directory -Force logs | Out-Null
 
+# Usa il python del venv se esiste, altrimenti il python di sistema
+$venvPython = Join-Path $PSScriptRoot "..\..venv\Scripts\python.exe"
+$venvPython = Join-Path (Split-Path $PSScriptRoot) ".venv\Scripts\python.exe"
+if (Test-Path $venvPython) {
+    $py = $venvPython
+    Write-Host "Venv: $py" -ForegroundColor DarkGray
+} else {
+    $py = "python"
+    Write-Host "AVVISO: .venv non trovato, uso python di sistema" -ForegroundColor Yellow
+}
+
 function Run-Phase {
     param([string]$Fase, [string[]]$ExtraArgs)
     $logFile = "logs\classify_$Fase.log"
@@ -39,7 +50,7 @@ function Run-Phase {
     Write-Host "=== FASE $Fase ===" -ForegroundColor Cyan
     Write-Host "Log: $logFile"
     $cmd = @("scripts/classify_knowledge_base.py", "--fase", $Fase) + $ExtraArgs
-    python @cmd 2>&1 | Tee-Object -FilePath $logFile
+    & $py @cmd 2>&1 | Tee-Object -FilePath $logFile
     if ($LASTEXITCODE -ne 0) {
         Write-Host "ATTENZIONE: Fase $Fase terminata con errore (exit $LASTEXITCODE)" -ForegroundColor Yellow
     }
@@ -54,7 +65,7 @@ try {
 
     Write-Host ""
     Write-Host "=== REBUILD INDICI ===" -ForegroundColor Cyan
-    python scripts/rebuild_knowledge_base.py --workspace $Workspace 2>&1 | Tee-Object -FilePath logs\rebuild.log
+    & $py scripts/rebuild_knowledge_base.py --workspace $Workspace 2>&1 | Tee-Object -FilePath logs\rebuild.log
 
     Write-Host ""
     Write-Host "Pipeline completata." -ForegroundColor Green

@@ -130,7 +130,7 @@ La migrazione copia:
 
 ## 5. Costruzione indici (primo avvio)
 
-Gli indici BM25 e ChromaDB **non vengono creati automaticamente** — vanno costruiti
+Gli indici BM25 e Qdrant **non vengono creati automaticamente** — vanno costruiti
 esplicitamente. Questo è necessario solo la prima volta o dopo un rebuild.
 
 ### Indici normattiva + giurisprudenza
@@ -141,14 +141,14 @@ python scripts/build_indexes.py --workspace mio-studio
 python scripts/build_jurisprudence_indexes.py --workspace mio-studio
 ```
 
-Stima tempo: ~15-20 minuti (BM25 + ChromaDB su 225k documenti totali).
+Stima tempo: ~15-20 minuti (BM25 + Qdrant su 225k documenti totali).
 
 Output in `workspaces/mio-studio/indices/`:
 ```
 indices/
 ├── bm25.pkl           (~700 MB)
 ├── bm25_meta.json
-└── chromadb/
+└── qdrant/   (oppure Qdrant server via QDRANT_URL)
     ├── chroma.sqlite3 (~2.9 GB)
     └── ...
 ```

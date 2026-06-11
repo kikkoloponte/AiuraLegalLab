@@ -113,7 +113,7 @@ Output:
 ```
 INFO  | Documenti giurisprudenza in MongoDB: 58,845  (filtro: nessuno)
 INFO  | BM25 caricato: 102,684 doc
-INFO  | ChromaDB pronto
+INFO  | Qdrant pronto
 SUCCESS | Indicizzazione completata: 267 documenti → 435 chunk
 ```
 
@@ -135,7 +135,7 @@ Organi disponibili: `cassazione` | `tar` | `consiglio_stato` | `corte_cost` | `c
 python scripts/build_jurisprudence_indexes.py --workspace mio-studio --rebuild
 ```
 
-> ⚠️ Cancella BM25 e ChromaDB esistenti prima di ricostruire.
+> ⚠️ Cancella BM25 e Qdrant esistenti prima di ricostruire.
 
 ### 3.4 Indicizzazione normattiva
 
@@ -225,7 +225,7 @@ python scripts/test_jurisprudence_retrieval.py --workspace mio-studio --verbose
 
 Verifica 5 sezioni:
 1. Conteggio documenti MongoDB per organo
-2. Esistenza indici BM25 + ChromaDB
+2. Esistenza indici BM25 + Qdrant
 3. 5 query di test su diversi intent
 4. Citation Contract (test PASS e FAIL)
 5. Statistiche grafo

@@ -8,25 +8,31 @@ build/
 .ruff_cache/
 .pytest_cache/
 .env
+.env.bak
 *.env.local
 # Modelli e indici (grandi)
 *.gguf
 *.pkl
 *.faiss
-workspaces/*/indices/
-workspaces/*/vault/
 shared/*/indices/
 .DS_Store
 Thumbs.db
+# Workspaces: dati runtime per-installazione (indici, wiki generata, vault, grafi)
+workspaces/
 # Download dottrina e giurisprudenza (dati grandi)
 download/
-workspaces/jurisprudence_graph.json
-workspaces/qdrant_storage/
+# Storage e stato runtime
+qdrant_storage/
+classify_checkpoints/
+rebuild_state.json
 # Eval results (generati a runtime)
 eval/results/
+eval/query_results/
+eval/bench_results/
 scripts/build_report.json
 # Brainstorming / preview artifacts
 .superpowers/
+.claude/worktrees/
 # Runtime logs
 logs/
 # Word temp files
