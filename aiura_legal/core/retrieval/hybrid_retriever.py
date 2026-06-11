@@ -27,6 +27,11 @@ class RetrievalSettings(BaseSettings):
     model_config = ConfigDict(env_file=".env", extra="ignore")
     retrieval_top_k_retrieve: int = 20
     retrieval_top_k_rerank:   int = 6
+    # Soglia score reranker per contare una fonte come "forte" nella confidence.
+    # I cross-encoder mmarco producono logit (anche negativi): 0.0 è il punto
+    # medio della sigmoide — score > 0 ≈ probabilità di rilevanza > 50%.
+    # Da ricalibrare empiricamente dopo l'eval (env RETRIEVAL_SCORE_THRESHOLD).
+    retrieval_score_threshold: float = 0.0
 
 
 _retrieval_settings = RetrievalSettings()
@@ -62,6 +67,22 @@ _BIFASICO_INTENTS = {
 
 def _rrf_score(rank: int, k: int = _RRF_K) -> float:
     return 1.0 / (k + rank + 1)
+
+
+def _confidence_from_scores(sources: list[SearchResult]) -> str:
+    """
+    Confidence del retrieval basata sugli score, non sul solo conteggio:
+      HIGH   — almeno 3 fonti con score reranker sopra la soglia
+      MEDIUM — almeno 2 fonti (qualunque score)
+      LOW    — altrimenti
+    """
+    threshold = _retrieval_settings.retrieval_score_threshold
+    strong = sum(1 for s in sources if s.score > threshold)
+    if strong >= 3:
+        return "HIGH"
+    if len(sources) >= 2:
+        return "MEDIUM"
+    return "LOW"
 
 
 _UUID_RE = re.compile(
@@ -158,18 +179,7 @@ class HybridRetriever:
         chunk_filter: Optional[dict] = None,
     ) -> ResearchPacket:
         sources = self.search(query, intent=intent, valid_on=valid_on, chunk_filter=chunk_filter)
-        confidence = (
-            "HIGH" if len(sources) >= 5
-            else "MEDIUM" if len(sources) >= 2
-            else "LOW"
-        )
-        return ResearchPacket(
-            query_original=query,
-            query_intent=intent,
-            sources=sources,
-            retrieval_confidence=confidence,
-            gaps=[] if sources else ["Nessun documento trovato per la query"],
-        )
+        return self._make_packet(query, intent, sources)
 
     # ------------------------------------------------------------------
     # Bifasico retrieval (norme + giurisprudenza in round separati)
@@ -266,11 +276,7 @@ class HybridRetriever:
     def _make_packet(
         query: str, intent: QueryIntent, sources: list[SearchResult]
     ) -> ResearchPacket:
-        confidence = (
-            "HIGH" if len(sources) >= 5
-            else "MEDIUM" if len(sources) >= 2
-            else "LOW"
-        )
+        confidence = _confidence_from_scores(sources)
         return ResearchPacket(
             query_original=query,
             query_intent=intent,

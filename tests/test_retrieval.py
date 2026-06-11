@@ -196,6 +196,49 @@ def test_build_research_packet(hybrid_retriever):
 
 
 def test_research_packet_confidence_levels(hybrid_retriever):
-    # Con mock che ritorna 10 risultati → HIGH
+    # Mock: 10 risultati con score RRF positivi (> soglia 0.0) → HIGH
     packet = hybrid_retriever.build_research_packet("query test")
     assert packet.retrieval_confidence == "HIGH"
+
+
+# ------------------------------------------------------------------
+# Confidence basata su score (0.4)
+# ------------------------------------------------------------------
+
+def _scored_results(scores: list[float]) -> list[SearchResult]:
+    return [
+        SearchResult(doc_id=f"d{i}", score=s, snippet="x", source_id=f"S{i}")
+        for i, s in enumerate(scores)
+    ]
+
+
+def test_confidence_high_richiede_3_fonti_sopra_soglia():
+    from aiura_legal.core.retrieval.hybrid_retriever import _confidence_from_scores
+    # Logit cross-encoder: 3 fonti sopra 0.0 → HIGH
+    assert _confidence_from_scores(_scored_results([2.5, 1.1, 0.3, -3.0])) == "HIGH"
+
+
+def test_confidence_medium_con_molte_fonti_deboli():
+    from aiura_legal.core.retrieval.hybrid_retriever import _confidence_from_scores
+    # 6 fonti tutte sotto soglia: il conteggio da solo non basta più per HIGH
+    assert _confidence_from_scores(_scored_results([-0.5, -1.2, -2.0, -3.0, -4.0, -5.0])) == "MEDIUM"
+
+
+def test_confidence_medium_con_2_fonti():
+    from aiura_legal.core.retrieval.hybrid_retriever import _confidence_from_scores
+    assert _confidence_from_scores(_scored_results([1.0, -1.0])) == "MEDIUM"
+
+
+def test_confidence_low_con_1_o_0_fonti():
+    from aiura_legal.core.retrieval.hybrid_retriever import _confidence_from_scores
+    assert _confidence_from_scores(_scored_results([5.0])) == "LOW"
+    assert _confidence_from_scores([]) == "LOW"
+
+
+def test_confidence_soglia_configurabile(monkeypatch):
+    import aiura_legal.core.retrieval.hybrid_retriever as hr
+    monkeypatch.setattr(hr._retrieval_settings, "retrieval_score_threshold", 2.0)
+    # Con soglia 2.0 solo 2 fonti sono "forti" → MEDIUM
+    assert hr._confidence_from_scores(_scored_results([3.0, 2.5, 1.0, 0.5])) == "MEDIUM"
+    monkeypatch.setattr(hr._retrieval_settings, "retrieval_score_threshold", 0.0)
+    assert hr._confidence_from_scores(_scored_results([3.0, 2.5, 1.0, 0.5])) == "HIGH"
