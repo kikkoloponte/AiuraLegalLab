@@ -941,7 +941,6 @@ class AnalystAgent:
                     qualificazione_retrieval,   # query stretta: qualificazione + questione
                     6,
                     settore_giuridico,
-                    questione_retrieval,         # query ampia: backbone concettuale
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval giurisprudenza fallito: {exc}")

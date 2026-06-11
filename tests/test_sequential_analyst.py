@@ -175,6 +175,60 @@ async def test_analyze_sequential_uses_phase_retriever(analyst, mock_phase_retri
 
 
 @pytest.mark.asyncio
+async def test_retrieve_giurisprudenza_settore_confidence_numerico(analyst, mock_phase_retriever):
+    """Regressione: il 4o argomento di retrieve_giurisprudenza è settore_confidence
+    (float), non una seconda query — passare una stringa causava TypeError in
+    _effective_filter (str >= float) quando il settore era valorizzato."""
+    import inspect
+
+    packet = _make_packet()
+    async for _ in analyst.analyze_sequential(
+        query="Qual è il confine tra dolo eventuale e colpa cosciente?",  # → settore penale
+        packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        pass
+
+    call = mock_phase_retriever.retrieve_giurisprudenza.call_args
+    bound = inspect.signature(PhaseRetriever.retrieve_giurisprudenza).bind(
+        mock_phase_retriever, *call.args, **call.kwargs
+    )
+    bound.apply_defaults()
+    assert isinstance(bound.arguments["settore_confidence"], (int, float)), (
+        f"settore_confidence deve essere numerico, "
+        f"ricevuto {bound.arguments['settore_confidence']!r}"
+    )
+    assert bound.arguments["settore"] == "penale"
+
+
+@pytest.mark.asyncio
+async def test_fase3_retrieval_con_settore_non_fallisce(analyst):
+    """Regressione: con settore valorizzato e PhaseRetriever reale, il re-query
+    giurisprudenza di Fase 3 non deve fallire silenziosamente (TypeError catturato
+    dal try in analyst) con fallback alle fonti del packet S2."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [
+        _make_source("giurisprudenza_cass_requery", "giurisprudenza")
+    ]
+    pr = PhaseRetriever(mock_retriever)
+    packet = _make_packet()
+
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="Qual è il confine tra dolo eventuale e colpa cosciente?",  # → settore penale
+        packet=packet,
+        phase_retriever=pr,
+    ):
+        phases.append(phase)
+
+    phase3 = phases[2]
+    assert "giurisprudenza_cass_requery" in phase3.sources_used, (
+        "Fase 3 deve usare le fonti del re-query, non il fallback al packet S2"
+    )
+    assert "giurisprudenza_cass_38343_2014" not in phase3.sources_used
+
+
+@pytest.mark.asyncio
 async def test_analyze_sequential_sources_used(analyst, mock_phase_retriever):
     """Fase 2 deve avere sources_used con le fonti del retrieval normativa."""
     packet = _make_packet()
