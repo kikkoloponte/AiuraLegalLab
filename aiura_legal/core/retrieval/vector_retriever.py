@@ -102,20 +102,29 @@ def _flatten_chroma_filter(f: dict) -> dict[str, object]:
 def _build_qdrant_filter(
     chunk_filter: Optional[dict],
     valid_on: Optional[date],
+    workspace: Optional[str] = None,
 ):
     """
-    Costruisce un Qdrant Filter da chunk_filter ChromaDB-style e valid_on.
-    Ritorna None se nessun filtro è necessario.
+    Costruisce un Qdrant Filter da chunk_filter ChromaDB-style, valid_on e workspace.
+    Ritorna None se nessun filtro e' necessario.
+
+    workspace:
+        Quando passato, aggiunge una condizione should che accetta i punti con
+        payload["workspace"] == workspace OPPURE i punti in cui il campo e'
+        assente (IsEmptyCondition) — garantisce retrocompatibilita' con i
+        vettori indicizzati prima della Fase 0 (nessun campo workspace).
     """
     from qdrant_client.models import (
-        Filter, FieldCondition, MatchValue, MatchAny, Range,
+        Filter, FieldCondition, MatchValue, MatchAny, Range, IsEmptyCondition,
+        PayloadField,
     )
 
-    conditions = []
+    must_conditions = []
+    should_conditions: list = []
 
     if valid_on:
         d_int = _date_to_int(valid_on)
-        conditions.append(
+        must_conditions.append(
             FieldCondition(key="valid_from_int", range=Range(lte=d_int))
         )
 
@@ -126,21 +135,32 @@ def _build_qdrant_filter(
                 real_key = k[7:]
                 val_int = _parse_date_int(str(v))
                 if val_int:
-                    conditions.append(
+                    must_conditions.append(
                         FieldCondition(key=f"{real_key}_int", range=Range(lte=val_int))
                     )
             elif isinstance(v, list):
-                conditions.append(
+                must_conditions.append(
                     FieldCondition(key=k, match=MatchAny(any=[str(x) for x in v]))
                 )
             else:
-                conditions.append(
+                must_conditions.append(
                     FieldCondition(key=k, match=MatchValue(value=str(v)))
                 )
 
-    if not conditions:
+    # Filtro workspace: accetta punti con workspace corrispondente
+    # OPPURE punti in cui il campo workspace e' assente (retrocompatibilita')
+    if workspace:
+        should_conditions = [
+            FieldCondition(key="workspace", match=MatchValue(value=workspace)),
+            IsEmptyCondition(is_empty=PayloadField(key="workspace")),
+        ]
+
+    if not must_conditions and not should_conditions:
         return None
-    return Filter(must=conditions)
+    return Filter(
+        must=must_conditions if must_conditions else None,
+        should=should_conditions if should_conditions else None,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -374,21 +394,26 @@ class VectorRetriever:
         top_k: int = 15,
         valid_on: Optional[date] = None,
         chunk_filter: Optional[dict] = None,
+        workspace: Optional[str] = None,
     ) -> list[SearchResult]:
         """
-        Ricerca vettoriale con filtro opzionale per corpus/fonte/valid_on.
+        Ricerca vettoriale con filtro opzionale per corpus/fonte/valid_on/workspace.
 
         chunk_filter accetta lo stesso formato ChromaDB:
           {"corpus": "normattiva"}
           {"$and": [{"corpus": "normattiva"}, {"fonte": "legge"}]}
           {"fonte": {"$in": ["legge", "dlgs"]}}
+
+        workspace:
+          Se passato, filtra i punti per workspace (con retrocompatibilita' IsEmpty
+          per i vettori pre-Fase0 senza campo workspace nel payload).
         """
         if not self._client:
             return []
 
         try:
             query_vec = self._embed([query])[0]
-            qdrant_filter = _build_qdrant_filter(chunk_filter, valid_on)
+            qdrant_filter = _build_qdrant_filter(chunk_filter, valid_on, workspace)
 
             response = self._client.query_points(
                 collection_name=_COLLECTION_NAME,

@@ -128,18 +128,19 @@ class HybridRetriever:
         top_k_rerank: int = 0,     # 0 = usa valore da env (RETRIEVAL_TOP_K_RERANK)
         valid_on: Optional[date] = None,
         chunk_filter: Optional[dict] = None,
+        workspace: Optional[str] = None,
     ) -> list[SearchResult]:
         """
         Pipeline completa:
           1. BM25 search
-          2. Vector search
+          2. Vector search (con filtro workspace opzionale)
           3. RRF fusion con weights per intent
           4. CrossEncoder reranking → top_k_rerank
 
         Args:
             chunk_filter: filtro subset opzionale propagato a BM25 e Vector.
-                          Esempio: {"corpus": "normattiva", "fonte": "codice_civile"}
-                          None = nessun filtro (comportamento invariato)
+            workspace:    se passato, limita il vector search ai punti del workspace
+                          (compat con punti legacy senza campo workspace — IsEmpty).
         """
         # Legge da env se non specificato esplicitamente
         if top_k_retrieve == 0:
@@ -150,7 +151,10 @@ class HybridRetriever:
         w_bm25, w_vec, w_graph = _INTENT_WEIGHTS.get(intent, (0.45, 0.45, 0.10))
 
         bm25_results = self.bm25.search(query, top_k=top_k_retrieve, chunk_filter=chunk_filter)
-        vector_results = self.vector.search(query, top_k=top_k_retrieve, valid_on=valid_on, chunk_filter=chunk_filter)
+        vector_results = self.vector.search(
+            query, top_k=top_k_retrieve, valid_on=valid_on,
+            chunk_filter=chunk_filter, workspace=workspace,
+        )
 
         # Graph expansion — attiva solo se graph.json disponibile
         graph_results: list[SearchResult] = []
@@ -177,8 +181,12 @@ class HybridRetriever:
         intent: QueryIntent = QueryIntent.FATTISPECIE_ANALYSIS,
         valid_on: Optional[date] = None,
         chunk_filter: Optional[dict] = None,
+        workspace: Optional[str] = None,
     ) -> ResearchPacket:
-        sources = self.search(query, intent=intent, valid_on=valid_on, chunk_filter=chunk_filter)
+        sources = self.search(
+            query, intent=intent, valid_on=valid_on,
+            chunk_filter=chunk_filter, workspace=workspace,
+        )
         return self._make_packet(query, intent, sources)
 
     # ------------------------------------------------------------------
@@ -191,6 +199,7 @@ class HybridRetriever:
         intent: QueryIntent = QueryIntent.FATTISPECIE_ANALYSIS,
         valid_on: Optional[date] = None,
         top_k_rerank: int = 0,   # 0 = usa valore da env (RETRIEVAL_TOP_K_RERANK)
+        workspace: Optional[str] = None,
     ) -> ResearchPacket:
         """
         Due round separati: normativa (BM25-heavy) poi giurisprudenza (vector-heavy).
@@ -208,7 +217,7 @@ class HybridRetriever:
         if intent == QueryIntent.NORMA_LOOKUP:
             sources = self.search(query, intent=intent, valid_on=valid_on,
                                   chunk_filter=_FILTER_NORMATIVA,
-                                  top_k_rerank=top_k_rerank * 2)
+                                  top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "normativa"
             return self._make_packet(query, intent, sources)
@@ -216,7 +225,7 @@ class HybridRetriever:
         if intent == QueryIntent.GIURISPRUDENZA_SEARCH:
             sources = self.search(query, intent=intent, valid_on=valid_on,
                                   chunk_filter=_FILTER_GIURISPRUDENZA,
-                                  top_k_rerank=top_k_rerank * 2)
+                                  top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "giurisprudenza"
             return self._make_packet(query, intent, sources)
@@ -226,10 +235,12 @@ class HybridRetriever:
             fut_norm = pool.submit(
                 self._search_round,
                 query, _WEIGHTS_NORMATIVA, _FILTER_NORMATIVA, valid_on, 20, top_k_rerank,
+                workspace,
             )
             fut_giuri = pool.submit(
                 self._search_round,
                 query, _WEIGHTS_GIURISPRUDENZA, _FILTER_GIURISPRUDENZA, valid_on, 20, top_k_rerank,
+                workspace,
             )
             norm_sources  = fut_norm.result()
             giuri_sources = fut_giuri.result()
@@ -249,6 +260,7 @@ class HybridRetriever:
         valid_on: Optional[date],
         top_k_retrieve: int,
         top_k_rerank: int,
+        workspace: Optional[str] = None,
     ) -> list[SearchResult]:
         """BM25 e Vector girano in parallelo su thread separati."""
         w_bm25, w_vec, w_graph = weights
@@ -258,7 +270,8 @@ class HybridRetriever:
                 self.bm25.search, query, top_k_retrieve, chunk_filter
             )
             fut_vec = pool.submit(
-                self.vector.search, query, top_k_retrieve, valid_on, chunk_filter
+                self.vector.search, query, top_k_retrieve, valid_on, chunk_filter,
+                workspace,
             )
             bm25_res   = fut_bm25.result()
             vector_res = fut_vec.result()

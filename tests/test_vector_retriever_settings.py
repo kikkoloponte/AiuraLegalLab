@@ -117,3 +117,48 @@ class TestInitQdrant:
         ) as mock_log:
             VectorRetriever(str(clean_env / "ws"))
         assert not mock_log.warning.called
+
+
+# ---------------------------------------------------------------------------
+# _build_qdrant_filter — filtro workspace (Fase 1)
+# ---------------------------------------------------------------------------
+
+class TestBuildQdrantFilterWorkspace:
+    """Verifica la costruzione del filtro workspace con retrocompatibilita' IsEmpty."""
+
+    def test_senza_workspace_nessun_filtro(self):
+        from aiura_legal.core.retrieval.vector_retriever import _build_qdrant_filter
+        result = _build_qdrant_filter(None, None, workspace=None)
+        assert result is None
+
+    def test_workspace_aggiunge_should(self):
+        from aiura_legal.core.retrieval.vector_retriever import _build_qdrant_filter
+        from qdrant_client.models import FieldCondition, IsEmptyCondition
+        result = _build_qdrant_filter(None, None, workspace="mio-studio")
+        assert result is not None
+        assert result.should is not None and len(result.should) == 2
+        # Should: MatchValue workspace + IsEmpty workspace
+        field_conds = [c for c in result.should if isinstance(c, FieldCondition)]
+        empty_conds = [c for c in result.should if isinstance(c, IsEmptyCondition)]
+        assert len(field_conds) == 1
+        assert len(empty_conds) == 1
+        assert field_conds[0].match.value == "mio-studio"
+
+    def test_workspace_e_corpus_combinati(self):
+        from aiura_legal.core.retrieval.vector_retriever import _build_qdrant_filter
+        from qdrant_client.models import FieldCondition, IsEmptyCondition
+        result = _build_qdrant_filter({"corpus": "giurisprudenza"}, None, workspace="ws-a")
+        assert result is not None
+        # must: corpus filter
+        assert result.must is not None
+        corpus_must = [c for c in result.must if isinstance(c, FieldCondition)]
+        assert any(c.match.value == "giurisprudenza" for c in corpus_must)
+        # should: workspace filter
+        assert result.should is not None
+        empty_conds = [c for c in result.should if isinstance(c, IsEmptyCondition)]
+        assert len(empty_conds) == 1
+
+    def test_workspace_vuoto_ignorato(self):
+        from aiura_legal.core.retrieval.vector_retriever import _build_qdrant_filter
+        result = _build_qdrant_filter(None, None, workspace="")
+        assert result is None

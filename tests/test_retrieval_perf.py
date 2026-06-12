@@ -187,7 +187,7 @@ class TestBifasicoParallelism:
 
         # _search_round è il metodo pesante: lo sostituiamo con uno lento
         call_count = {"n": 0}
-        def slow_round(query, weights, chunk_filter, valid_on, top_k_retrieve, top_k_rerank):
+        def slow_round(query, weights, chunk_filter, valid_on, top_k_retrieve, top_k_rerank, workspace=None):
             time.sleep(self.ROUND_DELAY)
             call_count["n"] += 1
             corpus = (chunk_filter or {}).get("corpus", "normattiva")
