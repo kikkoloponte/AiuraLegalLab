@@ -186,6 +186,7 @@ async def rechunk(
                 "corpus": "giurisprudenza",
                 "chunk_type": "motivazione",
                 "chunk_index": i,
+                "source_id": doc_id,   # soddisfa unique index (source_id, chunk_index, workspace)
                 "jdoc_id": doc_id,
                 "text": chunk_text,
                 "organo": record.get("organo", ""),
