@@ -13,6 +13,11 @@ from aiura_legal.core.graph.retriever import GraphRetriever
 # Identificatori di sentenze giurisprudenziali (sha256[:16] hex)
 _SENTENZA_ID_RE = re.compile(r"\b[0-9a-f]{16}\b")
 
+# Regex per estrarre l'hex16 base da un doc_id chunk (legacy o Fase 1)
+# - Legacy:  e65a598d71052357  (puro hex16 — usato come doc_id)
+# - Fase 1:  e65a598d71052357_motivazione_003 (sub-chunk)
+_CHUNK_PREFIX_RE = re.compile(r"^([0-9a-f]{16})")
+
 
 # ---------------------------------------------------------------------------
 # Pattern per estrarre citazioni da testo legale
@@ -126,8 +131,18 @@ class CitationReviewer:
             checks["conflict_disclosure"] = "PASS"
 
         # 4. Grounding giurisprudenziale
+        # Costruisce l'insieme degli hex16 base presenti nel packet:
+        # - chunk legacy: doc_id = hex16 (e.g. "e65a598d71052357")
+        # - sub-chunk Fase 1: doc_id = hex16_motivazione_NNN → estrae hex16
+        # In entrambi i casi, la risposta cita solo l'hex16 base della sentenza.
+        packet_hex_ids: set[str] = set()
+        for s in research_packet.sources:
+            m = _CHUNK_PREFIX_RE.match(s.doc_id)
+            if m:
+                packet_hex_ids.add(m.group(1))
+
         sent_ids = _SENTENZA_ID_RE.findall(response_text)
-        sent_ungrounded = [sid for sid in sent_ids if sid not in packet_doc_ids]
+        sent_ungrounded = [sid for sid in sent_ids if sid not in packet_hex_ids]
         if sent_ungrounded:
             ungrounded.extend(sent_ungrounded)
             checks["jurisprudence_grounding"] = "FAIL"

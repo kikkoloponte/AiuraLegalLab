@@ -298,3 +298,73 @@ def test_norma_presente_in_normattiva_pass():
 
         assert result.verdict == "PASS"
         assert not any("NORMA_NOT_IN_NORMATTIVA" in v for v in result.checks.values())
+
+
+# ------------------------------------------------------------------
+# Grounding sub-chunk Fase 1 (motivazione_{i:03d})
+# ------------------------------------------------------------------
+
+def _make_packet_with_sub_chunk(hex16: str, chunk_idx: int = 1) -> ResearchPacket:
+    """Packet con un sub-chunk motivazione Fase 1."""
+    chunk_id = f"{hex16}_motivazione_{chunk_idx:03d}"
+    sources = [
+        SearchResult(
+            doc_id=chunk_id,
+            score=1.0,
+            snippet="Testo della motivazione...",
+            source_id=chunk_id,
+            metadata={"corpus": "giurisprudenza", "chunk_type": "motivazione", "chunk_index": chunk_idx},
+        )
+    ]
+    return ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.GIURISPRUDENZA_SEARCH,
+        sources=sources,
+    )
+
+
+def test_grounding_subchunk_motivazione_pass():
+    """PASS: risposta cita hex16, packet contiene {hex16}_motivazione_001."""
+    reviewer = CitationReviewer()
+    hex16 = "ebab1dbfae1b7d10"
+    packet = _make_packet_with_sub_chunk(hex16, chunk_idx=1)
+    # Il LLM cita solo l'hex16 della sentenza (non il chunk specifico)
+    result = reviewer.verify(f"Come da sentenza {hex16}, il principio e' valido.", packet)
+    assert result.checks.get("jurisprudence_grounding") == "PASS"
+    assert hex16 not in result.ungrounded_citations
+
+
+def test_grounding_subchunk_motivazione_fail_hex_assente():
+    """FAIL: risposta cita hex16 diverso da quello nel packet."""
+    reviewer = CitationReviewer()
+    hex16_in_packet = "ebab1dbfae1b7d10"
+    hex16_inventato = "ffffffffffffffff"
+    packet = _make_packet_with_sub_chunk(hex16_in_packet, chunk_idx=0)
+    result = reviewer.verify(f"La sentenza {hex16_inventato} stabilisce.", packet)
+    assert result.verdict == "FAIL"
+    assert hex16_inventato in result.ungrounded_citations
+
+
+def test_grounding_multipli_subchunk_stessa_sentenza():
+    """PASS: packet con chunk 000 e 002 della stessa sentenza, risposta cita hex16."""
+    reviewer = CitationReviewer()
+    hex16 = "ebab1dbfae1b7d10"
+    sources = [
+        SearchResult(
+            doc_id=f"{hex16}_motivazione_000",
+            score=1.0, snippet="...", source_id=f"{hex16}_motivazione_000",
+            metadata={"corpus": "giurisprudenza"},
+        ),
+        SearchResult(
+            doc_id=f"{hex16}_motivazione_002",
+            score=0.8, snippet="...", source_id=f"{hex16}_motivazione_002",
+            metadata={"corpus": "giurisprudenza"},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.GIURISPRUDENZA_SEARCH,
+        sources=sources,
+    )
+    result = reviewer.verify(f"Come da sentenza {hex16}.", packet)
+    assert result.checks.get("jurisprudence_grounding") == "PASS"
