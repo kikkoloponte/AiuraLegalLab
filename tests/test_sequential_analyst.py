@@ -175,6 +175,60 @@ async def test_analyze_sequential_uses_phase_retriever(analyst, mock_phase_retri
 
 
 @pytest.mark.asyncio
+async def test_retrieve_giurisprudenza_settore_confidence_numerico(analyst, mock_phase_retriever):
+    """Regressione: il 4o argomento di retrieve_giurisprudenza è settore_confidence
+    (float), non una seconda query — passare una stringa causava TypeError in
+    _effective_filter (str >= float) quando il settore era valorizzato."""
+    import inspect
+
+    packet = _make_packet()
+    async for _ in analyst.analyze_sequential(
+        query="Qual è il confine tra dolo eventuale e colpa cosciente?",  # → settore penale
+        packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        pass
+
+    call = mock_phase_retriever.retrieve_giurisprudenza.call_args
+    bound = inspect.signature(PhaseRetriever.retrieve_giurisprudenza).bind(
+        mock_phase_retriever, *call.args, **call.kwargs
+    )
+    bound.apply_defaults()
+    assert isinstance(bound.arguments["settore_confidence"], (int, float)), (
+        f"settore_confidence deve essere numerico, "
+        f"ricevuto {bound.arguments['settore_confidence']!r}"
+    )
+    assert bound.arguments["settore"] == "penale"
+
+
+@pytest.mark.asyncio
+async def test_fase3_retrieval_con_settore_non_fallisce(analyst):
+    """Regressione: con settore valorizzato e PhaseRetriever reale, il re-query
+    giurisprudenza di Fase 3 non deve fallire silenziosamente (TypeError catturato
+    dal try in analyst) con fallback alle fonti del packet S2."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [
+        _make_source("giurisprudenza_cass_requery", "giurisprudenza")
+    ]
+    pr = PhaseRetriever(mock_retriever)
+    packet = _make_packet()
+
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="Qual è il confine tra dolo eventuale e colpa cosciente?",  # → settore penale
+        packet=packet,
+        phase_retriever=pr,
+    ):
+        phases.append(phase)
+
+    phase3 = phases[2]
+    assert "giurisprudenza_cass_requery" in phase3.sources_used, (
+        "Fase 3 deve usare le fonti del re-query, non il fallback al packet S2"
+    )
+    assert "giurisprudenza_cass_38343_2014" not in phase3.sources_used
+
+
+@pytest.mark.asyncio
 async def test_analyze_sequential_sources_used(analyst, mock_phase_retriever):
     """Fase 2 deve avere sources_used con le fonti del retrieval normativa."""
     packet = _make_packet()
@@ -234,7 +288,11 @@ async def test_analyze_sequential_graceful_on_ollama_error():
 # ---------------------------------------------------------------------------
 
 def test_phase_retriever_retrieve_normativa_calls_search_round():
-    """retrieve_normativa() deve chiamare _search_round con filtro normattiva."""
+    """retrieve_normativa() esegue 3 round: normattiva, golden Art. 43, prassi.
+
+    La query criminal ("art. 43") attiva la golden source injection;
+    il round prassi è sempre eseguito a supporto della normativa.
+    """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
         _make_source("ART_1", "normativa")
@@ -243,14 +301,21 @@ def test_phase_retriever_retrieve_normativa_calls_search_round():
 
     results = pr.retrieve_normativa("dolo eventuale art. 43", top_k=4)
 
-    mock_retriever._search_round.assert_called_once()
-    call_kwargs = mock_retriever._search_round.call_args
-    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 3, f"Attesi 3 round (main+golden+prassi), eseguiti {len(calls)}"
+    # Round principale e golden Art. 43 su corpus normattiva
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    assert calls[1].kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+    # Round supplementare su corpus prassi
+    assert calls[2].kwargs.get("chunk_filter") == {"corpus": "prassi"}
     assert all(r.source_layer == "normativa" for r in results)
 
 
 def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
-    """retrieve_giurisprudenza() deve chiamare _search_round con filtro giurisprudenza."""
+    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden ThyssenKrupp.
+
+    La query criminal ("ThyssenKrupp") attiva la golden source injection.
+    """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
         _make_source("CASS_1", "giurisprudenza")
@@ -259,9 +324,10 @@ def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
 
     results = pr.retrieve_giurisprudenza("ThyssenKrupp dolo eventuale", top_k=4)
 
-    mock_retriever._search_round.assert_called_once()
-    call_kwargs = mock_retriever._search_round.call_args
-    assert call_kwargs.kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 2, f"Attesi 2 round (main+golden), eseguiti {len(calls)}"
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    assert calls[1].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
     assert all(r.source_layer == "giurisprudenza" for r in results)
 
 
@@ -273,3 +339,127 @@ def test_phase_retriever_empty_query_returns_empty():
     assert pr.retrieve_normativa("") == []
     assert pr.retrieve_giurisprudenza("  ") == []
     mock_retriever._search_round.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Test full-text nel prompt (AIURA_FULLTEXT_CONTEXT) — anti-regressione 0.2
+# ---------------------------------------------------------------------------
+
+_MARKER = "MARCATORE_OLTRE_TRECENTO_CARATTERI"
+
+
+def _capture_ollama(captured: list[dict]) -> MagicMock:
+    """OllamaClient mock che registra i kwargs di ogni generate()."""
+    ollama = MagicMock()
+    ollama.model = "test"
+    responses = [
+        _phase_json(
+            ["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+            questione_retrieval="clausola penale riduzione giudice",
+        ),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(**kwargs):
+        captured.append(kwargs)
+        n = len(captured) - 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    return ollama
+
+
+def _packet_with_full_text() -> ResearchPacket:
+    """Packet con full_text lungo: il marcatore compare solo dopo il 300o char."""
+    norm = _make_source("ART_1382_CC", "normativa", snippet="A" * 300)
+    norm.full_text = "B" * 320 + f" {_MARKER} " + "C" * 400
+    giuri = _make_source("giurisprudenza_cass_1_2020", "giurisprudenza", snippet="D" * 300)
+    giuri.full_text = "E" * 320 + f" {_MARKER}_GIURI " + "F" * 400
+    return ResearchPacket(
+        query_original="clausola penale",
+        query_intent=QueryIntent.FATTISPECIE_ANALYSIS,
+        sources=[norm, giuri],
+        retrieval_confidence="HIGH",
+    )
+
+
+async def test_prompt_normativa_contiene_testo_oltre_300_char(monkeypatch):
+    """Con il flag attivo, il prompt della fase NORMATIVA contiene testo
+    della fonte oltre il 300o carattere (non solo lo snippet)."""
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "1")
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="clausola penale", packet=_packet_with_full_text(), phase_retriever=None
+    ):
+        pass
+
+    prompt_fase2 = captured[1]["prompt"]
+    assert _MARKER in prompt_fase2, (
+        "il prompt NORMATIVA deve contenere il full_text della fonte, non lo snippet"
+    )
+
+
+async def test_prompt_flag_off_usa_snippet(monkeypatch):
+    """Con AIURA_FULLTEXT_CONTEXT=0 il comportamento storico (snippet) e ripristinato."""
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "0")
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="clausola penale", packet=_packet_with_full_text(), phase_retriever=None
+    ):
+        pass
+
+    prompt_fase2 = captured[1]["prompt"]
+    assert _MARKER not in prompt_fase2
+    assert "A" * 200 in prompt_fase2  # snippet presente
+
+
+async def test_prompt_anti_overflow_token_budget(monkeypatch):
+    """Token totali (system+prompt) di ogni fase <= n_ctx - max_tokens fase,
+    anche con fonti dal full_text enorme."""
+    import tiktoken
+    from aiura_legal.agents.analyst import _llm_settings
+
+    monkeypatch.setenv("AIURA_FULLTEXT_CONTEXT", "1")
+    enc = tiktoken.get_encoding("cl100k_base")
+
+    huge = "parola giuridica ricorrente " * 4000  # >> budget per fonte
+
+    def _huge_source(doc_id: str, layer: str) -> SearchResult:
+        s = _make_source(doc_id, layer, snippet="x" * 300)
+        s.full_text = huge
+        return s
+
+    pr = MagicMock(spec=PhaseRetriever)
+    pr.retrieve_normativa.return_value = [
+        _huge_source(f"NORM_{i}", "normativa") for i in range(6)
+    ]
+    pr.retrieve_dottrina.return_value = [
+        _huge_source(f"DOTT_{i}", "dottrina") for i in range(4)
+    ]
+    pr.retrieve_giurisprudenza.return_value = [
+        _huge_source(f"giurisprudenza_{i}", "giurisprudenza") for i in range(6)
+    ]
+
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    async for _ in agent.analyze_sequential(
+        query="responsabilita contrattuale", packet=_packet_with_full_text(),
+        phase_retriever=pr,
+    ):
+        pass
+
+    assert len(captured) == 4
+    for n, kwargs in enumerate(captured, 1):
+        total = len(enc.encode(kwargs.get("system", ""))) + len(enc.encode(kwargs["prompt"]))
+        budget = _llm_settings.llm_n_ctx - kwargs["max_tokens"]
+        assert total <= budget, (
+            f"fase {n}: prompt {total} token > budget {budget} "
+            f"(n_ctx={_llm_settings.llm_n_ctx} - max_tokens={kwargs['max_tokens']})"
+        )

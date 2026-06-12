@@ -14,12 +14,13 @@ Qdrant è 5-10x più veloce di ChromaDB per volumi > 500k chunk:
 """
 from __future__ import annotations
 
-import os
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
 from loguru import logger
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 from aiura_legal.core.types import Document, SearchResult
 
@@ -27,6 +28,12 @@ _EMBED_MODEL     = "paraphrase-multilingual-MiniLM-L12-v2"
 _COLLECTION_NAME = "legal_docs"
 _VECTOR_SIZE     = 384       # dimensioni MiniLM-L12-v2
 _EMBED_BATCH     = 256       # batch embedding
+
+
+class QdrantSettings(BaseSettings):
+    model_config = ConfigDict(env_file=".env", extra="ignore")
+    # Vuoto → embedded mode. http://localhost:6333 → server mode (Docker).
+    qdrant_url: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -169,7 +176,7 @@ class VectorRetriever:
             from qdrant_client import QdrantClient
             from qdrant_client.models import Distance, VectorParams, OptimizersConfigDiff
 
-            qdrant_url = os.environ.get("QDRANT_URL", "").strip()
+            qdrant_url = QdrantSettings().qdrant_url.strip()
 
             if qdrant_url:
                 # ── Server mode (Docker) ──────────────────────────────
@@ -197,11 +204,13 @@ class VectorRetriever:
                     ),
                 )
                 logger.info(f"Qdrant: collection '{_COLLECTION_NAME}' creata ({self._mode})")
+                self._warn_if_empty(0)
             else:
                 count = self._client.count(_COLLECTION_NAME).count
                 logger.info(
                     f"Qdrant pronto [{self._mode}]: {count:,} punti"
                 )
+                self._warn_if_empty(count)
 
         except ImportError:
             logger.error(
@@ -209,6 +218,21 @@ class VectorRetriever:
             )
         except Exception as e:
             logger.error(f"Qdrant init fallita: {e}")
+
+    def _warn_if_empty(self, count: int) -> None:
+        """
+        Collection vuota all'avvio = retrieval vettoriale silenziosamente
+        disattivato (solo BM25). Quasi sempre una misconfigurazione:
+        QDRANT_URL assente/errato nel .env oppure indici mai costruiti.
+        """
+        if count > 0:
+            return
+        logger.warning(
+            f"Qdrant [{self._mode}]: collection '{_COLLECTION_NAME}' VUOTA — "
+            "il retrieval vettoriale restituirà 0 risultati (solo BM25). "
+            "Verifica QDRANT_URL nel .env (server Docker) oppure esegui "
+            "scripts/build_indexes.py per popolare l'indice."
+        )
 
     def _get_model(self):
         """Lazy load del modello SentenceTransformer."""
@@ -302,6 +326,10 @@ class VectorRetriever:
                 payload = {
                     **{k: str(v) for k, v in doc.metadata.items()},
                     "source_id":      doc.source_id,
+                    # ID originale (Mongo _id o jdoc_id_tipo): consente la fusione
+                    # RRF con i risultati BM25/graph e l'esposizione dell'ID
+                    # originale nel Research Packet (S5/frontend ne dipendono).
+                    "mongo_id":       doc.id,
                     "text":           doc.text[:1000],
                     "valid_from_int": _parse_date_int(
                         str(doc.metadata.get("valid_from", ""))
@@ -310,6 +338,8 @@ class VectorRetriever:
                         str(doc.metadata.get("valid_to", ""))
                     ) or 99999999,
                 }
+                if doc.metadata.get("workspace"):
+                    payload["workspace"] = str(doc.metadata["workspace"])
                 points.append(PointStruct(
                     id=_to_qdrant_id(doc.id),
                     vector=vec,
@@ -376,8 +406,12 @@ class VectorRetriever:
         for hit in hits:
             payload = hit.payload or {}
             score = float(hit.score)
+            # Punti nuovi: il payload contiene mongo_id (ID originale) → usalo
+            # come doc_id, coerente con BM25/graph. Punti legacy: fallback
+            # all'UUID Qdrant (la fusione RRF lo gestisce in _fusion_key).
+            doc_id = str(payload.get("mongo_id") or hit.id)
             results.append(SearchResult(
-                doc_id=str(hit.id),
+                doc_id=doc_id,
                 score=score,
                 snippet=str(payload.get("text", ""))[:300] if "text" in payload else "",
                 metadata={k: v for k, v in payload.items()

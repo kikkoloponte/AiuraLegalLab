@@ -191,9 +191,10 @@ class TestFaseAResume:
 
         llm_call_count = [0]
 
-        def mock_ollama(prompt, model, timeout=120):
+        def mock_ollama(prompt, model, timeout=120, system=None):
             llm_call_count[0] += 1
-            return '{"settori": ["amministrativo"], "confidence": 0.8}'
+            # Formato batch: array JSON con un oggetto per ogni atto nel prompt
+            return '[{"act_urn": "urn:atto:3", "settori": ["amministrativo"], "confidence": 0.8}]'
 
         mock_client, mock_source_coll, mock_chunks_coll = _make_mock_mongo(normattiva_docs)
 
