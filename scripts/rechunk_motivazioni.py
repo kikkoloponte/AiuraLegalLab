@@ -198,16 +198,23 @@ async def rechunk(
             })
 
         if chunk_docs:
+            n_inserted = len(chunk_docs) if dry_run else 0
             if not dry_run:
                 try:
-                    await db[_CHUNKS_COLLECTION].insert_many(
+                    result = await db[_CHUNKS_COLLECTION].insert_many(
                         chunk_docs, ordered=False
                     )
+                    n_inserted = len(result.inserted_ids)
                 except Exception as exc:
-                    # insert_many con ordered=False: gli errori di chiave duplicata
-                    # (DuplicateKeyError) vengono ignorati — idempotenza garantita
-                    logger.debug("insert_many partial: {}", exc)
-            chunks_written += len(chunk_docs)
+                    from pymongo.errors import BulkWriteError
+                    if isinstance(exc, BulkWriteError):
+                        n_inserted = exc.details.get("nInserted", 0)
+                        n_dup = len(exc.details.get("writeErrors", []))
+                        if n_dup:
+                            logger.debug("insert_many: {} inseriti, {} duplicati", n_inserted, n_dup)
+                    else:
+                        logger.warning("insert_many fallito: {}", exc)
+            chunks_written += n_inserted
             # Aggiorna cache locale per evitare re-check al prossimo batch
             for d in chunk_docs:
                 existing_chunk_ids.add(d["_id"])
