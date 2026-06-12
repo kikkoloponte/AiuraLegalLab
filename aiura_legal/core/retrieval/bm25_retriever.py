@@ -1,14 +1,23 @@
 """
-BM25 Retriever — rank_bm25 (BM25Okapi) con indici per-corpus separati.
+BM25 Retriever — bm25s (Fase 1) con indici per-corpus separati.
 
 Ogni corpus ha il suo pkl:  bm25_normattiva.pkl, bm25_dottrina.pkl,
                              bm25_studio.pkl, bm25_giurisprudenza.pkl
 
 Vantaggi rispetto al pkl monolitico:
-  - Aggiornare dottrina (191k) non tocca normattiva (278k) o giurisprudenza (316k)
-  - save() ricostruisce BM25Okapi solo per i sub-indici modificati
-  - BM25Okapi viene serializzato nel pkl → load istantaneo, nessun rebuild al primo search()
-  - Migrazione automatica da bm25.pkl legacy al primo avvio (~5-15 secondi)
+  - Aggiornare dottrina (191k) non tocca normattiva (278k) o giurisprudenza
+  - save() ricostruisce l'indice solo per i sub-indici modificati
+  - Migrazione automatica da bm25.pkl legacy al primo avvio
+
+Cambio backend (Fase 1 — ESITO A spike bm25s):
+  - bm25s al posto di rank_bm25 (BM25Okapi)
+  - 220x piu' veloce in query (4.6ms vs 1013ms su 500k doc)
+  - Full-text indicizzato (rimosso il troncamento text[:200])
+
+Schema versione:
+  _BM25_SCHEMA_VERSION = 2 (Fase 1: bm25s + full-text)
+  Se il pkl caricato ha schema < 2, il sub-indice viene marcato dirty
+  e ricostruito al prossimo save().
 """
 from __future__ import annotations
 
@@ -21,9 +30,11 @@ from typing import Optional
 
 import numpy as np
 from loguru import logger
-from rank_bm25 import BM25Okapi
 
 from aiura_legal.core.types import Document, SearchResult
+
+# Schema version — incrementa per forzare rebuild automatico dei pkl esistenti
+_BM25_SCHEMA_VERSION = 2
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Tokenizzazione
@@ -36,7 +47,7 @@ _IT_STOPWORDS = frozenset({
     "in", "nel", "nella", "nei", "negli", "nelle", "su", "sul", "sulla",
     "sui", "sugli", "sulle", "con", "per", "tra", "fra", "e", "ed",
     "o", "ma", "se", "non", "che", "chi", "cui", "ne", "ci", "si",
-    "è", "sono", "ha", "hanno", "era", "were", "the", "of", "and",
+    "e'", "sono", "ha", "hanno", "era", "were", "the", "of", "and",
     "quale", "quali", "questo", "questa", "questi", "queste",
     "dopo", "prima", "oltre", "anche", "come", "quando", "dove",
     "all", "dell", "nell",
@@ -49,7 +60,7 @@ def _tokenize(text: str) -> list[str]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# _BM25Sub — sub-indice per un singolo corpus
+# _BM25Sub — sub-indice per un singolo corpus (backend: bm25s)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @dataclass
@@ -57,6 +68,7 @@ class _BM25Sub:
     """
     Indice BM25 per un singolo corpus.
     Gestisce load/save/add/search/reset in modo completamente indipendente.
+    Backend: bm25s (Fase 1, ESITO A).
     """
     corpus: str
     ws: Path
@@ -69,8 +81,8 @@ class _BM25Sub:
     tokenized:      list[list[str]] = field(default_factory=list)
     chunk_meta:     dict[str, dict] = field(default_factory=dict)
 
-    # BM25Okapi (None se corpus vuoto o non ancora costruito)
-    bm25:  Optional[BM25Okapi] = field(default=None, repr=False)
+    # Stato bm25s
+    _bm25s_retriever: object = field(default=None, repr=False)
     dirty: bool = False
 
     # Array numpy per filtri vettorizzati — precalcolati su doc_metadata
@@ -91,15 +103,16 @@ class _BM25Sub:
 
     def add(self, docs: list[Document]) -> None:
         for doc in docs:
-            # NOTA: modifica a indexed_text invalida i pkl esistenti — eseguire build_indexes.py per rebuild
-            # Indicizza sommario+titolo_articolo+text[:200] per retrieval semantico più preciso
-            sommario   = doc.metadata.get("sommario", "") or ""
-            titolo     = doc.metadata.get("titolo_articolo", "") or ""
-            testo_trim = doc.text[:200] if doc.text else ""
-            indexed_text = f"{sommario} {titolo} {testo_trim}".strip()
-            # Fallback: se tutti i campi sono vuoti, usa almeno text[:200] — mai stringa vuota nel corpus BM25
+            # Fase 1: indicizza il testo completo del chunk (rimosso troncamento text[:200])
+            # Per normattiva/dottrina: sommario + titolo_articolo + text (full)
+            # Per giurisprudenza: text completo del chunk (gia' spezzato dal Chunker)
+            sommario = doc.metadata.get("sommario", "") or ""
+            titolo   = doc.metadata.get("titolo_articolo", "") or ""
+            # Full-text: usa il testo completo del chunk, non i primi 200 caratteri
+            indexed_text = f"{sommario} {titolo} {doc.text}".strip()
+            # Fallback: se tutti i campi sono vuoti, usa text — mai stringa vuota nel corpus BM25
             if not indexed_text:
-                indexed_text = doc.text[:200] if doc.text else " "
+                indexed_text = doc.text if doc.text else " "
             tokens = _tokenize(indexed_text)
             self.tokenized.append(tokens)
             self.doc_ids.append(doc.id)
@@ -121,7 +134,7 @@ class _BM25Sub:
         self.doc_source_ids = []
         self.tokenized      = []
         self.chunk_meta     = {}
-        self.bm25           = None
+        self._bm25s_retriever = None
         self.dirty          = False
         self.corpus_arr = self.fonte_arr = self.testo_tipo_arr = np.array([], dtype=object)
 
@@ -129,14 +142,19 @@ class _BM25Sub:
     # Search
     # ------------------------------------------------------------------
 
-    def _ensure_bm25(self) -> None:
-        if self.dirty or self.bm25 is None:
+    def _ensure_bm25s(self) -> None:
+        """Costruisce (o ricostruisce) l'indice bm25s se dirty."""
+        if self.dirty or self._bm25s_retriever is None:
             if self.tokenized:
-                logger.info(f"BM25[{self.corpus}]: build su {len(self.tokenized):,} doc...")
-                self.bm25 = BM25Okapi(self.tokenized)
-                logger.info(f"BM25[{self.corpus}]: pronto")
+                import bm25s
+                logger.info(f"BM25[{self.corpus}]: build bm25s su {len(self.tokenized):,} doc...")
+                corpus_tokens = [" ".join(t) for t in self.tokenized]
+                retriever = bm25s.BM25()
+                retriever.index(bm25s.tokenize(corpus_tokens, stopwords=None))
+                self._bm25s_retriever = retriever
+                logger.info(f"BM25[{self.corpus}]: pronto (bm25s)")
             else:
-                self.bm25 = None
+                self._bm25s_retriever = None
             self.dirty = False
 
     def search(
@@ -145,15 +163,38 @@ class _BM25Sub:
         top_k: int = 15,
         chunk_filter: Optional[dict] = None,
     ) -> list[SearchResult]:
-        # Lazy load: carica da disco se il sub non è ancora in memoria
+        # Lazy load: carica da disco se il sub non e' ancora in memoria
         if not self.doc_ids and self.index_path.exists():
             self.load()
-        self._ensure_bm25()
-        if self.bm25 is None or not self.tokenized:
+        self._ensure_bm25s()
+        if self._bm25s_retriever is None or not self.tokenized:
             return []
 
+        import bm25s
         tokens = _tokenize(query)
-        scores: np.ndarray = self.bm25.get_scores(tokens)
+        q_str = " ".join(tokens)
+        n_docs = len(self.doc_ids)
+        k_req = min(top_k, n_docs)
+        if k_req == 0:
+            return []
+
+        # Recupera tutti gli score per poi applicare i filtri
+        try:
+            results_idx, scores_arr = self._bm25s_retriever.retrieve(
+                bm25s.tokenize([q_str], stopwords=None), k=n_docs
+            )
+            # results_idx shape: (1, n_docs), scores_arr shape: (1, n_docs)
+            indices = results_idx[0].tolist()
+            scores_raw = scores_arr[0].tolist()
+        except Exception as exc:
+            logger.warning(f"BM25s search fallita: {exc}")
+            return []
+
+        # Ricostruisce array score nella posizione originale per filtri vettorizzati
+        scores: np.ndarray = np.zeros(n_docs, dtype=float)
+        for pos, (idx, sc) in enumerate(zip(indices, scores_raw)):
+            if 0 <= idx < n_docs:
+                scores[idx] = float(sc)
 
         # Filtro corpus (chiave speciale)
         source_id_in: list[str] = []
@@ -162,7 +203,7 @@ class _BM25Sub:
             for k, v in chunk_filter.items():
                 if k == "_source_id_in":
                     source_id_in = list(v) if v else []
-                elif k != "corpus":   # corpus è già selezionato dal sub
+                elif k != "corpus":   # corpus e' gia' selezionato dal sub
                     meta_filter[k] = v
 
         if meta_filter:
@@ -214,24 +255,21 @@ class _BM25Sub:
     # ------------------------------------------------------------------
 
     def save(self) -> None:
-        """Salva il sub-indice. Costruisce BM25Okapi se dirty, lo include nel pkl."""
-        self._ensure_bm25()
-        self._save_state(self.bm25)
+        """Salva il sub-indice. Costruisce bm25s se dirty, lo include nel pkl."""
+        self._ensure_bm25s()
+        self._save_state()
 
     def _save_raw(self) -> None:
-        """
-        Salva senza costruire BM25Okapi (usato durante migrazione da pkl legacy).
-        Il sub viene salvato con bm25=None e dirty=False: BM25Okapi verrà
-        costruito la prima volta che search() o save() vengono chiamati su quel corpus.
-        """
-        self._save_state(None)
+        """Salva senza costruire bm25s (usato durante migrazione da pkl legacy)."""
+        self._save_state()
         self.dirty = False
 
-    def _save_state(self, bm25_obj) -> None:
+    def _save_state(self) -> None:
         self.index_path.parent.mkdir(parents=True, exist_ok=True)
         state = {
+            "schema_version": _BM25_SCHEMA_VERSION,
             "corpus":         self.corpus,
-            "bm25":           bm25_obj,
+            "bm25s":          self._bm25s_retriever,
             "doc_ids":        self.doc_ids,
             "doc_snippets":   self.doc_snippets,
             "doc_metadata":   self.doc_metadata,
@@ -241,22 +279,29 @@ class _BM25Sub:
         }
         with open(self.index_path, "wb") as f:
             pickle.dump(state, f)
-        logger.info(f"BM25[{self.corpus}]: salvato {len(self.doc_ids):,} doc → {self.index_path}")
+        logger.info(f"BM25[{self.corpus}]: salvato {len(self.doc_ids):,} doc -> {self.index_path}")
 
     def load(self) -> None:
-        """Carica da pkl. BM25Okapi è già pronto (incluso nel pkl) → nessun rebuild."""
+        """Carica da pkl. Se schema < 2, forza dirty per rebuild con bm25s+full-text."""
         with open(self.index_path, "rb") as f:
             state = pickle.load(f)
+        schema_ver = state.get("schema_version", 1)
         self.doc_ids        = state["doc_ids"]
         self.doc_snippets   = state["doc_snippets"]
         self.doc_metadata   = state["doc_metadata"]
         self.doc_source_ids = state["doc_source_ids"]
         self.tokenized      = state.get("tokenized", state.get("corpus", []))  # compat legacy
         self.chunk_meta     = state.get("chunk_meta", {})
-        self.bm25           = state.get("bm25")   # già pronto, nessun rebuild
-        self.dirty          = False
+        self._bm25s_retriever = state.get("bm25s")  # None se pkl da schema v1
         self._rebuild_filter_arrays()
         logger.info(f"BM25[{self.corpus}]: caricato {len(self.doc_ids):,} doc da {self.index_path}")
+        if schema_ver < _BM25_SCHEMA_VERSION:
+            logger.info(
+                f"BM25[{self.corpus}]: schema v{schema_ver} -> v{_BM25_SCHEMA_VERSION} "
+                f"— marca dirty per rebuild con bm25s+full-text"
+            )
+            self.dirty = True
+            self._bm25s_retriever = None
 
     # ------------------------------------------------------------------
     # Helpers
@@ -284,7 +329,7 @@ class BM25Retriever:
     Retriever BM25 con indici per-corpus separati.
 
     Gestisce 4 sub-indici (uno per corpus) in modo completamente indipendente.
-    L'API pubblica è identica alla versione precedente monolitica.
+    L'API pubblica e' identica alla versione precedente monolitica.
 
     File:
       workspaces/<ws>/indices/bm25_normattiva.pkl
@@ -294,28 +339,26 @@ class BM25Retriever:
 
     Migrazione automatica: se esiste bm25.pkl (legacy) ma non i 4 separati,
     la migrazione avviene in __init__ (~5-15 secondi, nessun re-tokenize).
+    Schema upgrade: pkl con schema_version < 2 vengono ricostruiti con bm25s.
     """
 
     def __init__(self, workspace_path: str) -> None:
         self._ws = Path(workspace_path)
-        # Retrocompatibilità: path del pkl legacy (non più usato dopo migrazione)
+        # Retrocompatibilita': path del pkl legacy (non piu' usato dopo migrazione)
         self._index_path = self._ws / "indices" / "bm25.pkl"
         self._meta_path  = self._ws / "indices" / "bm25_meta.json"
 
         # Sub-indici per corpus — caricati LAZY al primo search()
-        # build_indexes.py non cerca mai → non carica pkl inutili
+        # build_indexes.py non cerca mai -> non carica pkl inutili
         self._subs: dict[str, _BM25Sub] = {}
         for corpus in _KNOWN_CORPORA:
             self._subs[corpus] = _BM25Sub(corpus=corpus, ws=self._ws)
 
-        # Migrazione da pkl monolitico legacy (fast: raw save, no BM25Okapi)
+        # Migrazione da pkl monolitico legacy (fast: raw save, no rebuild)
         self._maybe_migrate_legacy()
 
     def load_all(self) -> None:
-        """
-        Carica tutti i sub-indici da disco (warm-up esplicito per API).
-        build_indexes.py non lo chiama mai — lavora solo sui sub che tocca.
-        """
+        """Carica tutti i sub-indici da disco (warm-up esplicito per API)."""
         for corpus in _KNOWN_CORPORA:
             sub = self._subs[corpus]
             if sub.index_path.exists() and not sub.doc_ids:
@@ -347,7 +390,6 @@ class BM25Retriever:
             by_corpus.setdefault(c, []).append(doc)
         for corpus, cdocs in by_corpus.items():
             self._get_or_create_sub(corpus).add(cdocs)
-        total = sum(len(v) for v in by_corpus.values())
         logger.debug(f"BM25: {len(docs)} doc aggiunti (corpora: {list(by_corpus)})")
 
     # ------------------------------------------------------------------
@@ -370,14 +412,13 @@ class BM25Retriever:
             query:        testo della query
             top_k:        numero massimo di risultati
             chunk_filter: dizionario di filtri sui metadati.
-                          Chiave speciale: "_source_id_in" → list[str] di sottostringhe.
+                          Chiave speciale: "_source_id_in" -> list[str] di sottostringhe.
         """
         target_corpus: Optional[str] = None
         if chunk_filter and "corpus" in chunk_filter:
             target_corpus = chunk_filter["corpus"]
 
         if target_corpus:
-            # Corpus specifico: query solo su quel sub-indice (lazy load incluso)
             sub = self._subs.get(target_corpus)
             if sub is None:
                 logger.warning(f"BM25: sub-indice '{target_corpus}' non trovato")
@@ -385,7 +426,6 @@ class BM25Retriever:
             return sub.search(query, top_k=top_k, chunk_filter=chunk_filter)
 
         # Tutti i corpus: raccoglie e merge per score
-        # Il lazy load avviene dentro sub.search() per ogni sub
         all_results: list[SearchResult] = []
         for sub in self._subs.values():
             results = sub.search(query, top_k=top_k, chunk_filter=chunk_filter)
@@ -394,7 +434,7 @@ class BM25Retriever:
         if not all_results:
             return []
 
-        # Dedup per doc_id (tieni score più alto), poi sort
+        # Dedup per doc_id (tieni score piu' alto), poi sort
         seen: dict[str, SearchResult] = {}
         for r in all_results:
             if r.doc_id not in seen or r.score > seen[r.doc_id].score:
@@ -407,12 +447,7 @@ class BM25Retriever:
     # ------------------------------------------------------------------
 
     def save(self) -> None:
-        """
-        Salva solo i sub-indici che hanno subito modifiche (dirty=True).
-        I sub caricati da pkl (dirty=False) non vengono toccati, anche se
-        hanno bm25=None (raw save da migrazione): BM25Okapi viene costruito
-        corpus per corpus la prima volta che quel corpus viene ricercato.
-        """
+        """Salva solo i sub-indici che hanno subito modifiche (dirty=True)."""
         saved = 0
         for corpus, sub in self._subs.items():
             logger.debug(
@@ -423,7 +458,6 @@ class BM25Retriever:
                 sub.save()
                 saved += 1
             elif not sub.index_path.exists() and sub.doc_ids:
-                # sub in memoria ma senza pkl su disco → salva
                 sub.save()
                 saved += 1
         if saved == 0:
@@ -439,10 +473,7 @@ class BM25Retriever:
             json.dump(meta, f, ensure_ascii=False, indent=2)
 
     def load(self) -> None:
-        """
-        Ricarica tutti i sub-indici esistenti (retrocompatibilità / warm-up API).
-        Equivalente a load_all() — preferire load_all() nel codice nuovo.
-        """
+        """Ricarica tutti i sub-indici esistenti (retrocompatibilita' / warm-up API)."""
         self.load_all()
 
     def _reset(self) -> None:
@@ -451,10 +482,7 @@ class BM25Retriever:
             sub.reset()
 
     def _remove_corpus(self, corpus_value: str) -> None:
-        """
-        Rimuove tutti i chunk di un corpus specifico.
-        Usato da build_indexes.py --corpus X per rebuild parziale.
-        """
+        """Rimuove tutti i chunk di un corpus specifico."""
         sub = self._subs.get(corpus_value)
         if sub is None or len(sub) == 0:
             logger.info(f"BM25 _remove_corpus('{corpus_value}'): sub-indice vuoto o assente")
@@ -484,7 +512,7 @@ class BM25Retriever:
 
     @property
     def _corpus(self) -> list[list[str]]:
-        """Corpus tokenizzato aggregato (per retrocompatibilità con kb_sync/tests)."""
+        """Corpus tokenizzato aggregato (per retrocompatibilita' con kb_sync/tests)."""
         result: list[list[str]] = []
         for sub in self._subs.values():
             result.extend(sub.tokenized)
@@ -494,14 +522,12 @@ class BM25Retriever:
         return sum(len(sub) for sub in self._subs.values())
 
     def __bool__(self) -> bool:
-        # Sempre True: l'oggetto è valido indipendentemente dal numero di doc
+        # Sempre True: l'oggetto e' valido indipendentemente dal numero di doc
         # caricati in memoria (i sub-indici sono lazy-loaded da pkl).
-        # Senza __bool__, Python usa __len__ → 0 quando i pkl non sono ancora
-        # caricati → `if bm25:` valuta False e salta l'intera sezione BM25.
         return True
 
     # ------------------------------------------------------------------
-    # Migrazione legacy bm25.pkl → 4 pkl per-corpus
+    # Migrazione legacy bm25.pkl -> 4 pkl per-corpus
     # ------------------------------------------------------------------
 
     def _maybe_migrate_legacy(self) -> None:
@@ -509,18 +535,15 @@ class BM25Retriever:
         Se esiste bm25.pkl (legacy monolitico) ma nessun pkl per-corpus,
         ripartiziona il corpus esistente nei 4 sub-indici e salva.
 
-        Non ri-tokenizza nulla: usa il corpus già tokenizzato nel pkl legacy.
+        Non ri-tokenizza nulla: usa il corpus gia' tokenizzato nel pkl legacy.
         Tempo stimato: ~5-15 secondi.
         """
         legacy = self._ws / "indices" / "bm25.pkl"
         if not legacy.exists():
             return
-        # Ottimizzazione: se tutti i pkl per-corpus esistono già (creati da build_indexes
-        # o build_jurisprudence_indexes), non serve leggere bm25.pkl (1 GB+).
-        # Rinomina il legacy senza caricarlo e termina.
         if all(sub.index_path.exists() for sub in self._subs.values()):
             logger.info(
-                "BM25: tutti i pkl per-corpus già presenti — "
+                "BM25: tutti i pkl per-corpus gia' presenti — "
                 "rinomino bm25.pkl legacy senza caricarlo."
             )
             legacy.rename(legacy.with_suffix(".pkl.migrated"))
@@ -549,12 +572,9 @@ class BM25Retriever:
 
         for corpus, indices in by_corpus.items():
             sub = self._get_or_create_sub(corpus)
-            # Se il pkl per-corpus esiste già (es. tombstone scritto da purge_corpus.py)
-            # non sovrascrivere — l'utente ha volutamente azzerato questo corpus.
             if sub.index_path.exists():
                 logger.info(
-                    f"BM25 migrazione: corpus='{corpus}' — pkl già presente, skip "
-                    f"(rimuovilo manualmente se vuoi rimigrare)"
+                    f"BM25 migrazione: corpus='{corpus}' — pkl gia' presente, skip"
                 )
                 continue
             for i in indices:
@@ -568,13 +588,12 @@ class BM25Retriever:
                 k: v for k, v in chunk_meta.items()
                 if k in set(sub.doc_ids)
             })
+            # Schema v1: marca dirty per rebuild con bm25s al primo use
             sub.dirty = True
             sub._rebuild_filter_arrays()
-            logger.info(f"BM25 migrazione: corpus='{corpus}' → {len(indices):,} doc")
+            logger.info(f"BM25 migrazione: corpus='{corpus}' -> {len(indices):,} doc")
 
-        # Salva i nuovi sub-indici SENZA costruire BM25Okapi (raw save).
-        # BM25Okapi verrà costruito corpus per corpus al primo search/save
-        # successivo — evita di ricostruire 470k doc all'avvio.
+        # Salva i nuovi sub-indici SENZA costruire bm25s (raw save, lazy build)
         for corpus in by_corpus:
             self._subs[corpus]._save_raw()
 
@@ -590,8 +609,8 @@ class BM25Retriever:
         # Rinomina il legacy per non ri-triggerare la migrazione
         legacy.rename(legacy.with_suffix(".pkl.migrated"))
         logger.success(
-            "BM25: migrazione completata in pochi secondi. "
+            "BM25: migrazione completata. "
             f"bm25.pkl rinominato in bm25.pkl.migrated. "
             f"Corpus: {list(by_corpus)}. "
-            "BM25Okapi verra' costruito corpus per corpus al primo uso."
+            "bm25s verra' costruito corpus per corpus al primo uso."
         )
