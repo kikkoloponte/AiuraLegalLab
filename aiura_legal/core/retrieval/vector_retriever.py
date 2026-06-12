@@ -14,12 +14,13 @@ Qdrant è 5-10x più veloce di ChromaDB per volumi > 500k chunk:
 """
 from __future__ import annotations
 
-import os
 from datetime import date
 from pathlib import Path
 from typing import Optional
 
 from loguru import logger
+from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 from aiura_legal.core.types import Document, SearchResult
 
@@ -27,6 +28,12 @@ _EMBED_MODEL     = "paraphrase-multilingual-MiniLM-L12-v2"
 _COLLECTION_NAME = "legal_docs"
 _VECTOR_SIZE     = 384       # dimensioni MiniLM-L12-v2
 _EMBED_BATCH     = 256       # batch embedding
+
+
+class QdrantSettings(BaseSettings):
+    model_config = ConfigDict(env_file=".env", extra="ignore")
+    # Vuoto → embedded mode. http://localhost:6333 → server mode (Docker).
+    qdrant_url: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -169,7 +176,7 @@ class VectorRetriever:
             from qdrant_client import QdrantClient
             from qdrant_client.models import Distance, VectorParams, OptimizersConfigDiff
 
-            qdrant_url = os.environ.get("QDRANT_URL", "").strip()
+            qdrant_url = QdrantSettings().qdrant_url.strip()
 
             if qdrant_url:
                 # ── Server mode (Docker) ──────────────────────────────
@@ -197,11 +204,13 @@ class VectorRetriever:
                     ),
                 )
                 logger.info(f"Qdrant: collection '{_COLLECTION_NAME}' creata ({self._mode})")
+                self._warn_if_empty(0)
             else:
                 count = self._client.count(_COLLECTION_NAME).count
                 logger.info(
                     f"Qdrant pronto [{self._mode}]: {count:,} punti"
                 )
+                self._warn_if_empty(count)
 
         except ImportError:
             logger.error(
@@ -209,6 +218,21 @@ class VectorRetriever:
             )
         except Exception as e:
             logger.error(f"Qdrant init fallita: {e}")
+
+    def _warn_if_empty(self, count: int) -> None:
+        """
+        Collection vuota all'avvio = retrieval vettoriale silenziosamente
+        disattivato (solo BM25). Quasi sempre una misconfigurazione:
+        QDRANT_URL assente/errato nel .env oppure indici mai costruiti.
+        """
+        if count > 0:
+            return
+        logger.warning(
+            f"Qdrant [{self._mode}]: collection '{_COLLECTION_NAME}' VUOTA — "
+            "il retrieval vettoriale restituirà 0 risultati (solo BM25). "
+            "Verifica QDRANT_URL nel .env (server Docker) oppure esegui "
+            "scripts/build_indexes.py per popolare l'indice."
+        )
 
     def _get_model(self):
         """Lazy load del modello SentenceTransformer."""

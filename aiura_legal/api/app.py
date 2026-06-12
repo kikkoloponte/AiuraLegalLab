@@ -135,8 +135,8 @@ def _has_qdrant_index() -> bool:
     In server mode (QDRANT_URL configurato): interroga il server.
     In embedded mode: controlla la cartella locale.
     """
-    import os
-    qdrant_url = os.environ.get("QDRANT_URL", "").strip()
+    from aiura_legal.core.retrieval.vector_retriever import QdrantSettings
+    qdrant_url = QdrantSettings().qdrant_url.strip()
     if qdrant_url:
         try:
             from qdrant_client import QdrantClient
