@@ -21,6 +21,7 @@ from aiura_legal.core.retrieval.bm25_retriever import BM25Retriever
 from aiura_legal.core.retrieval.vector_retriever import VectorRetriever, _to_qdrant_id
 from aiura_legal.core.retrieval.reranker import CrossEncoderReranker
 from aiura_legal.core.graph.retriever import GraphRetriever
+from aiura_legal.core.retrieval.debug_log import rlog, rlog_sources
 
 
 class RetrievalSettings(BaseSettings):
@@ -58,6 +59,8 @@ _FILTER_NORMATIVA       = {"corpus": "normattiva"}
 _FILTER_GIURISPRUDENZA  = {"corpus": "giurisprudenza"}
 _FILTER_DOTTRINA        = {"corpus": "dottrina"}
 _BIFASICO_INTENTS = {
+    QueryIntent.NORMA_LOOKUP,           # corpus normattiva filtrato (fix corpus dilution)
+    QueryIntent.GIURISPRUDENZA_SEARCH,  # corpus giurisprudenza filtrato
     QueryIntent.FATTISPECIE_ANALYSIS,
     QueryIntent.RISCHIO_CONTRATTUALE,
     QueryIntent.NORMA_EVOLUTION,
@@ -150,11 +153,21 @@ class HybridRetriever:
 
         w_bm25, w_vec, w_graph = _INTENT_WEIGHTS.get(intent, (0.45, 0.45, 0.10))
 
+        rlog("HYBRID:search:start",
+             f"intent={intent.value} filter={chunk_filter} ws={workspace} "
+             f"top_k_ret={top_k_retrieve} top_k_rerank={top_k_rerank} "
+             f"w=(bm25={w_bm25}, vec={w_vec}, graph={w_graph})")
+
         bm25_results = self.bm25.search(query, top_k=top_k_retrieve, chunk_filter=chunk_filter)
+        rlog("HYBRID:search:bm25_done", f"→ {len(bm25_results)} risultati")
+        rlog_sources("HYBRID:search:bm25_top", bm25_results)
+
         vector_results = self.vector.search(
             query, top_k=top_k_retrieve, valid_on=valid_on,
             chunk_filter=chunk_filter, workspace=workspace,
         )
+        rlog("HYBRID:search:vector_done", f"→ {len(vector_results)} risultati")
+        rlog_sources("HYBRID:search:vector_top", vector_results)
 
         # Graph expansion — attiva solo se graph.json disponibile
         graph_results: list[SearchResult] = []
@@ -163,6 +176,7 @@ class HybridRetriever:
             graph_results = self.graph.expand(
                 top_ids, depth=1, max_nodes=top_k_retrieve, valid_on=valid_on
             )
+            rlog("HYBRID:search:graph_done", f"→ {len(graph_results)} risultati")
 
         logger.debug(
             f"Hybrid [{intent.value}]: BM25={len(bm25_results)}, "
@@ -172,7 +186,12 @@ class HybridRetriever:
         fused = self._rrf_fuse(
             bm25_results, vector_results, graph_results, w_bm25, w_vec, w_graph
         )
+        rlog("HYBRID:search:rrf_done", f"→ {len(fused)} unici dopo fusione")
+        rlog_sources("HYBRID:search:rrf_top", fused)
+
         reranked = self.reranker.rerank(query, fused, top_k=top_k_rerank)
+        rlog("HYBRID:search:rerank_done", f"→ {len(reranked)} fonti finali")
+        rlog_sources("HYBRID:search:final", reranked)
         return reranked
 
     def build_research_packet(
@@ -214,23 +233,31 @@ class HybridRetriever:
         if top_k_rerank == 0:
             top_k_rerank = _retrieval_settings.retrieval_top_k_rerank
 
+        rlog("BIFASICO:entry", f"intent={intent.value} top_k_rerank={top_k_rerank} ws={workspace}")
+
         if intent == QueryIntent.NORMA_LOOKUP:
+            rlog("BIFASICO:routing", "→ NORMA_LOOKUP: mono-round corpus=normattiva (BM25-heavy)")
             sources = self.search(query, intent=intent, valid_on=valid_on,
                                   chunk_filter=_FILTER_NORMATIVA,
                                   top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "normativa"
+            rlog("BIFASICO:done", f"NORMA_LOOKUP → {len(sources)} fonti normativa")
             return self._make_packet(query, intent, sources)
 
         if intent == QueryIntent.GIURISPRUDENZA_SEARCH:
+            rlog("BIFASICO:routing", "→ GIURISPRUDENZA_SEARCH: mono-round corpus=giurisprudenza (vector-heavy)")
             sources = self.search(query, intent=intent, valid_on=valid_on,
                                   chunk_filter=_FILTER_GIURISPRUDENZA,
                                   top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "giurisprudenza"
+            rlog("BIFASICO:done", f"GIURISPRUDENZA_SEARCH → {len(sources)} fonti giurisprudenza")
             return self._make_packet(query, intent, sources)
 
         # I due round sono indipendenti: li eseguiamo in parallelo
+        rlog("BIFASICO:routing",
+             f"→ {intent.value}: due round paralleli normativa + giurisprudenza")
         with ThreadPoolExecutor(max_workers=2) as pool:
             fut_norm = pool.submit(
                 self._search_round,
@@ -250,6 +277,9 @@ class HybridRetriever:
         for s in giuri_sources:
             s.source_layer = "giurisprudenza"
 
+        rlog("BIFASICO:done",
+             f"{intent.value} → norm={len(norm_sources)} giuri={len(giuri_sources)} "
+             f"tot={len(norm_sources)+len(giuri_sources)}")
         return self._make_packet(query, intent, norm_sources + giuri_sources)
 
     def _search_round(
@@ -264,6 +294,11 @@ class HybridRetriever:
     ) -> list[SearchResult]:
         """BM25 e Vector girano in parallelo su thread separati."""
         w_bm25, w_vec, w_graph = weights
+        corpus_tag = (chunk_filter or {}).get("corpus", "all")
+
+        rlog(f"ROUND:{corpus_tag}:start",
+             f"filter={chunk_filter} w=(bm25={w_bm25}, vec={w_vec}, graph={w_graph}) "
+             f"top_k_ret={top_k_retrieve} top_k_rerank={top_k_rerank}")
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             fut_bm25 = pool.submit(
@@ -276,14 +311,27 @@ class HybridRetriever:
             bm25_res   = fut_bm25.result()
             vector_res = fut_vec.result()
 
+        rlog(f"ROUND:{corpus_tag}:bm25", f"→ {len(bm25_res)} risultati")
+        rlog_sources(f"ROUND:{corpus_tag}:bm25_top", bm25_res)
+        rlog(f"ROUND:{corpus_tag}:vector", f"→ {len(vector_res)} risultati")
+        rlog_sources(f"ROUND:{corpus_tag}:vector_top", vector_res)
+
         graph_res: list[SearchResult] = []
         if self.graph.is_available:
             top_ids = [r.source_id for r in (bm25_res + vector_res)[:top_k_retrieve]]
             graph_res = self.graph.expand(
                 top_ids, depth=1, max_nodes=top_k_retrieve, valid_on=valid_on
             )
+            rlog(f"ROUND:{corpus_tag}:graph", f"→ {len(graph_res)} risultati")
+
         fused = self._rrf_fuse(bm25_res, vector_res, graph_res, w_bm25, w_vec, w_graph)
-        return self.reranker.rerank(query, fused, top_k=top_k_rerank)
+        rlog(f"ROUND:{corpus_tag}:rrf", f"→ {len(fused)} unici dopo fusione")
+        rlog_sources(f"ROUND:{corpus_tag}:rrf_top", fused)
+
+        reranked = self.reranker.rerank(query, fused, top_k=top_k_rerank)
+        rlog(f"ROUND:{corpus_tag}:rerank", f"→ {len(reranked)} fonti finali")
+        rlog_sources(f"ROUND:{corpus_tag}:final", reranked)
+        return reranked
 
     @staticmethod
     def _make_packet(
@@ -347,4 +395,8 @@ class HybridRetriever:
             r.retrieval_method = "hybrid_rrf"
             fused.append(r)
 
+        rlog("RRF:fuse",
+             f"input: bm25={len(bm25_results)} vec={len(vector_results)} "
+             f"graph={len(graph_results)} → fused={len(fused)} unici  "
+             f"w=(bm25={w_bm25}, vec={w_vec}, graph={w_graph})")
         return fused

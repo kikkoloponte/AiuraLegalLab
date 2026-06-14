@@ -27,6 +27,7 @@ from aiura_legal.agents.ollama_client import OllamaClient
 from aiura_legal.core.retrieval.hybrid_retriever import HybridRetriever, _BIFASICO_INTENTS
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
 from aiura_legal.core.retrieval.source_texts import fetch_full_texts
+from aiura_legal.core.retrieval.debug_log import rlog, rlog_sources
 from aiura_legal.core.reviewer.reviewer import CitationReviewer
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
 
@@ -239,6 +240,9 @@ class LegalOrchestrator:
         )
         import asyncio as _asyncio
         if intent in _BIFASICO_INTENTS:
+            rlog("ORCH:S2:routing",
+                 f"intent={intent.value} → build_research_packet_BIFASICO "
+                 f"(corpus filtrato)")
             packet = await _asyncio.to_thread(
                 self._retriever.build_research_packet_bifasico,
                 query=query,
@@ -246,6 +250,9 @@ class LegalOrchestrator:
                 valid_on=valid_on,
             )
         else:
+            rlog("ORCH:S2:routing",
+                 f"intent={intent.value} → build_research_packet LEGACY "
+                 f"(corpus non filtrato) chunk_filter={chunk_filter}")
             packet = await _asyncio.to_thread(
                 self._retriever.build_research_packet,
                 query=query,
@@ -255,6 +262,9 @@ class LegalOrchestrator:
             )
         # Testo pieno delle fonti per il prompt S3 (flag AIURA_FULLTEXT_CONTEXT)
         await fetch_full_texts(packet.sources)
+        rlog("ORCH:S2:done",
+             f"confidence={packet.retrieval_confidence} fonti={len(packet.sources)}")
+        rlog_sources("ORCH:S2:sources", packet.sources)
         duration_retrieval = time.monotonic() - t0
         logger.info(
             f"[Orchestrator] S2 done: {len(packet.sources)} fonti, "

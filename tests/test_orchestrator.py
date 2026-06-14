@@ -274,10 +274,11 @@ class TestOrchestrator:
         mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_norma_lookup_calls_standard_retriever(self, orchestrator, mock_retriever, mock_ollama):
+    async def test_run_norma_lookup_calls_bifasico_retriever(self, orchestrator, mock_retriever, mock_ollama):
+        """NORMA_LOOKUP deve usare build_research_packet_bifasico (corpus=normattiva filtrato)."""
         mock_ollama.generate = AsyncMock(return_value='{"analysis_sections": [], "overall_confidence": "LOW"}')
         await orchestrator.run(query="test", intent=QueryIntent.NORMA_LOOKUP, workspace="ws")
-        mock_retriever.build_research_packet.assert_called_once()
+        mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_run_s5_review_pass(self, orchestrator, mock_ollama):
@@ -316,7 +317,7 @@ class TestOrchestrator:
 
     @pytest.mark.asyncio
     async def test_run_with_chunk_filter(self, orchestrator, mock_retriever, mock_ollama):
-        """chunk_filter deve essere passato al retriever (percorso mono-layer NORMA_LOOKUP)."""
+        """NORMA_LOOKUP usa build_research_packet_bifasico che applica il filtro corpus internamente."""
         mock_ollama.generate = AsyncMock(return_value='{"analysis_sections": [], "overall_confidence": "LOW"}')
         await orchestrator.run(
             query="test",
@@ -324,8 +325,8 @@ class TestOrchestrator:
             intent=QueryIntent.NORMA_LOOKUP,
             chunk_filter={"corpus": "normattiva"},
         )
-        call_kwargs = mock_retriever.build_research_packet.call_args.kwargs
-        assert call_kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+        # Con il fix routing, NORMA_LOOKUP va sempre su bifasico (corpus filtrato internamente)
+        mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_run_sources_from_packet(self, orchestrator, mock_retriever, mock_ollama):

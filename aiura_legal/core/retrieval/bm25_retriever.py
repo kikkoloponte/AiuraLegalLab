@@ -32,6 +32,7 @@ import numpy as np
 from loguru import logger
 
 from aiura_legal.core.types import Document, SearchResult
+from aiura_legal.core.retrieval.debug_log import rlog, rlog_sources
 
 # Schema version — incrementa per forzare rebuild automatico dei pkl esistenti
 _BM25_SCHEMA_VERSION = 2
@@ -248,6 +249,11 @@ class _BM25Sub:
                 source_id=self.doc_source_ids[idx],
                 retrieval_method="bm25",
             ))
+
+        rlog(f"BM25:{self.corpus}",
+             f"filter={chunk_filter} total_docs={n_docs} "
+             f"non_zero_scores={int((scores > 0).sum())} → top{len(results)}")
+        rlog_sources(f"BM25:{self.corpus}:top", results)
         return results
 
     # ------------------------------------------------------------------
@@ -422,10 +428,14 @@ class BM25Retriever:
             sub = self._subs.get(target_corpus)
             if sub is None:
                 logger.warning(f"BM25: sub-indice '{target_corpus}' non trovato")
+                rlog("BM25:router", f"⚠ sub-indice '{target_corpus}' non trovato")
                 return []
+            rlog("BM25:router", f"→ corpus={target_corpus} (filtro specifico)")
             return sub.search(query, top_k=top_k, chunk_filter=chunk_filter)
 
         # Tutti i corpus: raccoglie e merge per score
+        rlog("BM25:router",
+             f"→ ALL corpora={list(self._subs.keys())} (nessun filtro corpus — attenzione a dilution)")
         all_results: list[SearchResult] = []
         for sub in self._subs.values():
             results = sub.search(query, top_k=top_k, chunk_filter=chunk_filter)
