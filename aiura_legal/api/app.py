@@ -239,6 +239,41 @@ async def _lifespan(application: FastAPI):
 
     asyncio.create_task(_warmup_indices())
 
+    # ── Check n_ctx LLM ───────────────────────────────────────────────────────
+    # Verifica che il modello LLM sia caricato con context window sufficiente.
+    # Con n_ctx < 4096 i prompt full-text superano il limite e LM Studio
+    # risponde 400. Soglia minima raccomandata: 8192.
+    async def _check_llm_context():
+        if not ollama_ok:
+            return
+        try:
+            from aiura_legal.agents.analyst import _llm_settings
+            required = _llm_settings.llm_n_ctx
+            # Prompt di prova da ~100 token — se 400, il modello ha n_ctx troppo basso
+            test_prompt = "Rispondi con 'ok'."
+            result = await _ollama.generate(
+                prompt=test_prompt,
+                temperature=0.0,
+                max_tokens=5,
+            )
+            if result:
+                logger.info(
+                    f"LLM context check: OK — modello risponde (n_ctx richiesto: {required}). "
+                    f"Assicurati che LM Studio abbia Context Length ≥{required}."
+                )
+            else:
+                logger.warning(
+                    f"LLM context check: risposta vuota — potrebbe indicare n_ctx < {required}. "
+                    f"Imposta Context Length ≥{required} in LM Studio e ricarica il modello."
+                )
+        except Exception as exc:
+            logger.warning(
+                f"LLM context check fallito: {exc}. "
+                f"Se vedi errori 400 durante le query, aumenta Context Length in LM Studio a ≥8192."
+            )
+
+    asyncio.create_task(_check_llm_context())
+
     # ── Caricamento grafo giurisprudenziale ───────────────────────────────────
     async def _load_graph_task():
         import networkx as nx
