@@ -19,6 +19,7 @@ export interface LLMSettings {
   llm_max_tokens_fase4:     number
   retrieval_top_k_rerank:   number
   retrieval_top_k_retrieve: number
+  qdrant_url:               string  // vuoto = Qdrant embedded
 }
 
 const DEFAULTS: LLMSettings = {
@@ -38,6 +39,7 @@ const DEFAULTS: LLMSettings = {
   llm_max_tokens_fase4:     1000,
   retrieval_top_k_rerank:   6,
   retrieval_top_k_retrieve: 20,
+  qdrant_url:               '',
 }
 
 export function useSettings() {

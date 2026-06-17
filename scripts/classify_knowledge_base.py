@@ -32,6 +32,12 @@ import httpx
 import pymongo
 from loguru import logger
 
+from aiura_legal.core.retrieval.settori import (
+    SETTORI_VALIDI,
+    KEYWORD_RULES as _KEYWORD_RULES,
+    classify_keywords as _keyword_classify,
+)
+
 # ---------------------------------------------------------------------------
 # Costanti
 # ---------------------------------------------------------------------------
@@ -43,11 +49,6 @@ LMSTUDIO_URL = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234")
 # USE_LMSTUDIO=0 usa Ollama (/api/generate)
 _USE_LMSTUDIO: bool = os.environ.get("USE_LMSTUDIO", "1") == "1"
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:32b")
-
-SETTORI_VALIDI = [
-    "penale", "civile", "amministrativo", "lavoro",
-    "tributario", "processuale", "costituzionale", "altro",
-]
 
 ORGANO_SETTORE_MAP: dict[str, tuple[list[str], float]] = {
     "cassazione":      (["civile", "penale"], 0.6),
@@ -75,50 +76,12 @@ FONTE_SETTORE_MAP: dict[str, list[str]] = {
     "mef":             ["tributario"],
 }
 
-# Keyword → settore per pre-classificazione rapida senza LLM.
-# Ordine: più specifico prima. Primo match vince.
-_KEYWORD_RULES: list[tuple[list[str], list[str], float]] = [
-    # (keywords_nel_titolo_lowercase, settori, confidence)
-    (["codice penale", "procedura penale", "processo penale", "codice di procedura penale"], ["penale", "processuale"], 0.95),
-    (["penale", "reato", "delitto", "contravvenzione", "pena detentiva", "reclusione"], ["penale"], 0.90),
-    (["codice civile", "procedura civile", "codice di procedura civile"], ["civile", "processuale"], 0.95),
-    (["diritto civile", "obbligazioni", "contratti", "proprietà", "successioni", "famiglia"], ["civile"], 0.85),
-    (["imposta sul reddito", "irpef", "ires", "iva", "accise", "tribut", "fiscale", "fisco", "catasto", "imposte", "tasse", "agevolazioni fiscali"], ["tributario"], 0.90),
-    (["lavoro", "lavoratori", "lavoratore", "occupazione", "contratto di lavoro", "licenziamento", "sindacato", "sciopero", "inps", "inail", "previdenza", "pensione", "cassa integrazione"], ["lavoro"], 0.90),
-    (["appalto pubblico", "contratti pubblici", "codice degli appalti", "pubblica amministrazione", "tar", "consiglio di stato", "procedimento amministrativo", "urbanistica", "edilizia", "esproprio", "demanio"], ["amministrativo"], 0.88),
-    (["costituzione", "costituzionale", "corte costituzionale", "diritti fondamentali", "parlamento", "governo", "referendum"], ["costituzionale"], 0.90),
-    (["processo", "procedura", "giurisdizione", "competenza", "appello", "cassazione", "tribunale"], ["processuale"], 0.75),
-    (["ambiente", "rifiuti", "inquinamento", "paesaggio", "tutela ambientale"], ["amministrativo"], 0.82),
-    (["sicurezza sul lavoro", "infortuni sul lavoro", "d.lgs. 81", "dlgs 81"], ["lavoro"], 0.95),
-    (["immigrazione", "stranieri", "asilo", "cittadinanza"], ["amministrativo"], 0.85),
-    (["codice del consumo", "consumatori", "tutela del consumatore"], ["civile"], 0.85),
-    (["privacy", "protezione dei dati", "gdpr", "trattamento dati"], ["amministrativo", "civile"], 0.80),
-    (["antimafia", "criminalità organizzata", "camorra", "mafia", "ndrangheta"], ["penale"], 0.92),
-    (["bancario", "credito", "banca", "testo unico bancario", "intermediazione finanziaria", "borsa", "finanza"], ["civile", "tributario"], 0.80),
-]
-
-
 def _extract_year_from_urn(act_urn: str) -> int | None:
     """Estrae l'anno da un URN normattiva (es. urn:nir:stato:legge:1948-03-16;262 → 1948)."""
     import re as _re
     m = _re.search(r':(\d{4})-\d{2}-\d{2}[;~]', act_urn)
     if m:
         return int(m.group(1))
-    return None
-
-
-def _keyword_classify(titolo: str, snippet: str = "") -> tuple[list[str], float] | None:
-    """Classifica il settore tramite keyword matching su titolo e testo.
-    Restituisce (settori, confidence) se trova un match, None altrimenti.
-    Il titolo ha priorità; lo snippet abbassa la confidence di 0.05 (meno affidabile).
-    """
-    titolo_lower = titolo.lower()
-    snippet_lower = snippet.lower()[:500]
-    for keywords, settori, confidence in _KEYWORD_RULES:
-        if any(kw in titolo_lower for kw in keywords):
-            return settori, confidence
-        if snippet_lower and any(kw in snippet_lower for kw in keywords):
-            return settori, max(0.5, confidence - 0.1)
     return None
 
 
@@ -574,6 +537,7 @@ async def _fase_b_async(workspace: str, model: str, batch_size: int, checkpoint_
         cursor = coll.find(
             {"corpus": "normattiva", "testo_tipo": "normativo", "sommario": None},
             {"_id": 1, "text": 1},
+            no_cursor_timeout=True,  # il cursore vive per settimane — necessario per pipeline lunghe
         )
 
         chunks_batch: list[dict] = []

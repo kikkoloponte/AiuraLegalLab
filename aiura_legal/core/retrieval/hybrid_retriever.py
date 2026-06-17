@@ -18,7 +18,7 @@ from pydantic_settings import BaseSettings
 
 from aiura_legal.core.types import Document, QueryIntent, ResearchPacket, SearchResult
 from aiura_legal.core.retrieval.bm25_retriever import BM25Retriever
-from aiura_legal.core.retrieval.vector_retriever import VectorRetriever, _to_qdrant_id
+from aiura_legal.core.retrieval.vector_retriever import VectorRetriever, VectorRetrieverV2, _to_qdrant_id
 from aiura_legal.core.retrieval.reranker import CrossEncoderReranker
 from aiura_legal.core.graph.retriever import GraphRetriever
 from aiura_legal.core.retrieval.debug_log import rlog, rlog_sources
@@ -117,9 +117,9 @@ class HybridRetriever:
     then applies CrossEncoder reranking.
     """
 
-    def __init__(self, workspace_path: str) -> None:
+    def __init__(self, workspace_path: str, use_v2: bool = False) -> None:
         self.bm25 = BM25Retriever(workspace_path)
-        self.vector = VectorRetriever(workspace_path)
+        self.vector = VectorRetrieverV2(workspace_path) if use_v2 else VectorRetriever(workspace_path)
         self.reranker = CrossEncoderReranker()
         self.graph = GraphRetriever(workspace_path)
 
@@ -219,11 +219,16 @@ class HybridRetriever:
         valid_on: Optional[date] = None,
         top_k_rerank: int = 0,   # 0 = usa valore da env (RETRIEVAL_TOP_K_RERANK)
         workspace: Optional[str] = None,
+        chunk_filter: Optional[dict] = None,
     ) -> ResearchPacket:
         """
         Due round separati: normativa (BM25-heavy) poi giurisprudenza (vector-heavy).
         Ogni SearchResult viene taggato con source_layer = "normativa"|"giurisprudenza".
         Intenti mono-layer delegano a search() con filtro corpus appropriato.
+
+        chunk_filter: filtro dominio aggiuntivo (es. {"_source_id_in": [...]}) che viene
+        unito al filtro corpus di ciascun round. Le chiavi "_..." sono BM25-only e
+        vengono ignorate da Qdrant (_flatten_chroma_filter le skippa).
 
         Nota: i documenti giurisprudenziali devono avere corpus="giurisprudenza" nei
         metadata (impostato da JurisprudenceCoordinator.to_chunks()). Documenti
@@ -233,12 +238,20 @@ class HybridRetriever:
         if top_k_rerank == 0:
             top_k_rerank = _retrieval_settings.retrieval_top_k_rerank
 
-        rlog("BIFASICO:entry", f"intent={intent.value} top_k_rerank={top_k_rerank} ws={workspace}")
+        rlog("BIFASICO:entry",
+             f"intent={intent.value} top_k_rerank={top_k_rerank} ws={workspace} "
+             f"domain_filter={chunk_filter}")
+
+        def _merge(corpus_filter: dict) -> dict:
+            """Unisce il filtro corpus con il filtro dominio (se presente)."""
+            if not chunk_filter:
+                return corpus_filter
+            return {**corpus_filter, **chunk_filter}
 
         if intent == QueryIntent.NORMA_LOOKUP:
             rlog("BIFASICO:routing", "→ NORMA_LOOKUP: mono-round corpus=normattiva (BM25-heavy)")
             sources = self.search(query, intent=intent, valid_on=valid_on,
-                                  chunk_filter=_FILTER_NORMATIVA,
+                                  chunk_filter=_merge(_FILTER_NORMATIVA),
                                   top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "normativa"
@@ -248,7 +261,7 @@ class HybridRetriever:
         if intent == QueryIntent.GIURISPRUDENZA_SEARCH:
             rlog("BIFASICO:routing", "→ GIURISPRUDENZA_SEARCH: mono-round corpus=giurisprudenza (vector-heavy)")
             sources = self.search(query, intent=intent, valid_on=valid_on,
-                                  chunk_filter=_FILTER_GIURISPRUDENZA,
+                                  chunk_filter=_merge(_FILTER_GIURISPRUDENZA),
                                   top_k_rerank=top_k_rerank * 2, workspace=workspace)
             for s in sources:
                 s.source_layer = "giurisprudenza"
@@ -261,12 +274,12 @@ class HybridRetriever:
         with ThreadPoolExecutor(max_workers=2) as pool:
             fut_norm = pool.submit(
                 self._search_round,
-                query, _WEIGHTS_NORMATIVA, _FILTER_NORMATIVA, valid_on, 20, top_k_rerank,
+                query, _WEIGHTS_NORMATIVA, _merge(_FILTER_NORMATIVA), valid_on, 20, top_k_rerank,
                 workspace,
             )
             fut_giuri = pool.submit(
                 self._search_round,
-                query, _WEIGHTS_GIURISPRUDENZA, _FILTER_GIURISPRUDENZA, valid_on, 20, top_k_rerank,
+                query, _WEIGHTS_GIURISPRUDENZA, _merge(_FILTER_GIURISPRUDENZA), valid_on, 20, top_k_rerank,
                 workspace,
             )
             norm_sources  = fut_norm.result()

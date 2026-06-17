@@ -239,27 +239,15 @@ class LegalOrchestrator:
             f"query={query[:60]!r}"
         )
         import asyncio as _asyncio
-        if intent in _BIFASICO_INTENTS:
-            rlog("ORCH:S2:routing",
-                 f"intent={intent.value} → build_research_packet_BIFASICO "
-                 f"(corpus filtrato)")
-            packet = await _asyncio.to_thread(
-                self._retriever.build_research_packet_bifasico,
-                query=query,
-                intent=intent,
-                valid_on=valid_on,
-            )
-        else:
-            rlog("ORCH:S2:routing",
-                 f"intent={intent.value} → build_research_packet LEGACY "
-                 f"(corpus non filtrato) chunk_filter={chunk_filter}")
-            packet = await _asyncio.to_thread(
-                self._retriever.build_research_packet,
-                query=query,
-                intent=intent,
-                valid_on=valid_on,
-                chunk_filter=chunk_filter,
-            )
+        rlog("ORCH:S2:routing",
+             f"intent={intent.value} → build_research_packet_bifasico (corpus filtrato)")
+        packet = await _asyncio.to_thread(
+            self._retriever.build_research_packet_bifasico,
+            query=query,
+            intent=intent,
+            valid_on=valid_on,
+            chunk_filter=chunk_filter,
+        )
         # Testo pieno delle fonti per il prompt S3 (flag AIURA_FULLTEXT_CONTEXT)
         await fetch_full_texts(packet.sources)
         rlog("ORCH:S2:done",
@@ -451,14 +439,8 @@ class LegalOrchestrator:
 
         # ── S2 Retrieval bifasico ──────────────────────────────────────
         try:
-            if intent in _BIFASICO_INTENTS:
-                packet = await _asyncio.to_thread(
+            packet = await _asyncio.to_thread(
                     self._retriever.build_research_packet_bifasico,
-                    query=query, intent=intent, valid_on=valid_on,
-                )
-            else:
-                packet = await _asyncio.to_thread(
-                    self._retriever.build_research_packet,
                     query=query, intent=intent, valid_on=valid_on,
                     chunk_filter=chunk_filter,
                 )

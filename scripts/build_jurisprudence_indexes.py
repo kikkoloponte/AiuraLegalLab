@@ -107,6 +107,7 @@ def _chunk_from_record(record: dict) -> Document:
             "source_url": record.get("source_url", ""),
             "valid_from": valid_from,
             "workspace": "",  # impostato dall'indicizzatore per workspace
+            "settore": ",".join(record.get("settore") or []),
         },
     )
 

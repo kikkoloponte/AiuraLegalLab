@@ -81,7 +81,7 @@ def _mock_retriever(packet: ResearchPacket | None = None) -> MagicMock:
     if packet is None:
         packet = _make_packet()
     mock = MagicMock()
-    mock.build_research_packet = MagicMock(return_value=packet)
+    mock.build_research_packet_bifasico = MagicMock(return_value=packet)
     return mock
 
 

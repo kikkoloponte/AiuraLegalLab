@@ -397,6 +397,15 @@ export function Settings() {
               disabled={isDisabled}
             />
           </Field>
+
+          <Field label="Qdrant URL" hint="URL del server Qdrant (es. Docker). Lascia vuoto per Qdrant embedded su path locale.">
+            <Input
+              value={settings.qdrant_url}
+              onChange={(v) => update('qdrant_url', v)}
+              placeholder="http://localhost:6333 (vuoto = embedded)"
+              disabled={isDisabled}
+            />
+          </Field>
         </Section>
 
         {/* ── Footer ── */}

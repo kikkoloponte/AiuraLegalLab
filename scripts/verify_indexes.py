@@ -162,7 +162,7 @@ async def build_and_verify(
         for q in smoke_queries:
             t0 = time.perf_counter()
             try:
-                packet = retriever.build_research_packet(
+                packet = retriever.build_research_packet_bifasico(
                     query=q,
                     intent=QueryIntent.NORMA_LOOKUP,
                 )

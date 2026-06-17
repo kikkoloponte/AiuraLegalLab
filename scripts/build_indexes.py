@@ -175,6 +175,7 @@ async def build(
                 "articolo":   chunk.get("articolo_num", ""),
                 "valid_from": str(chunk.get("valid_from", "") or ""),
                 "valid_to":   str(chunk.get("valid_to", "") or ""),
+                "settore":    ",".join(chunk.get("settore") or []),
             },
         )
         batch.append(doc)

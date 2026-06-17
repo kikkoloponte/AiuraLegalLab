@@ -87,6 +87,9 @@ class ApiSettings(BaseSettings):
     aiura_api_port: int = 8765
     # "ollama" (default) oppure "lmstudio" / qualsiasi backend OpenAI-compatibile
     aiura_llm_backend: str = "ollama"
+    # Fase 2: USE_VECTOR_V2=1 abilita legal_docs_v2 + multilingual-e5-base.
+    # Impostare solo dopo che reindex_v2.py ha completato l'indicizzazione.
+    use_vector_v2: bool = False
 
 
 _settings = ApiSettings()
@@ -163,7 +166,7 @@ def _get_orchestrator(workspace: str) -> LegalOrchestrator:
     if workspace not in _orchestrator_cache:
         ws_path = f"{_settings.aiura_workspaces_path}/{workspace}"
         logger.info(f"Caricamento indici per workspace: {workspace}")
-        retriever = HybridRetriever(ws_path)
+        retriever = HybridRetriever(ws_path, use_v2=_settings.use_vector_v2)
         _orchestrator_cache[workspace] = LegalOrchestrator(
             retriever=retriever,
             ollama=_ollama,
@@ -772,12 +775,9 @@ async def _run_annotation_job(
         # Retrieval fonti pertinenti al documento (query = incipit del doc)
         query_text = document_text[:500].strip()
         orchestrator = _get_orchestrator(workspace)
-        packet = orchestrator._retriever.build_research_packet(
+        packet = orchestrator._retriever.build_research_packet_bifasico(
             query=query_text,
-            intent=__import__(
-                "aiura_legal.core.types", fromlist=["QueryIntent"]
-            ).QueryIntent.FATTISPECIE_ANALYSIS,
-            chunk_filter=chunk_filter,
+            intent=QueryIntent.FATTISPECIE_ANALYSIS,
         )
 
         result = await _annotator.annotate(

@@ -435,7 +435,7 @@ class TestAnnotateEndpoints:
             # Mock anche l'orchestratore per evitare accesso a indici su disco
             with patch("aiura_legal.api.app._get_orchestrator") as mock_orch:
                 mock_retriever = MagicMock()
-                mock_retriever.build_research_packet = MagicMock(
+                mock_retriever.build_research_packet_bifasico = MagicMock(
                     return_value=_make_packet()
                 )
                 mock_orch_instance = MagicMock()
