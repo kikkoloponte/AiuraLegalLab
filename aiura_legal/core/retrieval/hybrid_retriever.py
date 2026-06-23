@@ -58,6 +58,13 @@ _WEIGHTS_DOTTRINA       = (0.40, 0.50, 0.10)   # Bilanciato: dottrina richiede s
 _FILTER_NORMATIVA       = {"corpus": "normattiva"}
 _FILTER_GIURISPRUDENZA  = {"corpus": "giurisprudenza"}
 _FILTER_DOTTRINA        = {"corpus": "dottrina"}
+
+# Pesi per query_type="doctrine" (domande astratte su istituti, non su un
+# articolo puntuale): meno peso a BM25 esatto, più peso a similarità
+# semantica. La norma resta fondamento — qui non si inverte normativa vs
+# dottrina, si cambia solo COME si cerca dentro ciascun corpus.
+_WEIGHTS_NORMATIVA_DOCTRINE = (0.40, 0.45, 0.15)
+_WEIGHTS_DOTTRINA_DOCTRINE  = (0.25, 0.65, 0.10)
 _BIFASICO_INTENTS = {
     QueryIntent.NORMA_LOOKUP,           # corpus normattiva filtrato (fix corpus dilution)
     QueryIntent.GIURISPRUDENZA_SEARCH,  # corpus giurisprudenza filtrato

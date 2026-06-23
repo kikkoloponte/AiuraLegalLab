@@ -24,6 +24,7 @@ from aiura_legal.agents.analyst import AnalysisResult, AnalysisSection, AnalystA
 from aiura_legal.agents.clarifier import ClarificationResult, ClarifierAgent
 from aiura_legal.agents.drafter import DraftResult, DrafterAgent
 from aiura_legal.agents.ollama_client import OllamaClient
+from aiura_legal.agents.query_classifier import QueryTypeClassifier
 from aiura_legal.core.retrieval.hybrid_retriever import HybridRetriever, _BIFASICO_INTENTS
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
 from aiura_legal.core.retrieval.source_texts import fetch_full_texts
@@ -148,6 +149,7 @@ class LegalOrchestrator:
         enable_drafter: bool = True,
     ) -> None:
         _ollama = ollama or OllamaClient()
+        self._ollama = _ollama
         self._analyst = AnalystAgent(_ollama)
         self._clarifier: Optional[ClarifierAgent] = (
             ClarifierAgent(_ollama) if enable_clarifier else None
@@ -158,6 +160,10 @@ class LegalOrchestrator:
         self._retriever = retriever
         self._phase_retriever = PhaseRetriever(retriever)
         self._reviewer = reviewer or CitationReviewer()
+
+    @property
+    def retriever(self) -> HybridRetriever:
+        return self._retriever
 
     # ------------------------------------------------------------------
     # run()
@@ -350,12 +356,13 @@ class LegalOrchestrator:
         # Il testo dell'answer non li contiene esplicitamente, ma S5 deve
         # comunque verificare che ogni source_id usato nelle citations sia
         # presente nel Research Packet.
-        cited_section_ids = [
-            cit["source_id"]
+        cited_section_claims = [
+            cit
             for sec in analysis.analysis_sections
             for cit in sec.citations
             if isinstance(cit, dict) and cit.get("source_id")
         ]
+        cited_section_ids = [cit["source_id"] for cit in cited_section_claims]
         if cited_section_ids:
             text_to_review = text_to_review + "\n" + " ".join(cited_section_ids)
 
@@ -363,6 +370,8 @@ class LegalOrchestrator:
             response_text=text_to_review,
             research_packet=packet,
             reference_date=valid_on,
+            structured_cited_ids=cited_section_ids,
+            cited_claims=cited_section_claims,
         )
         logger.info(
             f"[Orchestrator] S5 review: verdict={review.verdict}, "
@@ -463,47 +472,117 @@ class LegalOrchestrator:
             f"confidence={packet.retrieval_confidence}"
         )
 
+        # ── Phase 0: Query Type Classifier ────────────────────────────
+        query_type = "case"
+        try:
+            _classifier = QueryTypeClassifier(self._ollama)
+            query_type = await _classifier.classify(query)
+        except Exception as exc:
+            logger.warning(f"[Orchestrator Seq] QueryClassifier errore: {exc} — fallback 'case'")
+
         # ── S3 Sequential IQRAC ────────────────────────────────────────
         all_sections: list[AnalysisSection] = []
         last_phase: Optional[PhaseResult] = None
+        phases_by_number: dict[int, PhaseResult] = {}
+        all_phase_source_ids: set[str] = set()
+        all_phase_sources_metadata: dict[str, dict] = {}
 
         async for phase in self._analyst.analyze_sequential(
             query=query,
             packet=packet,
             phase_retriever=self._phase_retriever,
+            query_type=query_type,
         ):
             all_sections.extend(phase.sections)
+            all_phase_source_ids.update(phase.sources_used)
+            all_phase_sources_metadata.update(phase.sources_metadata)
+            phases_by_number[phase.phase] = phase
             last_phase = phase
             yield {"event": "phase_complete", "phase": phase}
             await _asyncio.sleep(0)  # cede il controllo → flush immediato
 
-        # ── S5 Reviewer ────────────────────────────────────────────────
-        merged_answer = "\n\n".join(
-            f"**{s.step}**\n{s.content}"
-            for s in all_sections if s.content
-        )
-        cited_ids = [
-            cit["source_id"]
-            for s in all_sections
-            for cit in s.citations
-            if isinstance(cit, dict) and cit.get("source_id")
-        ]
-        text_to_review = merged_answer + ("\n" + " ".join(cited_ids) if cited_ids else "")
+        def _verify(sections: list[AnalysisSection]):
+            merged = "\n\n".join(f"**{s.step}**\n{s.content}" for s in sections if s.content)
+            claims = [
+                cit for s in sections for cit in s.citations
+                if isinstance(cit, dict) and cit.get("source_id")
+            ]
+            ids = [cit["source_id"] for cit in claims]
+            text = merged + ("\n" + " ".join(ids) if ids else "")
+            try:
+                return self._reviewer.verify(
+                    response_text=text or " ",
+                    research_packet=packet,
+                    reference_date=valid_on,
+                    structured_cited_ids=ids,
+                    phase_source_ids=all_phase_source_ids,
+                    phase_sources_metadata=all_phase_sources_metadata,
+                    cited_claims=claims,
+                ), claims, ids
+            except Exception as exc:
+                logger.error(f"[Orchestrator Seq] S5 CitationReviewer errore: {exc}")
+                from aiura_legal.core.reviewer.reviewer import ReviewResult
+                return (
+                    ReviewResult(verdict="WARN", action="DELIVER",
+                                 warnings=[f"Reviewer non disponibile: {exc}"]),
+                    claims, ids,
+                )
 
-        try:
-            review = self._reviewer.verify(
-                response_text=text_to_review or " ",
-                research_packet=packet,
-                reference_date=valid_on,
-            )
-        except Exception as exc:
-            logger.error(f"[Orchestrator Seq] S5 CitationReviewer errore: {exc}")
-            from aiura_legal.core.reviewer.reviewer import ReviewResult
-            review = ReviewResult(
-                verdict="WARN",
-                action="DELIVER",
-                warnings=[f"Reviewer non disponibile: {exc}"],
-            )
+        # ── S5 Reviewer ────────────────────────────────────────────────
+        review, cited_claims, cited_ids = _verify(all_sections)
+
+        # ── Retry mirato Fase 4 — solo se le citazioni ungrounded sono
+        # confinate alla Sintesi (Fase 4). Se provengono da Fase 2/3 il
+        # retry non le toccherebbe (quelle fasi non vengono rigenerate),
+        # quindi si va dritti a BLOCK come prima — nessuna regressione.
+        if review.action == "RE_RETRIEVAL" and 4 in phases_by_number:
+            ungrounded_upper = {u.upper() for u in review.ungrounded_citations}
+            fase4_steps = {"SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"}
+            fase4_cited_upper = {
+                cit["source_id"].upper()
+                for s in phases_by_number[4].sections if s.step in fase4_steps
+                for cit in s.citations
+                if isinstance(cit, dict) and cit.get("source_id")
+            }
+            confined_to_fase4 = ungrounded_upper and ungrounded_upper.issubset(fase4_cited_upper)
+
+            if confined_to_fase4:
+                logger.warning(
+                    f"[Orchestrator Seq] S5 RE_RETRIEVAL confinato a Fase 4 "
+                    f"({review.ungrounded_citations}) — tento un retry mirato."
+                )
+                try:
+                    retried_phase4 = await self._analyst.regenerate_fase4(
+                        query=query,
+                        packet=packet,
+                        completed_phases=[
+                            phases_by_number[n] for n in (1, 2, 3) if n in phases_by_number
+                        ],
+                        ungrounded_ids=review.ungrounded_citations,
+                    )
+                    retried_sections = [
+                        s for s in all_sections if s.step not in fase4_steps
+                    ] + retried_phase4.sections
+                    retried_review, retried_claims, retried_ids = _verify(retried_sections)
+
+                    if retried_review.action != "RE_RETRIEVAL":
+                        logger.info(
+                            "[Orchestrator Seq] Retry Fase 4 riuscito: "
+                            f"verdict {review.verdict}→{retried_review.verdict}"
+                        )
+                        all_sections = retried_sections
+                        phases_by_number[4] = retried_phase4
+                        last_phase = retried_phase4
+                        review, cited_claims, cited_ids = retried_review, retried_claims, retried_ids
+                        yield {"event": "phase_complete", "phase": retried_phase4}
+                        await _asyncio.sleep(0)
+                    else:
+                        logger.warning(
+                            "[Orchestrator Seq] Retry Fase 4 non ha risolto le citazioni "
+                            f"ungrounded: {retried_review.ungrounded_citations}"
+                        )
+                except Exception as exc:
+                    logger.error(f"[Orchestrator Seq] Retry Fase 4 errore: {exc}")
 
         # Serializza le fonti del Research Packet per il frontend
         serialized_sources = [
@@ -519,14 +598,26 @@ class LegalOrchestrator:
             for i, s in enumerate(packet.sources)
         ]
 
+        # BLOCK enforcement: se RE_RETRIEVAL persiste dopo il retry mirato di
+        # Fase 4 (o non era nemmeno applicabile — ungrounded da Fase 2/3),
+        # non c'è altro meccanismo di recovery → BLOCK.
+        effective_action = review.action
+        if review.action == "RE_RETRIEVAL":
+            effective_action = "BLOCK"
+            logger.warning(
+                "[Orchestrator Seq] S5 action=RE_RETRIEVAL persistente → BLOCK. "
+                f"Citazioni non grounded: {review.ungrounded_citations}"
+            )
+
         yield {
             "event": "review_done",
             "verdict": review.verdict,
-            "action": review.action,
+            "action": effective_action,
             "warnings": review.warnings,
             "overall_confidence": last_phase.overall_confidence if last_phase else "LOW",
             "duration_total_s": round(time.monotonic() - t_total, 3),
             "sources": serialized_sources,
+            "query_type": query_type,
             "gaps": list(dict.fromkeys(
                 g for phase in (last_phase,) if phase for g in phase.gaps
             )),

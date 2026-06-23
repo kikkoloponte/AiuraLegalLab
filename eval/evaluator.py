@@ -64,6 +64,7 @@ class EvalQuery:
     module: str = ""                         # es. "cod_civ", "pen", "lav"
     difficulty: str = "medium"               # "easy" | "medium" | "hard"
     top_k: int = 10
+    query_type: str = ""                     # "case" | "doctrine" | "" (non specificato)
 
     @property
     def api_intent(self) -> str:

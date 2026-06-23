@@ -104,6 +104,11 @@ Questo valore guida il retrieval di Fase 2/3: sceglilo con cura.
   "settore_giuridico": "penale",
   "questione_retrieval": "testo conciso per retrieval normativa (max 120 char)",
   "qualificazione_retrieval": "testo conciso per retrieval giurisprudenza (max 120 char)",
+  "giurisprudenza_retrieval_varianti": [
+    "formulazione 1 — principio cardine, terminologia tecnica esatta",
+    "formulazione 2 — eventuali condizioni/eccezioni che qualificano diversamente l'istituto",
+    "formulazione 3 — sinonimi processuali alternativi"
+  ],
   "overall_confidence": "HIGH|MEDIUM|LOW",
   "gaps": []
 }
@@ -114,3 +119,10 @@ Il campo `questione_retrieval` deve essere una stringa breve con i termini tecni
 chiave estratti dalla QUESTIONE — sarà usata come query BM25 per la normativa.
 Il campo `qualificazione_retrieval` combina QUALIFICAZIONE + QUESTIONE per la
 ricerca giurisprudenziale.
+Il campo `giurisprudenza_retrieval_varianti` è OPZIONALE: 1-3 formulazioni
+alternative per la ricerca giurisprudenziale, ciascuna max 120 caratteri.
+Devono coprire angolazioni REALMENTE distinte (non sinonimi della stessa frase):
+es. il principio generale, un'eccezione/discriminante che cambia l'esito
+applicativo, oppure terminologia processuale alternativa. Se l'istituto non ha
+profili distinti rilevanti, omettere il campo o lasciarlo con una sola voce
+identica a `qualificazione_retrieval`.

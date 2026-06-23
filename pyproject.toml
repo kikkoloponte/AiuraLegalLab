@@ -52,6 +52,11 @@ dev = [
     "ruff>=0.4.0",
     "mongomock-motor>=0.0.21",
 ]
+# POC migrazione graph DB (Opzione C) — vedi docker-compose.neo4j.yml.
+# Non usato dal path di produzione finché la migrazione non è validata.
+graph-poc = [
+    "neo4j>=6.0.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["aiura_legal*"]

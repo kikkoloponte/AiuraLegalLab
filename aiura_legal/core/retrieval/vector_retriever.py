@@ -236,6 +236,7 @@ class VectorRetriever:
                     optimizers_config=OptimizersConfigDiff(
                         indexing_threshold=20_000,
                     ),
+                    on_disk_payload=False,  # evita il bug gridstore di Qdrant 1.18.x
                 )
                 logger.info(f"Qdrant: collection '{_COLLECTION_NAME}' creata ({self._mode})")
                 self._warn_if_empty(0)
@@ -271,20 +272,37 @@ class VectorRetriever:
         )
 
     def _ensure_payload_indexes(self) -> None:
-        """Crea payload index su workspace e corpus se mancanti (previene full scan)."""
+        """Crea payload index su workspace/corpus (KEYWORD) e valid_*_int (INTEGER).
+
+        Gli indici integer DEVONO essere dichiarati prima dell'upsert: se mancano,
+        Qdrant tenta di ricostruirli lazily al riavvio leggendo i raw bytes del
+        gridstore — se il processo era stato killato durante un upsert i bytes
+        sono parziali e Qdrant crasha (LiteralOutOfBounds / OffsetZero).
+        """
         if not self._client:
             return
         try:
+            from qdrant_client.models import PayloadSchemaType
             info = self._client.get_collection(_COLLECTION_NAME)
             existing = set(info.payload_schema.keys()) if info.payload_schema else set()
-            for field in ("workspace", "corpus"):
+            keyword_fields = ("workspace", "corpus")
+            integer_fields = ("valid_from_int", "valid_to_int")
+            for field in keyword_fields:
                 if field not in existing:
                     self._client.create_payload_index(
                         collection_name=_COLLECTION_NAME,
                         field_name=field,
                         field_schema=PayloadSchemaType.KEYWORD,
                     )
-                    logger.info(f"Qdrant: creato payload index su '{field}'")
+                    logger.info(f"Qdrant: creato payload index KEYWORD su '{field}'")
+            for field in integer_fields:
+                if field not in existing:
+                    self._client.create_payload_index(
+                        collection_name=_COLLECTION_NAME,
+                        field_name=field,
+                        field_schema=PayloadSchemaType.INTEGER,
+                    )
+                    logger.info(f"Qdrant: creato payload index INTEGER su '{field}'")
         except Exception as e:
             logger.warning(f"Qdrant: impossibile creare payload index: {e}")
 
@@ -581,13 +599,20 @@ class VectorRetrieverV2(VectorRetriever):
                         distance=Distance.COSINE,
                     ),
                     optimizers_config=OptimizersConfigDiff(indexing_threshold=20_000),
+                    # on_disk_payload=False: payload in RocksDB (WAL transazionale).
+                    # Il default True usa mmap gridstore che ha un bug noto in Qdrant
+                    # 1.18.x — sotto set_payload rapidi lascia due WAL "open" in stato
+                    # inconsistente, corrompendo il payload al riavvio successivo.
+                    on_disk_payload=False,
                 )
                 logger.info(f"Qdrant v2: collection '{_COLLECTION_V2}' creata ({self._mode})")
             else:
                 count = self._client.count(_COLLECTION_V2).count
                 logger.info(f"Qdrant v2 pronto [{self._mode}]: {count:,} punti in '{_COLLECTION_V2}'")
 
-            # Payload indexes
+            # Payload indexes — tutti dichiarati esplicitamente prima di qualsiasi
+            # upsert. Se mancano e Qdrant li ricostruisce lazily al riavvio su
+            # segment data parzialmente scritti → crash gridstore (LiteralOutOfBounds).
             try:
                 info = self._client.get_collection(_COLLECTION_V2)
                 existing_fields = set(info.payload_schema.keys()) if info.payload_schema else set()
@@ -598,6 +623,15 @@ class VectorRetrieverV2(VectorRetriever):
                             field_name=field,
                             field_schema=PayloadSchemaType.KEYWORD,
                         )
+                        logger.info(f"Qdrant v2: creato payload index KEYWORD su '{field}'")
+                for field in ("valid_from_int", "valid_to_int"):
+                    if field not in existing_fields:
+                        self._client.create_payload_index(
+                            collection_name=_COLLECTION_V2,
+                            field_name=field,
+                            field_schema=PayloadSchemaType.INTEGER,
+                        )
+                        logger.info(f"Qdrant v2: creato payload index INTEGER su '{field}'")
             except Exception as e:
                 logger.warning(f"Qdrant v2: payload index: {e}")
 
@@ -796,7 +830,84 @@ class VectorRetrieverV2(VectorRetriever):
                 self._client.create_collection(
                     collection_name=_COLLECTION_V2,
                     vectors_config=VectorParams(size=_VECTOR_SIZE_V2, distance=Distance.COSINE),
+                    on_disk_payload=False,
                 )
                 logger.info(f"Qdrant v2 [{self._mode}]: collection ricreata da zero")
             except Exception as e:
                 logger.warning(f"Qdrant v2 reset: {e}")
+
+    def create_snapshot(self, timeout: int = 1800) -> str | None:
+        """
+        Crea uno snapshot Qdrant di legal_docs_v2 e restituisce il nome del file.
+
+        Lo snapshot è salvato nella directory snapshots/ del server Qdrant e può
+        essere ripristinato con restore_snapshot() senza dover ri-eseguire reindex_v2.py
+        (~2-4h di GPU).
+
+        Usa un client dedicato con timeout lungo (default 30 minuti): per collection
+        da milioni di punti (~8GB+) il timeout di default (30s) del client server-mode
+        scade prima che il server finisca di scrivere il file, facendo fallire la
+        chiamata anche se lo snapshot viene comunque completato lato server.
+
+        Funziona solo in server mode (Docker/standalone). In embedded mode ritorna None.
+        """
+        if not self._client or self._mode != "server":
+            logger.warning("Qdrant v2 snapshot: disponibile solo in server mode")
+            return None
+        try:
+            from qdrant_client import QdrantClient
+            qdrant_url = QdrantSettings().qdrant_url.strip()
+            long_client = QdrantClient(url=qdrant_url, timeout=timeout)
+            snap = long_client.create_snapshot(collection_name=_COLLECTION_V2, wait=True)
+            name = snap.name if hasattr(snap, "name") else str(snap)
+            logger.success(f"Qdrant v2: snapshot creato → {name}")
+            return name
+        except Exception as e:
+            logger.error(f"Qdrant v2 snapshot fallito: {e}")
+            return None
+
+    def list_snapshots(self) -> list[str]:
+        """Elenca gli snapshot disponibili per legal_docs_v2."""
+        if not self._client or self._mode != "server":
+            return []
+        try:
+            snaps = self._client.list_snapshots(collection_name=_COLLECTION_V2)
+            return [s.name for s in snaps]
+        except Exception as e:
+            logger.warning(f"Qdrant v2 list_snapshots: {e}")
+            return []
+
+    def restore_snapshot(self, snapshot_name: str) -> bool:
+        """
+        Ripristina legal_docs_v2 da uno snapshot esistente.
+
+        Elimina la collection corrente, poi usa recover_snapshot per ricostruirla
+        dallo snapshot in pochi secondi (invece di ore di re-embedding).
+
+        Args:
+            snapshot_name: nome snapshot (da list_snapshots())
+
+        Returns:
+            True se il ripristino è riuscito.
+        """
+        if not self._client or self._mode != "server":
+            logger.error("Qdrant v2 restore: disponibile solo in server mode")
+            return False
+        try:
+            existing = [c.name for c in self._client.get_collections().collections]
+            if _COLLECTION_V2 in existing:
+                self._client.delete_collection(_COLLECTION_V2)
+                logger.info(f"Qdrant v2: collection '{_COLLECTION_V2}' eliminata per restore")
+
+            self._client.recover_snapshot(
+                collection_name=_COLLECTION_V2,
+                location=f"http://localhost:6333/collections/{_COLLECTION_V2}/snapshots/{snapshot_name}",
+            )
+            count = self._client.count(_COLLECTION_V2).count
+            logger.success(
+                f"Qdrant v2: ripristinato da snapshot '{snapshot_name}' → {count:,} punti"
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Qdrant v2 restore fallito: {e}")
+            return False

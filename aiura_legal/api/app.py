@@ -48,6 +48,7 @@ from aiura_legal.api.schemas import (
     FolderItem,
     FolderListResponse,
     FolderRename,
+    GraphHealthResponse,
     HealthResponse,
     HistoryEntry,
     HistoryListResponse,
@@ -96,10 +97,15 @@ _settings = ApiSettings()
 
 
 # ---------------------------------------------------------------------------
-# Stato applicazione (lazy init, thread-safe per FastAPI single-process)
+# Stato applicazione (lazy init)
 # ---------------------------------------------------------------------------
 
 _orchestrator_cache: dict[str, LegalOrchestrator] = {}
+# Lock per-workspace: senza, richieste concorrenti su un workspace "freddo"
+# vedono entrambe "not in cache" prima che una delle due lo popoli, causando
+# caricamenti ridondanti di BM25/grafo/Qdrant (osservato sotto query parallele:
+# 3 caricamenti separati, 14+ minuti di blocco per saturazione RAM).
+_orchestrator_locks: dict[str, asyncio.Lock] = {}
 _reviewer = CitationReviewer()
 
 # Wiki layer (inizializzato in lifespan dopo ping MongoDB)
@@ -158,21 +164,27 @@ def _has_qdrant_index() -> bool:
         return False
 
 
-def _get_orchestrator(workspace: str) -> LegalOrchestrator:
+async def _get_orchestrator(workspace: str) -> LegalOrchestrator:
     """
-    Lazy-load LegalOrchestrator per workspace (cache in memoria).
+    Lazy-load LegalOrchestrator per workspace (cache in memoria, thread-safe).
     Crea HybridRetriever (carica indici da disco) e AnalystAgent (condivide OllamaClient).
     """
-    if workspace not in _orchestrator_cache:
-        ws_path = f"{_settings.aiura_workspaces_path}/{workspace}"
-        logger.info(f"Caricamento indici per workspace: {workspace}")
-        retriever = HybridRetriever(ws_path, use_v2=_settings.use_vector_v2)
-        _orchestrator_cache[workspace] = LegalOrchestrator(
-            retriever=retriever,
-            ollama=_ollama,
-            reviewer=_reviewer,
-        )
-    return _orchestrator_cache[workspace]
+    if workspace in _orchestrator_cache:
+        return _orchestrator_cache[workspace]
+
+    lock = _orchestrator_locks.setdefault(workspace, asyncio.Lock())
+    async with lock:
+        # Re-check dopo il lock: un'altra richiesta potrebbe averlo già popolato
+        if workspace not in _orchestrator_cache:
+            ws_path = f"{_settings.aiura_workspaces_path}/{workspace}"
+            logger.info(f"Caricamento indici per workspace: {workspace}")
+            retriever = await asyncio.to_thread(HybridRetriever, ws_path, use_v2=_settings.use_vector_v2)
+            _orchestrator_cache[workspace] = LegalOrchestrator(
+                retriever=retriever,
+                ollama=_ollama,
+                reviewer=_reviewer,
+            )
+        return _orchestrator_cache[workspace]
 
 
 def _intent_from_str(s: str) -> QueryIntent:
@@ -229,7 +241,7 @@ async def _lifespan(application: FastAPI):
                 return
             logger.info("Warm-up indici: avvio in background...")
             t0 = time.monotonic()
-            orch = _get_orchestrator("mio-studio")
+            orch = await _get_orchestrator("mio-studio")
             # Esegui una query di warm-up leggera per inizializzare HNSW e SentenceTransformer
             await asyncio.to_thread(
                 orch._retriever.vector.search,
@@ -351,6 +363,41 @@ async def health():
 
 
 # ---------------------------------------------------------------------------
+# GET /workspace/{workspace}/graph-health
+# ---------------------------------------------------------------------------
+
+@app.get(
+    "/workspace/{workspace}/graph-health",
+    response_model=GraphHealthResponse,
+    tags=["system"],
+)
+async def graph_health(workspace: str):
+    """
+    Diagnostica del grafo giuridico usato nel retrieval (indices/graph.json):
+    dimensione, età dall'ultimo build, e se supera le soglie di staleness
+    configurate (GRAPH_MAX_SIZE_MB / GRAPH_MAX_LOAD_S / GRAPH_MAX_AGE_HOURS).
+
+    Se 'stale', valutare un rebuild (scripts/build_graph.py) oppure, se la
+    causa è crescita strutturale del grafo (es. KG enrichment), considerare
+    la migrazione a un graph database dedicato.
+    """
+    orchestrator = await _get_orchestrator(workspace)
+    health = orchestrator.retriever.graph.get_health()
+    return GraphHealthResponse(
+        available=health.available,
+        path=health.path,
+        size_mb=health.size_mb,
+        load_s=health.load_s,
+        node_count=health.node_count,
+        edge_count=health.edge_count,
+        built_at=health.built_at,
+        age_hours=health.age_hours,
+        is_stale=health.is_stale,
+        stale_reasons=health.stale_reasons,
+    )
+
+
+# ---------------------------------------------------------------------------
 # POST /query  — catena S0→S2→S3→S5
 # ---------------------------------------------------------------------------
 
@@ -371,7 +418,7 @@ async def query(req: QueryRequest):
     intent = _intent_from_str(req.intent)
 
     try:
-        orchestrator = _get_orchestrator(req.workspace)
+        orchestrator = await _get_orchestrator(req.workspace)
     except Exception as e:
         raise HTTPException(
             status_code=http_status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -504,7 +551,7 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
     intent = _intent_from_str(req.intent)
 
     try:
-        orchestrator = _get_orchestrator(req.workspace)
+        orchestrator = await _get_orchestrator(req.workspace)
     except Exception as e:
         async def _err():
             yield _sse_event("error", {"message": f"Workspace non disponibile: {e}"})
@@ -564,6 +611,7 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
                             "sources":          event_data.get("sources", []),
                             "sources_count":    len(event_data.get("sources", [])),
                             "duration_total_s": event_data["duration_total_s"],
+                            "query_type":       event_data.get("query_type"),
                             "created_at":       datetime.now(timezone.utc).isoformat(),
                         })
                     except Exception as exc:
@@ -578,6 +626,7 @@ async def query_stream(req: QueryRequest) -> StreamingResponse:
                         "duration_total_s": event_data["duration_total_s"],
                         "sources":          event_data.get("sources", []),
                         "gaps":             event_data.get("gaps", []),
+                        "query_type":       event_data.get("query_type"),
                         "history_id":       history_id,
                     })
 
@@ -774,7 +823,7 @@ async def _run_annotation_job(
     try:
         # Retrieval fonti pertinenti al documento (query = incipit del doc)
         query_text = document_text[:500].strip()
-        orchestrator = _get_orchestrator(workspace)
+        orchestrator = await _get_orchestrator(workspace)
         packet = orchestrator._retriever.build_research_packet_bifasico(
             query=query_text,
             intent=QueryIntent.FATTISPECIE_ANALYSIS,
@@ -1165,7 +1214,7 @@ async def query_stream_legacy(req: QueryRequest):
 
     async def _event_generator():
         try:
-            orchestrator = _get_orchestrator(req.workspace)
+            orchestrator = await _get_orchestrator(req.workspace)
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
             return
@@ -1324,6 +1373,7 @@ def _doc_to_history_entry(doc: dict) -> HistoryEntry:
         sources=doc.get("sources", []),
         sources_count=doc.get("sources_count", 0),
         duration_total_s=doc.get("duration_total_s", 0.0),
+        query_type=doc.get("query_type"),
         created_at=doc.get("created_at", ""),
         feedback_rating=doc.get("feedback_rating"),
         feedback_tags=doc.get("feedback_tags", []),

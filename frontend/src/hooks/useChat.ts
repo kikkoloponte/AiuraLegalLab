@@ -70,8 +70,10 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
 
   const sections = (data.analysis_sections as AnalysisSectionRaw[] ?? [])
 
-  // Summary: preferisce QUESTIONE, poi QUALIFICAZIONE, poi CONCLUSIONE, poi answer
+  // Summary: preferisce QUESTIONE_ANALITICA (doctrine) o QUESTIONE (case),
+  // poi QUALIFICAZIONE, poi CONCLUSIONE, poi answer
   const summaryStep =
+    sections.find((s) => s.step === 'QUESTIONE_ANALITICA') ??
     sections.find((s) => s.step === 'QUESTIONE') ??
     sections.find((s) => s.step === 'QUALIFICAZIONE') ??
     sections.find((s) => s.step === 'CONCLUSIONE')
@@ -79,12 +81,14 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
 
   const verdict    = String(data.reviewer_verdict ?? 'PASS') as LegalResponse['verdict']
   const confidence = String(data.overall_confidence ?? data.retrieval_confidence ?? 'LOW') as LegalResponse['confidence']
+  const queryType  = (data.query_type === 'doctrine' ? 'doctrine' : 'case') as LegalResponse['query_type']
 
   return {
     summary,
     analysis_sections: sections as LegalResponse['analysis_sections'],
     verdict,
     confidence,
+    query_type: queryType,
     sources,
     elapsed_ms: Math.round(Number(data.duration_total_s ?? 0) * 1000),
     gaps: data.gaps as string[] ?? [],
@@ -93,10 +97,11 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
 }
 
 const PHASE_LABELS: Record<string, string> = {
-  FRAMING:        'Fase 1 · Inquadramento giuridico...',
-  NORMATIVA:      'Fase 2 · Analisi normativa...',
-  GIURISPRUDENZA: 'Fase 3 · Orientamenti giurisprudenziali...',
-  SINTESI:        'Fase 4 · Sintesi e conclusione...',
+  FRAMING:          'Fase 1 · Inquadramento giuridico...',
+  FRAMING_DOTTRINA: 'Fase 1 · Inquadramento dottrinale...',
+  NORMATIVA:        'Fase 2 · Analisi normativa...',
+  GIURISPRUDENZA:   'Fase 3 · Orientamenti giurisprudenziali...',
+  SINTESI:          'Fase 4 · Sintesi e conclusione...',
 }
 
 export function useChat(workspace: string) {

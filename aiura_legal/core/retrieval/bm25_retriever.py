@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import pickle
 import re
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -91,6 +92,13 @@ class _BM25Sub:
     fonte_arr:      np.ndarray = field(default_factory=lambda: np.array([], dtype=object), repr=False)
     testo_tipo_arr: np.ndarray = field(default_factory=lambda: np.array([], dtype=object), repr=False)
 
+    # Lock per il lazy-load: search() viene chiamato da thread diversi via
+    # asyncio.to_thread() che condividono la stessa istanza — senza lock,
+    # più thread superano il check "if not self.doc_ids" prima che uno dei
+    # due imposti lo stato, causando caricamenti duplicati concorrenti da
+    # disco (osservato: stesso pkl caricato 3 volte sotto query parallele).
+    _load_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
+
     @property
     def index_path(self) -> Path:
         return self.ws / "indices" / f"bm25_{self.corpus}.pkl"
@@ -145,7 +153,11 @@ class _BM25Sub:
 
     def _ensure_bm25s(self) -> None:
         """Costruisce (o ricostruisce) l'indice bm25s se dirty."""
-        if self.dirty or self._bm25s_retriever is None:
+        if not (self.dirty or self._bm25s_retriever is None):
+            return
+        with self._load_lock:
+            if not (self.dirty or self._bm25s_retriever is None):
+                return
             if self.tokenized:
                 import bm25s
                 logger.info(f"BM25[{self.corpus}]: build bm25s su {len(self.tokenized):,} doc...")
@@ -164,9 +176,13 @@ class _BM25Sub:
         top_k: int = 15,
         chunk_filter: Optional[dict] = None,
     ) -> list[SearchResult]:
-        # Lazy load: carica da disco se il sub non e' ancora in memoria
+        # Lazy load: carica da disco se il sub non e' ancora in memoria.
+        # Double-checked locking: il secondo check (dentro il lock) evita che
+        # un thread arrivato dopo un altro rilanci il load già completato.
         if not self.doc_ids and self.index_path.exists():
-            self.load()
+            with self._load_lock:
+                if not self.doc_ids and self.index_path.exists():
+                    self.load()
         self._ensure_bm25s()
         if self._bm25s_retriever is None or not self.tokenized:
             return []

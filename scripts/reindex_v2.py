@@ -142,6 +142,20 @@ async def reindex_v2(
         f"{final_count:,} totali in legal_docs_v2"
     )
 
+    if not dry_run:
+        logger.info("Creazione snapshot Qdrant v2 (backup post-reindex)...")
+        snap_name = vector_v2.create_snapshot()
+        if snap_name:
+            logger.success(
+                f"Snapshot salvato: {snap_name}\n"
+                f"  Ripristino rapido: python scripts/reindex_v2.py --restore {snap_name}"
+            )
+        else:
+            logger.warning(
+                "Snapshot non creato (embedded mode o errore). "
+                "In server mode il backup è automatico al termine del reindex."
+            )
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -153,6 +167,8 @@ Esempi:
   python scripts/reindex_v2.py --workspace mio-studio --corpus normattiva
   python scripts/reindex_v2.py --workspace mio-studio --limit 5000 --dry-run
   python scripts/reindex_v2.py --workspace mio-studio --force-reindex
+  python scripts/reindex_v2.py --restore legal_docs_v2-2026-06-18T...snapshot  # ripristino rapido
+  python scripts/reindex_v2.py --list-snapshots                                 # elenca snapshot
         """,
     )
     parser.add_argument("--workspace", default="mio-studio",
@@ -168,7 +184,34 @@ Esempi:
                         help="Conta i chunk senza scrivere su Qdrant")
     parser.add_argument("--all-workspaces", action="store_true",
                         help="Ignora il filtro workspace (indicizza tutti)")
+    parser.add_argument("--restore", metavar="SNAPSHOT_NAME",
+                        help="Ripristina legal_docs_v2 da uno snapshot (nessun re-embedding)")
+    parser.add_argument("--list-snapshots", action="store_true",
+                        help="Elenca gli snapshot disponibili per legal_docs_v2")
     args = parser.parse_args()
+
+    _ws_base = os.environ.get("AIURA_WORKSPACES_PATH", "C:/project/AiUraLegalLab/workspaces")
+    ws_path = Path(_ws_base) / args.workspace
+
+    if args.list_snapshots:
+        from aiura_legal.core.retrieval.vector_retriever import VectorRetrieverV2
+        v2 = VectorRetrieverV2(str(ws_path))
+        snaps = v2.list_snapshots()
+        if snaps:
+            logger.info(f"Snapshot disponibili per legal_docs_v2 ({len(snaps)}):")
+            for s in snaps:
+                logger.info(f"  {s}")
+        else:
+            logger.warning("Nessuno snapshot trovato (Qdrant offline o nessun backup creato).")
+        return
+
+    if args.restore:
+        from aiura_legal.core.retrieval.vector_retriever import VectorRetrieverV2
+        v2 = VectorRetrieverV2(str(ws_path))
+        ok = v2.restore_snapshot(args.restore)
+        if not ok:
+            raise SystemExit(1)
+        return
 
     asyncio.run(reindex_v2(
         workspace=args.workspace,

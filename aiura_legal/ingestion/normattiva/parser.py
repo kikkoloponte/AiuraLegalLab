@@ -196,6 +196,14 @@ class NormattivaDocAdapter:
         doc_id = str(raw_id) if raw_id is not None else doc.get("urn", "")
         fonte = fonte_from_doc(doc)
 
+        # NOTA: source_id usa l'urn grezzo, NON corretto qui. La correzione
+        # (vedi urn_fix.py) richiede visibilità GLOBALE sull'intera collection
+        # per individuare le catene di shift concatenati (es. ~art380→~art321
+        # mentre contemporaneamente un altro articolo ha ~art321 come proprio
+        # urn sbagliato) — un fix per-documento senza quel contesto rischia di
+        # creare nuove collisioni silenziose nell'upsert dei chunk. La
+        # correzione va applicata SOLO da scripts/fix_normattiva_urn_mismatch.py,
+        # che calcola la mappa sicura una volta per l'intera collection.
         return cls(
             doc_id=doc_id,
             source_id=doc.get("urn", ""),

@@ -18,6 +18,13 @@ _SENTENZA_ID_RE = re.compile(r"\b[0-9a-f]{16}\b")
 # - Fase 1:  e65a598d71052357_motivazione_003 (sub-chunk)
 _CHUNK_PREFIX_RE = re.compile(r"^([0-9a-f]{16})")
 
+# Citazione di sentenza in formato "numero/anno" (es. "29164/2021") — formato
+# leggibile che l'LLM usa spontaneamente al posto dell'hex16 interno mostrato
+# nel prompt. Non è un identificatore canonico del sistema, ma se risolve a
+# una fonte realmente presente nel Research Packet va trattato come grounded
+# (vedi _resolve_numero_anno_citations).
+_NUMERO_ANNO_RE = re.compile(r"^\d+/\d{4}$")
+
 
 # ---------------------------------------------------------------------------
 # Pattern per estrarre citazioni da testo legale
@@ -40,12 +47,55 @@ _CITATION_RE = re.compile("|".join(_CITATION_PATTERNS), re.IGNORECASE)
 # Stato norma che causa FAIL CRITICO
 _UNCONSTITUTIONAL_STATUS = "INCOSTITUZIONALE"
 
+# ---------------------------------------------------------------------------
+# Claim relevance — overlap lessicale claim↔fonte (zero LLM)
+# ---------------------------------------------------------------------------
+
+# Stopword italiane + connettivi giuridici ricorrenti: escluse dal tokenizer
+# perché compaiono ovunque e gonfiano artificialmente l'overlap anche tra
+# claim e fonte completamente scorrelate.
+_STOPWORDS_IT: frozenset[str] = frozenset({
+    "il", "lo", "la", "i", "gli", "le", "un", "uno", "una", "di", "a", "da",
+    "in", "con", "su", "per", "tra", "fra", "e", "ed", "o", "ma", "se", "che",
+    "non", "del", "della", "dello", "dei", "degli", "delle", "al", "allo",
+    "alla", "ai", "agli", "alle", "nel", "nello", "nella", "nei", "negli",
+    "nelle", "sul", "sullo", "sulla", "sui", "sugli", "sulle", "dal", "dallo",
+    "dalla", "dai", "dagli", "dalle", "come", "anche", "ai sensi", "art",
+    "art.", "articolo", "comma", "ai", "sensi", "questo", "questa", "questi",
+    "queste", "cui", "quale", "quali", "ogni", "essere", "avere", "tale",
+    "tali", "sono", "è", "stato", "stata", "stati", "state",
+})
+
+_WORD_RE = re.compile(r"[a-zàèéìòù]+", re.IGNORECASE)
+_MIN_TOKEN_LEN = 3
+
+# Sotto questa soglia di copertura (frazione di token "di contenuto" del claim
+# trovati nel testo della fonte citata) la citazione è marcata come
+# topicamente sospetta. Soglia volutamente bassa: il check deve solo
+# scartare casi di citazione completamente scorrelata, non penalizzare
+# parafrasi legittime — i falsi positivi diventano WARN, non BLOCK.
+_CLAIM_RELEVANCE_MIN_COVERAGE = 0.15
+_CLAIM_RELEVANCE_MIN_TOKENS = 3  # claim troppo corti non sono valutabili
+
+
+def _tokenize(text: str) -> set[str]:
+    words = _WORD_RE.findall((text or "").lower())
+    return {w for w in words if len(w) >= _MIN_TOKEN_LEN and w not in _STOPWORDS_IT}
+
+
+def _claim_coverage(claim_tokens: set[str], source_tokens: set[str]) -> float:
+    """Frazione di token del claim presenti nel testo della fonte citata."""
+    if not claim_tokens:
+        return 1.0
+    return len(claim_tokens & source_tokens) / len(claim_tokens)
+
 
 @dataclass
 class ReviewResult:
     verdict: str  # "PASS" | "FAIL" | "WARN"
     checks: dict[str, str] = field(default_factory=dict)
     ungrounded_citations: list[str] = field(default_factory=list)
+    irrelevant_citations: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     action: str = "DELIVER"  # "DELIVER" | "RE_RETRIEVAL" | "BLOCK"
 
@@ -75,22 +125,76 @@ class CitationReviewer:
         response_text: str,
         research_packet: ResearchPacket,
         reference_date: date | None = None,
+        structured_cited_ids: list[str] | None = None,
+        phase_source_ids: set[str] | None = None,
+        phase_sources_metadata: dict[str, dict] | None = None,
+        cited_claims: list[dict] | None = None,
     ) -> ReviewResult:
         """
         Esegue tutti i check in ordine.
         Ritorna BLOCK al primo FAIL CRITICO, altrimenti aggrega WARN.
+
+        Args:
+            structured_cited_ids: source_id estratti direttamente dai citations[]
+                delle PhaseResult (pre-parsati dalla struttura JSON). Vengono
+                aggiunti a quelli estratti via regex dal testo, catturando anche
+                ID non-standard come hash hex o etichette posizionali.
+            phase_source_ids: source_id delle fonti restituite dal PhaseRetriever
+                (Fase 2 normativa+dottrina, Fase 3 giurisprudenza). Non sono nel
+                packet S2 iniziale ma sono fonti legittime mostrate all'LLM.
+            phase_sources_metadata: source_id → metadata delle fonti del
+                PhaseRetriever. Usato per risolvere citazioni in formato
+                "numero/anno" (vedi _resolve_numero_anno_citations) e per il
+                claim relevance check.
+            cited_claims: lista di {"source_id":, "claim":} dalle citations[]
+                strutturate delle PhaseResult. Permette il check di rilevanza
+                topica (claim↔testo fonte) — citazioni formalmente grounded
+                (source_id presente nel packet) ma il cui claim non condivide
+                vocabolario con il testo della fonte citata sono sospette di
+                allucinazione "a posteriori" (citazione corretta agganciata a
+                un'affermazione che la fonte non supporta).
         """
         checks: dict[str, str] = {}
         warnings: list[str] = []
         ungrounded: list[str] = []
 
         # Set di source_id presenti nel Packet (uppercase per citazioni normative)
-        packet_ids = {s.source_id.upper() for s in research_packet.sources}
+        # Esteso con le fonti del PhaseRetriever (Fase 2/3) mostrate all'LLM.
+        # phase_sources_metadata è incluso anche se phase_source_ids non viene
+        # passato (le sue chiavi SONO source_id di fonti mostrate all'LLM) —
+        # evita che i due parametri debbano restare sincronizzati dal chiamante.
+        _phase_ids_all = set(phase_source_ids or set()) | set((phase_sources_metadata or {}).keys())
+        _phase_ids_upper = {sid.upper() for sid in _phase_ids_all}
+        packet_ids = {s.source_id.upper() for s in research_packet.sources} | _phase_ids_upper
         # Set di doc_id presenti nel Packet (case-sensitive per sentenze hex)
-        packet_doc_ids = {s.doc_id for s in research_packet.sources}
+        packet_doc_ids = {s.doc_id for s in research_packet.sources} | _phase_ids_all
 
-        # Citazioni estratte dalla risposta
-        cited = self.extract_citations(response_text)
+        # Estende packet_ids con l'hex16 BASE delle sentenze (senza suffisso di
+        # sezione, es. "_motivazione"/"_massima"). Al modello viene insegnato a
+        # citare le sentenze con l'hex16 nudo (forma canonica) anche quando il
+        # source_id mostrato nel prompt ha un suffisso — senza questa estensione
+        # il check #1 (match letterale) le marca come ungrounded per falso
+        # positivo, mentre il check #4 (jurisprudence_grounding) le riconosce
+        # correttamente. Le due verifiche devono essere coerenti.
+        _hex16_bases: set[str] = set()
+        for sid in (packet_ids | {d for d in packet_doc_ids}):
+            m = _CHUNK_PREFIX_RE.match(sid.lower())
+            if m:
+                _hex16_bases.add(m.group(1).upper())
+        packet_ids |= _hex16_bases
+
+        # Citazioni estratte dalla risposta (regex + structured)
+        cited_from_text = self.extract_citations(response_text)
+        cited_structured = list(structured_cited_ids or [])
+        # Unione deduplicata: i structured passano senza regex-filter
+        cited = list({c.upper(): c for c in cited_from_text + cited_structured}.values())
+
+        # Risolve citazioni "numero/anno" (es. "29164/2021") all'hex16/source_id
+        # canonico se la sentenza è realmente nel Research Packet o nelle fonti
+        # del PhaseRetriever — altrimenti resta non risolta e viene marcata
+        # ungrounded normalmente (non è un bypass del Citation Contract).
+        numero_anno_map = self._build_numero_anno_map(research_packet, phase_sources_metadata)
+        cited = self._resolve_numero_anno_citations(cited, numero_anno_map)
 
         # 1. Citation Grounding
         for cit in cited:
@@ -101,6 +205,21 @@ class CitationReviewer:
             checks["citation_grounding"] = "FAIL"
         else:
             checks["citation_grounding"] = "PASS"
+
+        # 1b. Claim relevance — overlap lessicale claim↔testo fonte citata.
+        # Valuta solo le citazioni già grounded (source_id nel packet): non è
+        # un secondo check di grounding, è un check di pertinenza topica.
+        irrelevant = self._check_claim_relevance(
+            cited_claims or [], research_packet, phase_sources_metadata, ungrounded,
+        )
+        if irrelevant:
+            checks["claim_relevance"] = "WARN"
+            warnings.append(
+                f"Citazioni formalmente corrette ma topicamente sospette "
+                f"(scarso overlap claim↔fonte): {irrelevant}"
+            )
+        else:
+            checks["claim_relevance"] = "PASS"
 
         # 2. Vigenza temporale
         if reference_date:
@@ -202,9 +321,104 @@ class CitationReviewer:
             verdict=verdict,
             checks=checks,
             ungrounded_citations=ungrounded,
+            irrelevant_citations=irrelevant,
             warnings=warnings,
             action=action,
         )
+
+    @staticmethod
+    def _check_claim_relevance(
+        cited_claims: list[dict],
+        research_packet: ResearchPacket,
+        phase_sources_metadata: dict[str, dict] | None,
+        ungrounded: list[str],
+    ) -> list[str]:
+        """
+        Per ogni {"source_id", "claim"}, verifica che il claim condivida
+        vocabolario di contenuto con il testo della fonte citata.
+
+        Ritorna la lista di "source_id::claim troncato" per le citazioni
+        sospette. Citazioni già ungrounded sono saltate (gestite dal check
+        di grounding); claim troppo corti per essere valutati in modo
+        affidabile sono saltati (nessun falso positivo su frasi telegrafiche).
+        """
+        if not cited_claims:
+            return []
+
+        ungrounded_upper = {u.upper() for u in ungrounded}
+
+        # source_id → testo completo disponibile (packet + fonti PhaseRetriever)
+        text_by_source: dict[str, str] = {}
+        for src in research_packet.sources:
+            text_by_source[src.source_id.upper()] = src.full_text or src.snippet or ""
+        for sid, meta in (phase_sources_metadata or {}).items():
+            if sid.upper() not in text_by_source or not text_by_source[sid.upper()]:
+                text_by_source[sid.upper()] = str((meta or {}).get("text", "") or "")
+
+        flagged: list[str] = []
+        seen: set[tuple[str, str]] = set()
+        for entry in cited_claims:
+            source_id = str(entry.get("source_id", "")).strip()
+            claim = str(entry.get("claim", "")).strip()
+            if not source_id or not claim:
+                continue
+            sid_upper = source_id.upper()
+            if sid_upper in ungrounded_upper:
+                continue  # già segnalato dal grounding check
+
+            source_text = text_by_source.get(sid_upper, "")
+            if not source_text:
+                continue  # nessun testo disponibile per confrontare — non valutabile
+
+            claim_tokens = _tokenize(claim)
+            if len(claim_tokens) < _CLAIM_RELEVANCE_MIN_TOKENS:
+                continue
+
+            source_tokens = _tokenize(source_text)
+            coverage = _claim_coverage(claim_tokens, source_tokens)
+            if coverage < _CLAIM_RELEVANCE_MIN_COVERAGE:
+                key = (sid_upper, claim[:80])
+                if key not in seen:
+                    seen.add(key)
+                    flagged.append(f"{source_id}::{claim[:80]}")
+
+        return flagged
+
+    @staticmethod
+    def _build_numero_anno_map(
+        research_packet: ResearchPacket,
+        phase_sources_metadata: dict[str, dict] | None,
+    ) -> dict[str, str]:
+        """Mappa "numero/anno" → source_id canonico, dalle fonti realmente recuperate."""
+
+        def _add(m: dict[str, str], source_id: str, metadata: dict) -> None:
+            numero = str((metadata or {}).get("numero") or "").strip()
+            anno = str((metadata or {}).get("anno") or "").strip()
+            if numero and anno:
+                m[f"{numero}/{anno}"] = source_id
+
+        mapping: dict[str, str] = {}
+        for src in research_packet.sources:
+            _add(mapping, src.source_id, src.metadata)
+        for sid, meta in (phase_sources_metadata or {}).items():
+            _add(mapping, sid, meta)
+        return mapping
+
+    @staticmethod
+    def _resolve_numero_anno_citations(
+        cited: list[str],
+        numero_anno_map: dict[str, str],
+    ) -> list[str]:
+        """Sostituisce le citazioni "numero/anno" con l'id canonico se risolvibili."""
+        resolved = []
+        for cit in cited:
+            if _NUMERO_ANNO_RE.match(cit) and cit in numero_anno_map:
+                canonical = numero_anno_map[cit]
+                logger.debug(f"[CitationReviewer] citazione {cit!r} normalizzata → {canonical!r}")
+                resolved.append(canonical)
+            else:
+                resolved.append(cit)
+        return resolved
 
     def extract_citations(self, text: str) -> list[str]:
         """

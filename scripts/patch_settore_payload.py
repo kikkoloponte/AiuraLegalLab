@@ -176,7 +176,11 @@ async def patch_qdrant_v2(workspace: str, corpus: str) -> None:
             by_value.setdefault(sval, []).append(_to_qdrant_id(cid))
         for sval, point_ids in by_value.items():
             await _set_payload_with_retry(point_ids, sval)
-            await _asyncio.sleep(0.05)  # piccola pausa: riduce la frequenza del panic gridstore
+            # Pausa tra batch: il bug gridstore (on_disk_payload=true) causa WAL
+            # inconsistente sotto set_payload rapidi — aumentare se si vedono panic.
+            # Con on_disk_payload=False (nuovo default) la pausa non è più necessaria
+            # ma la manteniamo per sicurezza contro collection create con vecchio config.
+            await _asyncio.sleep(0.2)
         patched += len(batch_ids)
         batch_ids.clear()
         batch_settore.clear()

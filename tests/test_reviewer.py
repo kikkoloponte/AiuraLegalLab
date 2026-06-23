@@ -368,3 +368,179 @@ def test_grounding_multipli_subchunk_stessa_sentenza():
     )
     result = reviewer.verify(f"Come da sentenza {hex16}.", packet)
     assert result.checks.get("jurisprudence_grounding") == "PASS"
+
+
+# ------------------------------------------------------------------
+# Normalizzazione citazioni "numero/anno" (vedi GitHub issue: query
+# dottrinale reale dove l'LLM cita "29164/2021" invece dell'hex16
+# mostrato nel prompt — il reviewer bloccava una risposta corretta
+# per un problema di formato, non di grounding reale)
+# ------------------------------------------------------------------
+
+def test_numero_anno_risolto_da_research_packet():
+    """PASS: citazione 'numero/anno' risolta a una fonte nel Research Packet."""
+    reviewer = CitationReviewer()
+    hex16 = "785e6993d6e7272f"
+    sources = [
+        SearchResult(
+            doc_id=hex16, score=1.0, snippet="...", source_id=hex16,
+            metadata={"corpus": "giurisprudenza", "numero": "29164", "anno": "2021"},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.GIURISPRUDENZA_SEARCH, sources=sources,
+    )
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=["29164/2021"],
+    )
+    assert result.verdict == "PASS"
+    assert "29164/2021" not in result.ungrounded_citations
+
+
+def test_numero_anno_risolto_da_phase_sources_metadata():
+    """PASS: citazione 'numero/anno' risolta tramite le fonti del PhaseRetriever
+    (Fase 3 giurisprudenza), non presenti nel packet S2 iniziale."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()  # packet S2 vuoto
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["29164/2021"],
+        phase_sources_metadata={
+            "785e6993d6e7272f": {"corpus": "giurisprudenza", "numero": "29164", "anno": "2021"},
+        },
+    )
+    assert result.verdict == "PASS"
+    assert "29164/2021" not in result.ungrounded_citations
+
+
+def test_numero_anno_non_risolvibile_resta_ungrounded():
+    """FAIL: citazione 'numero/anno' che non corrisponde a nessuna fonte recuperata
+    resta ungrounded — la normalizzazione non bypassa il Citation Contract."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=["99999/1999"],
+    )
+    assert result.verdict == "FAIL"
+
+
+# ------------------------------------------------------------------
+# Claim relevance — citazione formalmente grounded ma topicamente
+# scorrelata dal claim (Bug #1: hallucination "a posteriori")
+# ------------------------------------------------------------------
+
+def _make_packet_with_text(source_id: str, full_text: str) -> ResearchPacket:
+    sources = [
+        SearchResult(
+            doc_id=source_id,
+            score=1.0,
+            snippet=full_text[:200],
+            source_id=source_id,
+            full_text=full_text,
+            metadata={},
+        )
+    ]
+    return ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.NORMA_LOOKUP,
+        sources=sources,
+    )
+
+
+def test_warn_claim_topicamente_scorrelato(reviewer):
+    """
+    WARN (non FAIL): il source_id è realmente nel packet (grounded), ma il
+    claim associato non condivide vocabolario col testo della fonte — sintomo
+    del bug osservato in produzione (citazione corretta ma irrilevante).
+    """
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "La risoluzione del contratto per inadempimento di una delle parti "
+        "può essere domandata giudizialmente quando una delle parti non "
+        "esegue le sue obbligazioni contrattuali.",
+    )
+    result = reviewer.verify(
+        "Il termine di prescrizione decennale si applica ai diritti reali.",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{
+            "source_id": "CC_ART_1453",
+            "claim": "il termine di prescrizione decennale per i diritti reali immobiliari",
+        }],
+    )
+    assert result.checks["claim_relevance"] == "WARN"
+    assert any("CC_ART_1453" in c for c in result.irrelevant_citations)
+    assert result.verdict == "WARN"
+    assert result.action == "DELIVER"  # WARN non blocca, solo segnala
+
+
+def test_pass_claim_pertinente_alla_fonte(reviewer):
+    """PASS: il claim condivide vocabolario di contenuto con la fonte citata."""
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "La risoluzione del contratto per inadempimento di una delle parti "
+        "può essere domandata giudizialmente quando una delle parti non "
+        "esegue le sue obbligazioni contrattuali.",
+    )
+    result = reviewer.verify(
+        "Si applica la risoluzione del contratto.",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{
+            "source_id": "CC_ART_1453",
+            "claim": "risoluzione del contratto per inadempimento contrattuale",
+        }],
+    )
+    assert result.checks["claim_relevance"] == "PASS"
+    assert result.irrelevant_citations == []
+    assert result.verdict == "PASS"
+
+
+def test_claim_relevance_non_valuta_citazioni_ungrounded(reviewer):
+    """Una citazione già ungrounded non viene anche segnalata da claim_relevance
+    (eviterebbe doppio conteggio dello stesso problema sotto due check diversi)."""
+    packet = _make_packet("CC_ART_1218")
+    result = reviewer.verify(
+        "Vedi CC_ART_999.",
+        packet,
+        structured_cited_ids=["CC_ART_999"],
+        cited_claims=[{"source_id": "CC_ART_999", "claim": "qualcosa di completamente scorrelato"}],
+    )
+    assert result.checks["citation_grounding"] == "FAIL"
+    assert result.irrelevant_citations == []
+
+
+def test_claim_relevance_claim_troppo_corto_non_valutato(reviewer):
+    """Claim troppo corti (poco token di contenuto) non sono valutabili in modo
+    affidabile col semplice overlap lessicale — nessun falso positivo."""
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "Testo completamente diverso su tutt'altro argomento giuridico.",
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{"source_id": "CC_ART_1453", "claim": "risoluzione"}],
+    )
+    assert result.checks["claim_relevance"] == "PASS"
+
+
+def test_claim_relevance_nessun_testo_fonte_non_valutato(reviewer):
+    """Se la fonte non ha testo disponibile (full_text/snippet vuoti), il check
+    non può valutare la pertinenza e non genera falsi positivi."""
+    packet = ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.NORMA_LOOKUP,
+        sources=[
+            SearchResult(doc_id="CC_ART_1453", score=1.0, snippet="", source_id="CC_ART_1453"),
+        ],
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{"source_id": "CC_ART_1453", "claim": "una affermazione qualunque non verificabile"}],
+    )
+    assert result.checks["claim_relevance"] == "PASS"

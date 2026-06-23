@@ -207,6 +207,53 @@ def test_query_too_short(client):
     assert resp.status_code == 422
 
 
+# ---------------------------------------------------------------------------
+# POST /query/stream — query_type deve propagarsi fino a SSE review_done
+# e alla query_history salvata su MongoDB (regressione bug: campo omesso
+# nel dict ricostruito da _generate() in app.py)
+# ---------------------------------------------------------------------------
+
+def test_query_stream_review_done_propaga_query_type(client):
+    from unittest.mock import AsyncMock, patch
+
+    async def _fake_run_sequential(**kwargs):
+        yield {
+            "event": "review_done",
+            "verdict": "PASS",
+            "action": "DELIVER",
+            "warnings": [],
+            "overall_confidence": "HIGH",
+            "duration_total_s": 1.1,
+            "sources": [],
+            "gaps": [],
+            "query_type": "doctrine",
+        }
+
+    mock_orch = MagicMock()
+    mock_orch.run_sequential = _fake_run_sequential
+
+    inserted = {}
+
+    def _capture_insert(doc):
+        inserted.update(doc)
+        return MagicMock(inserted_id="fake_id")
+
+    with patch("aiura_legal.api.app._get_orchestrator", new=AsyncMock(return_value=mock_orch)):
+        from aiura_legal.api import app as app_module
+        mongo = app_module.MongoClient.get()
+        mongo.db["query_history"].insert_one = AsyncMock(side_effect=_capture_insert)
+
+        with client.stream(
+            "POST", "/query/stream",
+            json={"query": "test query dottrina", "workspace": "test-ws"},
+        ) as resp:
+            assert resp.status_code == 200
+            body = "".join(resp.iter_text())
+
+    assert '"query_type": "doctrine"' in body or '"query_type":"doctrine"' in body
+    assert inserted.get("query_type") == "doctrine"
+
+
 def test_query_all_intents(client):
     intents = [
         "norma_lookup",

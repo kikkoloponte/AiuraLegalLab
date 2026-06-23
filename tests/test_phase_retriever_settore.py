@@ -264,6 +264,53 @@ class TestRetrieveDottrina:
 
 
 # ---------------------------------------------------------------------------
+# Dual-path doctrinale — query_type cambia i pesi RRF, non solo il prompt
+# ---------------------------------------------------------------------------
+
+class TestQueryTypeWeights:
+    def test_normativa_case_usa_pesi_bm25_heavy(self):
+        from aiura_legal.core.retrieval.hybrid_retriever import _WEIGHTS_NORMATIVA
+        mock = _make_retriever([_make_result("n1")])
+        pr = PhaseRetriever(mock)
+        pr.retrieve_normativa("art. 1218 c.c.", query_type="case")
+        used_weights = mock._search_round.call_args_list[0][1]["weights"]
+        assert used_weights == _WEIGHTS_NORMATIVA
+
+    def test_normativa_doctrine_usa_pesi_vector_heavy(self):
+        from aiura_legal.core.retrieval.hybrid_retriever import _WEIGHTS_NORMATIVA_DOCTRINE
+        mock = _make_retriever([_make_result("n1")])
+        pr = PhaseRetriever(mock)
+        pr.retrieve_normativa("quando è legittima la recessione per giusta causa", query_type="doctrine")
+        used_weights = mock._search_round.call_args_list[0][1]["weights"]
+        assert used_weights == _WEIGHTS_NORMATIVA_DOCTRINE
+
+    def test_dottrina_case_usa_pesi_bilanciati(self):
+        from aiura_legal.core.retrieval.hybrid_retriever import _WEIGHTS_DOTTRINA
+        mock = _make_retriever([_make_result("d1")])
+        pr = PhaseRetriever(mock)
+        pr.retrieve_dottrina("interpretazione art. 1218", query_type="case")
+        used_weights = mock._search_round.call_args_list[0][1]["weights"]
+        assert used_weights == _WEIGHTS_DOTTRINA
+
+    def test_dottrina_doctrine_usa_pesi_vector_heavy(self):
+        from aiura_legal.core.retrieval.hybrid_retriever import _WEIGHTS_DOTTRINA_DOCTRINE
+        mock = _make_retriever([_make_result("d1")])
+        pr = PhaseRetriever(mock)
+        pr.retrieve_dottrina("cosa si intende per giusta causa", query_type="doctrine")
+        used_weights = mock._search_round.call_args_list[0][1]["weights"]
+        assert used_weights == _WEIGHTS_DOTTRINA_DOCTRINE
+
+    def test_default_query_type_e_case(self):
+        """Se query_type non viene passato, il comportamento resta quello legacy (case)."""
+        from aiura_legal.core.retrieval.hybrid_retriever import _WEIGHTS_NORMATIVA
+        mock = _make_retriever([_make_result("n1")])
+        pr = PhaseRetriever(mock)
+        pr.retrieve_normativa("art. 1218 c.c.")
+        used_weights = mock._search_round.call_args_list[0][1]["weights"]
+        assert used_weights == _WEIGHTS_NORMATIVA
+
+
+# ---------------------------------------------------------------------------
 # _effective_filter
 # ---------------------------------------------------------------------------
 

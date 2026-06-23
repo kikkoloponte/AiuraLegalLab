@@ -96,6 +96,10 @@ _SKILL_PATH_FRAMING = (
     Path(__file__).resolve().parent.parent.parent
     / ".pi" / "skills" / "legal_analyst_framing.md"
 )
+_SKILL_PATH_FRAMING_DOTTRINA = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_framing_dottrina.md"
+)
 _SKILL_PATH_NORMATIVA = (
     Path(__file__).resolve().parent.parent.parent
     / ".pi" / "skills" / "legal_analyst_normativa.md"
@@ -112,6 +116,10 @@ _SKILL_PATH_SINTESI = (
 _SYSTEM_PROMPT_FRAMING: str = _load_prompt(
     _SKILL_PATH_FRAMING,
     "Sei un giurista italiano. Inquadra la fattispecie (RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE)."
+)
+_SYSTEM_PROMPT_FRAMING_DOTTRINA: str = _load_prompt(
+    _SKILL_PATH_FRAMING_DOTTRINA,
+    "Sei un giurista italiano. Inquadra l'istituto giuridico (INQUADRAMENTO_ISTITUTO, PERIMETRO_DOTTRINALE, QUESTIONE_ANALITICA)."
 )
 _SYSTEM_PROMPT_NORMATIVA: str = _load_prompt(
     _SKILL_PATH_NORMATIVA,
@@ -350,7 +358,12 @@ class PhaseResult:
     # Campi estratti dalla Fase 1 per guidare il retrieval delle fasi successive
     questione_retrieval: str = ""       # query per retrieval normativa (da Fase 1)
     qualificazione_retrieval: str = ""  # query per retrieval giurisprudenza (da Fase 1)
+    giurisprudenza_retrieval_varianti: list[str] = field(default_factory=list)  # 1-3 formulazioni alternative per retrieve_giurisprudenza_multi
     settore_giuridico: str = ""         # settore estratto dalla Fase 1 (penale|civile|amministrativo|lavoro|tributario)
+    # source_id → metadata delle fonti di questa fase (per il Reviewer: permette
+    # di normalizzare citazioni in formato alternativo, es. "numero/anno" invece
+    # di hex16, su fonti che non sono nel Research Packet S2 iniziale).
+    sources_metadata: dict[str, dict] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -736,8 +749,8 @@ class AnalystAgent:
         query: str,
         packet: ResearchPacket,
         phase_retriever: Optional["PhaseRetriever"] = None,
-        temperature: float = 0.0,       # 0.0 = usa valore da env (LLM_TEMPERATURE)
         max_tokens_per_phase: int = 0,  # 0 = usa valore da env (LLM_MAX_TOKENS_PER_PHASE)
+        query_type: str = "case",       # "case" | "doctrine" — seleziona Fase 1
     ) -> AsyncGenerator["PhaseResult", None]:
         """
         Sequential IQRAC: 4 fasi sequenziali con retrieval mirato per fase.
@@ -747,36 +760,56 @@ class AnalystAgent:
 
         Fasi:
           1. Framing (RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE) — no fonti
+             oppure Inquadramento Dottrinale se query_type=="doctrine"
           2. Normativa (FONTI_NORMATIVE, INTERPRETAZIONE) — re-query normattiva
           3. Giurisprudenza (GIURISPRUDENZA) — re-query giurisprudenza
           4. Sintesi (SUSSUNZIONE, OBIEZIONI, CONCLUSIONE) — no nuovo retrieval
+
+        Tutte e 4 le fasi usano temperature=0.0 (deterministico). Prima di questo
+        fix solo la Fase 2 era deterministica: Fase 1/3/4 usavano il default da
+        env (~0.10), introducendo varianza pura di sampling che si propagava a
+        valle (Fase 1 genera la QUESTIONE usata per il re-retrieval di Fase 2/3 —
+        un framing leggermente diverso a ogni run cambiava le fonti recuperate e
+        quindi il verdetto finale, anche a parità di domanda).
         """
-        # Risolvi i parametri da env se non specificati esplicitamente
-        if temperature == 0.0:
-            temperature = _llm_settings.llm_temperature
         if max_tokens_per_phase == 0:
             max_tokens_per_phase = _llm_settings.llm_max_tokens_per_phase
 
         completed_phases: list[PhaseResult] = []
 
-        # ── Fase 1: Framing ───────────────────────────────────────────
+        # ── Fase 1: Framing (IQRAC) o Inquadramento Dottrinale ───────
         t0 = time.monotonic()
+        _is_doctrine = query_type == "doctrine"
         _budget_f1 = _llm_settings.llm_max_tokens_fase1 - 50
+
+        if _is_doctrine:
+            _prompt_f1_steps = (
+                "Produci i 3 step dottrinali: INQUADRAMENTO_ISTITUTO, PERIMETRO_DOTTRINALE, QUESTIONE_ANALITICA.\n"
+            )
+            _system_f1 = _SYSTEM_PROMPT_FRAMING_DOTTRINA
+            _phase1_name = "FRAMING_DOTTRINA"
+        else:
+            _prompt_f1_steps = (
+                "Produci i 3 step di framing IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE.\n"
+            )
+            _system_f1 = _SYSTEM_PROMPT_FRAMING
+            _phase1_name = "FRAMING"
+
         prompt_f1 = (
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
-            "Produci i 3 step di framing IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, QUESTIONE.\n"
+            f"{_prompt_f1_steps}"
             "OGNI sezione: massimo 80 parole nel campo content. citations[] = array vuoto.\n"
             f"BUDGET TOKEN: la risposta JSON DEVE terminare entro {_budget_f1} token. "
-            "Chiudi subito il JSON quando raggiungi QUESTIONE.\n"
+            "Chiudi subito il JSON all'ultimo step.\n"
             "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f1 = ""
         data_f1: dict = {}
         try:
             raw_f1 = await self._ollama.generate(
-                prompt=prompt_f1, temperature=temperature,
+                prompt=prompt_f1, temperature=0.0,           # deterministico: vedi docstring
                 max_tokens=_llm_settings.llm_max_tokens_fase1,
-                system=_SYSTEM_PROMPT_FRAMING,
+                system=_system_f1,
                 n_ctx=_llm_settings.llm_n_ctx,
                 n_batch=_llm_settings.llm_n_batch,
             )
@@ -793,6 +826,18 @@ class AnalystAgent:
             questione_retrieval = query
         if not qualificazione_retrieval:
             qualificazione_retrieval = query
+
+        # Varianti opzionali per il retrieval giurisprudenza multi-query (max 3,
+        # vedi PhaseRetriever.retrieve_giurisprudenza_multi). Se il modello non
+        # le produce, fallback alla singola qualificazione_retrieval — comportamento
+        # identico a prima dell'introduzione di questo campo.
+        _varianti_raw = data_f1.get("giurisprudenza_retrieval_varianti", [])
+        giurisprudenza_retrieval_varianti = [
+            str(v).strip() for v in _varianti_raw
+            if isinstance(v, str) and str(v).strip()
+        ][:3] if isinstance(_varianti_raw, list) else []
+        if not giurisprudenza_retrieval_varianti:
+            giurisprudenza_retrieval_varianti = [qualificazione_retrieval]
 
         # Estrai settore_giuridico dalla Fase 1 (tassonomia: penale|civile|amministrativo|lavoro|tributario)
         _SETTORI_VALIDI = frozenset({"penale", "civile", "amministrativo", "lavoro", "tributario"})
@@ -821,7 +866,7 @@ class AnalystAgent:
             logger.info("[S3 Seq] settore_giuridico non riconosciuto — retrieval senza filtro settore")
 
         phase1 = PhaseResult(
-            phase=1, name="FRAMING",
+            phase=1, name=_phase1_name,
             sections=sections_f1,
             sources_used=[],
             overall_confidence=conf_f1,
@@ -830,11 +875,12 @@ class AnalystAgent:
             parse_ok=ok_f1,
             questione_retrieval=questione_retrieval,
             qualificazione_retrieval=qualificazione_retrieval,
+            giurisprudenza_retrieval_varianti=giurisprudenza_retrieval_varianti,
             settore_giuridico=settore_giuridico,
         )
         completed_phases.append(phase1)
         logger.info(
-            f"[S3 Seq] Fase 1 FRAMING: {len(sections_f1)} sezioni, "
+            f"[S3 Seq] Fase 1 {_phase1_name}: {len(sections_f1)} sezioni, "
             f"ok={ok_f1}, t={phase1.duration_s:.1f}s"
         )
         yield phase1
@@ -844,15 +890,22 @@ class AnalystAgent:
         dott_sources: list[SearchResult] = []
         if phase_retriever is not None:
             import asyncio as _asyncio
+            # Per query dottrinali, la dottrina interpretativa pesa di più nel
+            # mix dei risultati (più top_k) — la norma resta comunque il
+            # fondamento (Fase 2), non si inverte la priorità, si cambia solo
+            # quanto supporto interpretativo viene raccolto.
+            _dott_top_k = 6 if query_type == "doctrine" else 4
             try:
                 norm_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_normativa, questione_retrieval, 6, settore_giuridico
+                    phase_retriever.retrieve_normativa,
+                    questione_retrieval, 6, settore_giuridico, 0.0, query_type,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval normativa fallito: {exc}")
             try:
                 dott_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_dottrina, questione_retrieval, 4, settore_giuridico
+                    phase_retriever.retrieve_dottrina,
+                    questione_retrieval, _dott_top_k, settore_giuridico, 0.0, query_type,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval dottrina fallito: {exc}")
@@ -923,6 +976,7 @@ class AnalystAgent:
             gaps=[],
             duration_s=time.monotonic() - t1,
             parse_ok=ok_f2,
+            sources_metadata={s.source_id: s.metadata for s in norm_sources + dott_sources},
         )
         completed_phases.append(phase2)
         logger.info(
@@ -937,8 +991,8 @@ class AnalystAgent:
             try:
                 import asyncio as _asyncio
                 giuri_sources = await _asyncio.to_thread(
-                    phase_retriever.retrieve_giurisprudenza,
-                    qualificazione_retrieval,   # query stretta: qualificazione + questione
+                    phase_retriever.retrieve_giurisprudenza_multi,
+                    phase1.giurisprudenza_retrieval_varianti,   # 1-3 formulazioni, vedi Fase 1
                     6,
                     settore_giuridico,
                 )
@@ -972,7 +1026,7 @@ class AnalystAgent:
         raw_f3 = ""
         try:
             raw_f3 = await self._ollama.generate(
-                prompt=prompt_f3, temperature=temperature,
+                prompt=prompt_f3, temperature=0.0,           # deterministico: vedi docstring
                 max_tokens=_llm_settings.llm_max_tokens_fase3,
                 system=_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ,
                 n_ctx=_llm_settings.llm_n_ctx,
@@ -990,6 +1044,7 @@ class AnalystAgent:
             gaps=[],
             duration_s=time.monotonic() - t2,
             parse_ok=ok_f3,
+            sources_metadata={s.source_id: s.metadata for s in giuri_sources},
         )
         completed_phases.append(phase3)
         logger.info(
@@ -999,24 +1054,53 @@ class AnalystAgent:
         yield phase3
 
         # ── Fase 4: Sintesi ───────────────────────────────────────────
+        phase4 = await self._generate_fase4(query, packet, completed_phases)
+        yield phase4
+
+    async def _generate_fase4(
+        self,
+        query: str,
+        packet: ResearchPacket,
+        completed_phases: list["PhaseResult"],
+        corrective_note: str = "",
+    ) -> "PhaseResult":
+        """
+        Genera la Fase 4 (Sintesi). Estratto come metodo riusabile da
+        analyze_sequential() per permettere un retry mirato (vedi
+        regenerate_fase4) quando il Reviewer segnala citazioni ungrounded
+        confinate a questa fase — senza richiedere un nuovo giro di
+        retrieval né rigenerare le fasi precedenti, già corrette.
+        """
         t3 = time.monotonic()
         full_context = self._build_phase_context(completed_phases)
         _budget_f4 = _llm_settings.llm_max_tokens_fase4 - 80
+
+        # Costruisce whitelist source_id dal packet per vincolare Fase 4
+        _packet_source_ids = sorted({s.source_id for s in packet.sources if s.source_id})
+        _source_ids_block = (
+            "SOURCE_ID AMMESSI NEL CAMPO citations[] (usa SOLO questi — nessun altro):\n"
+            + "\n".join(f"  - {sid}" for sid in _packet_source_ids)
+        ) if _packet_source_ids else ""
+
         prompt_f4 = (
             f"{full_context}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
+            f"{corrective_note}"
             "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
             "Sii operativo e preciso. Usa 'VALUTAZIONE PERSONALE:' per valutazioni non grounded.\n"
             "VINCOLI:\n"
             "- OGNI sezione: massimo 100 parole nel campo content\n"
-            "- citations[]: massimo 2 elementi per sezione (richiama source_id già citati)\n"
+            "- citations[]: massimo 2 elementi per sezione\n"
+            "- Nel campo citations[] usa ESCLUSIVAMENTE i source_id della lista sotto\n"
+            "- NON inventare source_id: se non è nella lista, ometti la citation\n"
             f"- BUDGET TOKEN: il JSON DEVE terminare entro {_budget_f4} token totali\n"
+            f"{_source_ids_block}\n"
             "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f4 = ""
         try:
             raw_f4 = await self._ollama.generate(
-                prompt=prompt_f4, temperature=temperature,
+                prompt=prompt_f4, temperature=0.0,           # deterministico: vedi docstring
                 max_tokens=_llm_settings.llm_max_tokens_fase4,
                 system=_SYSTEM_PROMPT_SINTESI,
                 n_ctx=_llm_settings.llm_n_ctx,
@@ -1040,7 +1124,33 @@ class AnalystAgent:
             f"[S3 Seq] Fase 4 SINTESI: {len(sections_f4)} sezioni, "
             f"escalation={escalation_f4}, ok={ok_f4}, t={phase4.duration_s:.1f}s"
         )
-        yield phase4
+        return phase4
+
+    async def regenerate_fase4(
+        self,
+        query: str,
+        packet: ResearchPacket,
+        completed_phases: list["PhaseResult"],
+        ungrounded_ids: list[str],
+    ) -> "PhaseResult":
+        """
+        Retry mirato della Fase 4 dopo un verdetto RE_RETRIEVAL del Reviewer
+        con citazioni ungrounded confinate alla Fase 4 (vedi orchestrator:
+        chiamato solo quando nessuna citazione ungrounded proviene da Fase 2/3).
+
+        Non ri-esegue retrieval: rigenera solo la sintesi con un'istruzione
+        correttiva esplicita che elenca i source_id rifiutati dal Reviewer
+        all'ultimo giro — a parità di temperature=0.0 e prompt identico la
+        risposta sarebbe identica, quindi la correzione deve cambiare il
+        prompt, non solo "riprovare".
+        """
+        corrective_note = (
+            "ATTENZIONE — CORREZIONE OBBLIGATORIA: nel tentativo precedente hai "
+            f"citato questi source_id NON validi (rifiutati dal Reviewer): "
+            f"{', '.join(ungrounded_ids)}. Non riutilizzarli. Ometti la citation "
+            "se non trovi un source_id valido in lista per quella claim.\n\n"
+        )
+        return await self._generate_fase4(query, packet, completed_phases, corrective_note)
 
     # ------------------------------------------------------------------
     # analyze()  — entry point
