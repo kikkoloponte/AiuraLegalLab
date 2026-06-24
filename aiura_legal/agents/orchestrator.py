@@ -567,6 +567,7 @@ class LegalOrchestrator:
                             phases_by_number[n] for n in (1, 2, 3) if n in phases_by_number
                         ],
                         ungrounded_ids=review.ungrounded_citations,
+                        query_type=query_type,
                     )
                     retried_sections = [
                         s for s in all_sections if s.step not in fase4_steps

@@ -117,6 +117,10 @@ _SKILL_PATH_SINTESI = (
     Path(__file__).resolve().parent.parent.parent
     / ".pi" / "skills" / "legal_analyst_sintesi.md"
 )
+_SKILL_PATH_SINTESI_DOTTRINA = (
+    Path(__file__).resolve().parent.parent.parent
+    / ".pi" / "skills" / "legal_analyst_sintesi_dottrina.md"
+)
 
 _SYSTEM_PROMPT_FRAMING: str = _load_prompt(
     _SKILL_PATH_FRAMING,
@@ -137,6 +141,11 @@ _SYSTEM_PROMPT_GIURISPRUDENZA_SEQ: str = _load_prompt(
 _SYSTEM_PROMPT_SINTESI: str = _load_prompt(
     _SKILL_PATH_SINTESI,
     "Sei un giurista italiano. Concludi l'analisi (SUSSUNZIONE, OBIEZIONI, CONCLUSIONE)."
+)
+_SYSTEM_PROMPT_SINTESI_DOTTRINA: str = _load_prompt(
+    _SKILL_PATH_SINTESI_DOTTRINA,
+    "Sei un giurista italiano. Concludi l'analisi teorica di un istituto "
+    "(SUSSUNZIONE, OBIEZIONI, CONCLUSIONE) senza presupporre un caso concreto."
 )
 
 
@@ -1242,7 +1251,7 @@ class AnalystAgent:
         yield phase3
 
         # ── Fase 4: Sintesi ───────────────────────────────────────────
-        phase4 = await self._generate_fase4(query, packet, completed_phases)
+        phase4 = await self._generate_fase4(query, packet, completed_phases, query_type=query_type)
         yield phase4
 
     async def _generate_fase4(
@@ -1251,6 +1260,7 @@ class AnalystAgent:
         packet: ResearchPacket,
         completed_phases: list["PhaseResult"],
         corrective_note: str = "",
+        query_type: str = "case",
     ) -> "PhaseResult":
         """
         Genera la Fase 4 (Sintesi). Estratto come metodo riusabile da
@@ -1258,10 +1268,16 @@ class AnalystAgent:
         regenerate_fase4) quando il Reviewer segnala citazioni ungrounded
         confinate a questa fase — senza richiedere un nuovo giro di
         retrieval né rigenerare le fasi precedenti, già corrette.
+
+        query_type=="doctrine": usa lo skill di sintesi dottrinale — niente
+        "nel caso concreto"/"rischio processuale"/"prove necessarie", che
+        presuppongono un procedimento reale assente in una domanda teorica
+        sull'istituto (es. "in quali casi è legittimo X").
         """
         t3 = time.monotonic()
         full_context = self._build_phase_context(completed_phases)
         _budget_f4 = _llm_settings.llm_max_tokens_fase4 - 80
+        _is_doctrine = query_type == "doctrine"
 
         # Costruisce whitelist source_id dal packet per vincolare Fase 4
         _packet_source_ids = sorted({s.source_id for s in packet.sources if s.source_id})
@@ -1270,12 +1286,19 @@ class AnalystAgent:
             + "\n".join(f"  - {sid}" for sid in _packet_source_ids)
         ) if _packet_source_ids else ""
 
+        _istruzione_f4 = (
+            "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE "
+            "come regola generale dell'istituto — NON inventare un caso concreto: "
+            "la domanda è teorica.\n"
+            if _is_doctrine else
+            "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
+            "Sii operativo e preciso. Usa 'VALUTAZIONE PERSONALE:' per valutazioni non grounded.\n"
+        )
         prompt_f4 = (
             f"{full_context}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             f"{corrective_note}"
-            "Sulla base dell'analisi sopra, produci SUSSUNZIONE, OBIEZIONI, CONCLUSIONE.\n"
-            "Sii operativo e preciso. Usa 'VALUTAZIONE PERSONALE:' per valutazioni non grounded.\n"
+            f"{_istruzione_f4}"
             "VINCOLI:\n"
             "- OGNI sezione: massimo 100 parole nel campo content\n"
             "- citations[]: massimo 2 elementi per sezione\n"
@@ -1290,7 +1313,7 @@ class AnalystAgent:
             raw_f4 = await self._ollama.generate(
                 prompt=prompt_f4, temperature=0.0,           # deterministico: vedi docstring
                 max_tokens=_llm_settings.llm_max_tokens_fase4,
-                system=_SYSTEM_PROMPT_SINTESI,
+                system=_SYSTEM_PROMPT_SINTESI_DOTTRINA if _is_doctrine else _SYSTEM_PROMPT_SINTESI,
                 n_ctx=_llm_settings.llm_n_ctx,
                 n_batch=_llm_settings.llm_n_batch,
             )
@@ -1320,6 +1343,7 @@ class AnalystAgent:
         packet: ResearchPacket,
         completed_phases: list["PhaseResult"],
         ungrounded_ids: list[str],
+        query_type: str = "case",
     ) -> "PhaseResult":
         """
         Retry mirato della Fase 4 dopo un verdetto RE_RETRIEVAL del Reviewer
@@ -1338,7 +1362,9 @@ class AnalystAgent:
             f"{', '.join(ungrounded_ids)}. Non riutilizzarli. Ometti la citation "
             "se non trovi un source_id valido in lista per quella claim.\n\n"
         )
-        return await self._generate_fase4(query, packet, completed_phases, corrective_note)
+        return await self._generate_fase4(
+            query, packet, completed_phases, corrective_note, query_type=query_type,
+        )
 
     # ------------------------------------------------------------------
     # analyze()  — entry point
