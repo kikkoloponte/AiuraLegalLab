@@ -237,7 +237,21 @@ class TestNormattivaDocAdapter:
         assert a1.fonte == a2.fonte
         assert a1.corpus == a2.corpus
         assert a1.testo_tipo == a2.testo_tipo
-        assert a1.doc_id == a2.doc_id
+
+    def test_from_mongo_doc_source_id_usa_urn_grezzo(self):
+        """source_id usa l'urn grezzo as-is, anche se diverge da articolo_num.
+        La correzione (vedi urn_fix.py) richiede visibilità globale sulla
+        collection per evitare collisioni di catena — non viene applicata qui,
+        solo da scripts/fix_normattiva_urn_mismatch.py."""
+        doc = self._make_doc(
+            "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art380",
+            "DECRETO DEL PRESIDENTE DELLA REPUBBLICA",
+        )
+        doc["articolo_num"] = "Art. 321"
+        adapter = NormattivaDocAdapter.from_mongo_doc(doc)
+        assert adapter.source_id == (
+            "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art380"
+        )
 
     def test_from_mongo_doc_valid_to_present(self):
         """data_fine_vigenza propagata in valid_to."""

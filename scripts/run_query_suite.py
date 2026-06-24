@@ -37,9 +37,9 @@ DEFAULT_JSONL_DIR = Path("tests/script_json")
 DEFAULT_OUT_BASE = Path("eval/query_results")
 
 # Workspace fallback: se il workspace richiesto non ha indici costruiti,
-# usa "normattiva" che ha tutto il corpus indicizzato.
-WORKSPACE_FALLBACK = "normattiva"
-INDEXED_WORKSPACES: set[str] = {"normattiva"}  # aggiorna se buildi altri
+# usa "mio-studio" che ha tutti i corpora indicizzati (post Fase 1).
+WORKSPACE_FALLBACK = "mio-studio"
+INDEXED_WORKSPACES: set[str] = {"mio-studio"}  # aggiorna se buildi altri
 
 # ---------------------------------------------------------------------------
 # Domain filter — BM25 source_id patterns per dominio

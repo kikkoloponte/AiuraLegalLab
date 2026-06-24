@@ -19,37 +19,78 @@ if TYPE_CHECKING:
 _COLLECTION = "jurisprudence"
 _SYNC_STATE_COLLECTION = "sync_state"
 
+# Parametri chunking geometrico per le motivazioni (Fase 1)
+_MOTIVAZIONE_MAX_TOKENS = 512
+_MOTIVAZIONE_OVERLAP = 64
+
+
+def _base_metadata(doc: JurisprudenceDocument, chunk_type: str, chunk_index: int) -> dict:
+    """Metadati comuni a tutti i chunk di un JurisprudenceDocument."""
+    return {
+        "corpus": "giurisprudenza",
+        "chunk_type": chunk_type,
+        "chunk_index": chunk_index,
+        "jdoc_id": doc.id,
+        "organo": doc.organo.value,
+        "numero": doc.numero,
+        "anno": str(doc.anno),
+        "materia": doc.materia,
+        "source_url": doc.source_url or "",
+    }
+
 
 def to_chunks(doc: JurisprudenceDocument) -> list[Document]:
-    """Genera 3 Document indicizzabili da un JurisprudenceDocument."""
+    """Genera Document indicizzabili da un JurisprudenceDocument.
+
+    Massima e dispositivo → 1 chunk monolitico ciascuno (comportamento invariato).
+    Motivazione → N chunk geometrici con Chunker(512, 64) se testo presente.
+    ID chunk motivazione: {doc.id}_motivazione_{i:03d}
+    """
     chunks: list[Document] = []
-    for chunk_type, text in [
-        ("massima", doc.massima),
-        ("motivazione", doc.motivazione),
-        ("dispositivo", doc.dispositivo),
-    ]:
-        if not text.strip():
-            continue
-        chunks.append(
-            Document(
-                id=f"{doc.id}_{chunk_type}",
-                text=text,
-                metadata={
-                    "corpus": "giurisprudenza",
-                    "chunk_type": chunk_type,
-                    "jdoc_id": doc.id,
-                    "organo": doc.organo.value,
-                    "numero": doc.numero,
-                    "anno": str(doc.anno),
-                    "materia": doc.materia,
-                    "source_url": doc.source_url or "",
-                },
-                source_id=f"giurisprudenza_{doc.organo.value}_{doc.numero}_{doc.anno}",
-                source_authority=doc.organo.value,
-                is_anonymized=doc.is_anonymized,
-                valid_from=doc.data_deposito,
-            )
+    common_kwargs: dict = {
+        "source_id": f"giurisprudenza_{doc.organo.value}_{doc.numero}_{doc.anno}",
+        "source_authority": doc.organo.value,
+        "is_anonymized": doc.is_anonymized,
+        "valid_from": doc.data_deposito,
+    }
+
+    # ── Massima — monolitico ────────────────────────────────────────────
+    if doc.massima.strip():
+        chunks.append(Document(
+            id=f"{doc.id}_massima",
+            text=doc.massima,
+            metadata=_base_metadata(doc, "massima", 0),
+            **common_kwargs,
+        ))
+
+    # ── Motivazione — chunking geometrico 512 tok / 64 overlap ─────────
+    if doc.motivazione.strip():
+        from aiura_legal.ingestion.chunker import Chunker
+        _chunker = Chunker(max_tokens=_MOTIVAZIONE_MAX_TOKENS, overlap=_MOTIVAZIONE_OVERLAP)
+        sub_chunks = _chunker.chunk(doc.motivazione)
+        # Fallback: motivazione troppo corta per chunker → chunk unico (index 0)
+        texts = [c.text for c in sub_chunks] if sub_chunks else [doc.motivazione]
+        for i, chunk_text in enumerate(texts):
+            chunks.append(Document(
+                id=f"{doc.id}_motivazione_{i:03d}",
+                text=chunk_text,
+                metadata=_base_metadata(doc, "motivazione", i),
+                **common_kwargs,
+            ))
+        logger.debug(
+            "to_chunks: jdoc_id={} motivazione={} char -> {} chunk(s)",
+            doc.id, len(doc.motivazione), len(texts),
         )
+
+    # ── Dispositivo — monolitico ────────────────────────────────────────
+    if doc.dispositivo.strip():
+        chunks.append(Document(
+            id=f"{doc.id}_dispositivo",
+            text=doc.dispositivo,
+            metadata=_base_metadata(doc, "dispositivo", 0),
+            **common_kwargs,
+        ))
+
     return chunks
 
 

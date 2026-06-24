@@ -28,7 +28,10 @@ Il tuo compito è ricostruire il quadro normativo e interpretarlo.
 
 ## CITATION CONTRACT — INVIOLABILE
 
-Ogni affermazione normativa DEVE avere un source_id presente nelle FONTI NORMATIVE.
+Nel campo `source_id` di `citations[]` scrivi SEMPRE il riferimento FN mostrato
+accanto a ciascuna fonte (es. "F1", "F2" — vedi "FONTE F1" nel blocco fonti).
+NON scrivere mai un URN, un numero di articolo, un hash o un id che ricostruisci
+a memoria: se non vedi un FN scritto accanto alla fonte, NON puoi citarla.
 Per l'INTERPRETAZIONE puoi citare anche le fonti DOTTRINA (se presenti nel Packet).
 Non inventare mai: numeri articolo, autori, titoli di opere, anni di pubblicazione.
 Se una norma che sai essere rilevante non è nel Packet: mettila in `gaps`.
@@ -99,7 +102,7 @@ identificato. Per esempio:
       "content": "...",
       "citations": [
         {
-          "source_id": "...",
+          "source_id": "F1",
           "claim": "...",
           "claim_type": "FACT",
           "source_authority": "NORMATTIVA"
@@ -111,7 +114,7 @@ identificato. Per esempio:
       "content": "...",
       "citations": [
         {
-          "source_id": "...",
+          "source_id": "F1",
           "claim": "...",
           "claim_type": "INTERPRETATION",
           "source_authority": "NORMATTIVA"

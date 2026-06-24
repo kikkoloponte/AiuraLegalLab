@@ -1,0 +1,689 @@
+# ===========================================================================
+# Registro degli istituti giuridici — norme_urn VERIFICATE nel corpus locale.
+# Regola: un URN entra in norme_urn solo se confermato in aiura_legal_lab_db.chunks
+# (corpus=normattiva). Riferimenti non confermati restano in norme_riferimento.
+# Piloti: solo con dati reali; source_id solo se chunk groundabile confermato.
+# ===========================================================================
+
+istituti:
+  # =======================================================================
+  # PENALE
+  # =======================================================================
+  - id: sequestro_preventivo_confisca_equivalente_penale
+    label: "Sequestro preventivo e confisca per equivalente (penale)"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321"  # art. 321 c.p.p.
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"                            # art. 322-ter c.p. (URN storico)
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art240"                            # art. 240 c.p.
+    norme_riferimento:
+      - "art. 321 c.p.p. (sequestro preventivo)"
+      - "art. 322-ter c.p. (confisca per equivalente)"
+      - "art. 240 c.p. (confisca)"
+    termini_chiave:
+      - "sequestro preventivo"
+      - "confisca per equivalente"
+      - "profitto del reato"
+      - "sequestro finalizzato alla confisca"
+    disambigua_da:
+      confisca_antimafia_equivalente:
+        - "art. 321 c.p.p."
+        - "profitto del reato"
+        - "reato tributario"
+        - "procedimento penale"
+    sentenze_pilota:
+      - organo: "Cass. SS.UU. penali"
+        numero: "10561"
+        anno: "2014"
+        nome: "Gubert"
+        principio: >-
+          Verso il terzo estraneo al reato il sequestro per equivalente non è
+          ammesso: è consentita solo la confisca diretta del profitto del reato
+          che si trovi nella sua disponibilità. Il per-equivalente colpisce i
+          soli beni del reo, e quando il sequestro diretto del profitto è
+          impossibile ex actis.
+        source_id: "aiura_upload_j4o38mif"
+
+  - id: confisca_antimafia_equivalente
+    label: "Confisca per equivalente nelle misure di prevenzione"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:decreto.legislativo:2011-09-06;159~art25"   # art. 25 d.lgs. 159/2011
+    norme_riferimento:
+      - "art. 25 d.lgs. 159/2011"
+      - "art. 20 d.lgs. 159/2011"
+    termini_chiave:
+      - "misura di prevenzione"
+      - "confisca di prevenzione"
+      - "proposto"
+      - "pericolosità sociale"
+      - "terzi in buona fede"
+    disambigua_da:
+      sequestro_preventivo_confisca_equivalente_penale:
+        - "codice antimafia"
+        - "misura di prevenzione"
+        - "proposto"
+        - "pericolosità"
+    sentenze_pilota: []
+
+  - id: dolo_eventuale_colpa_cosciente
+    label: "Confine tra dolo eventuale e colpa cosciente"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art43"   # art. 43 c.p.
+    norme_riferimento:
+      - "art. 43 c.p."
+    termini_chiave:
+      - "dolo eventuale"
+      - "colpa cosciente"
+      - "accettazione del rischio"
+      - "elemento soggettivo"
+    disambigua_da: {}
+    sentenze_pilota:
+      - organo: "Cass. SS.UU. penali"
+        numero: "38343"
+        anno: "2014"
+        nome: "ThyssenKrupp"
+        principio: >-
+          Il dolo eventuale richiede l'accettazione dell'evento come possibile
+          conseguenza della condotta; la colpa cosciente sussiste quando l'agente,
+          pur rappresentandosi l'evento, agisce nella ragionevole fiducia di
+          poterlo evitare.
+        source_id: ""
+
+  - id: tentativo_delitto
+    label: "Tentativo del delitto"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art56"   # art. 56 c.p.
+    norme_riferimento:
+      - "art. 56 c.p."
+    termini_chiave:
+      - "tentativo"
+      - "atti idonei"
+      - "atti diretti in modo non equivoco"
+      - "desistenza volontaria"
+      - "recesso attivo"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concorso_persone_reato
+    label: "Concorso di persone nel reato"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art110"   # art. 110 c.p.
+    norme_riferimento:
+      - "artt. 110-119 c.p."
+    termini_chiave:
+      - "concorso di persone"
+      - "contributo causale"
+      - "concorso morale"
+      - "concorso materiale"
+      - "partecipazione criminosa"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: cause_giustificazione
+    label: "Cause di giustificazione (legittima difesa, stato di necessità, esercizio di un diritto)"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art52"   # art. 52 c.p. (legittima difesa)
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art54"   # art. 54 c.p. (stato di necessità)
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art51"   # art. 51 c.p. (esercizio diritto)
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art50"   # art. 50 c.p. (consenso)
+    norme_riferimento:
+      - "art. 50 c.p."
+      - "art. 51 c.p."
+      - "art. 52 c.p."
+      - "art. 54 c.p."
+    termini_chiave:
+      - "legittima difesa"
+      - "stato di necessità"
+      - "esercizio di un diritto"
+      - "consenso dell'avente diritto"
+      - "scriminante"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: prescrizione_reato
+    label: "Prescrizione del reato"
+    settore: penale
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art157"   # art. 157 c.p.
+    norme_riferimento:
+      - "artt. 157-161 c.p."
+    termini_chiave:
+      - "prescrizione del reato"
+      - "termine di prescrizione"
+      - "sospensione della prescrizione"
+      - "interruzione della prescrizione"
+    disambigua_da:
+      prescrizione_civile:
+        - "reato"
+        - "pena"
+        - "atti interruttivi penali"
+    sentenze_pilota: []
+
+  # =======================================================================
+  # CIVILE
+  # =======================================================================
+  - id: contratto_formazione_validita
+    label: "Contratto: formazione, validità ed efficacia"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1321"   # art. 1321 c.c.
+    norme_riferimento:
+      - "artt. 1321-1469 c.c."
+    termini_chiave:
+      - "contratto"
+      - "accordo delle parti"
+      - "causa"
+      - "oggetto"
+      - "forma"
+      - "autonomia contrattuale"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: nullita_annullabilita_resoluzione_rescissione
+    label: "Invalidità e scioglimento del contratto (nullità, annullabilità, risoluzione, rescissione)"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1418"   # art. 1418 c.c.
+    norme_riferimento:
+      - "artt. 1418-1459 c.c."
+    termini_chiave:
+      - "nullità"
+      - "annullabilità"
+      - "risoluzione"
+      - "rescissione"
+      - "vizio del consenso"
+      - "inadempimento"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: responsabilita_contrattuale
+    label: "Responsabilità contrattuale"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1218"   # art. 1218 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1223"   # art. 1223 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1228"   # art. 1228 c.c.
+    norme_riferimento:
+      - "art. 1218 c.c."
+      - "art. 1223 c.c."
+      - "art. 1228 c.c."
+    termini_chiave:
+      - "responsabilità contrattuale"
+      - "inadempimento"
+      - "esatto adempimento"
+      - "risarcimento del danno"
+      - "impossibilità della prestazione"
+    disambigua_da:
+      responsabilita_extracontrattuale:
+        - "vincolo contrattuale"
+        - "obbligazione preesistente"
+        - "inadempimento"
+    sentenze_pilota: []
+
+  - id: responsabilita_extracontrattuale
+    label: "Responsabilità extracontrattuale"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2043"   # art. 2043 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2051"   # art. 2051 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2059"   # art. 2059 c.c.
+    norme_riferimento:
+      - "art. 2043 c.c."
+      - "art. 2051 c.c."
+      - "art. 2059 c.c."
+    termini_chiave:
+      - "illecito aquiliano"
+      - "danno ingiusto"
+      - "nesso causale"
+      - "custodia"
+      - "danno non patrimoniale"
+    disambigua_da:
+      responsabilita_contrattuale:
+        - "fatto illecito"
+        - "danno ingiusto"
+        - "assenza di rapporto contrattuale"
+    sentenze_pilota: []
+
+  - id: proprieta_possesso_usucapione
+    label: "Proprietà, possesso e usucapione"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art832"    # art. 832 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1140"   # art. 1140 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1158"   # art. 1158 c.c.
+    norme_riferimento:
+      - "artt. 832 ss. c.c."
+      - "artt. 1140 ss. c.c."
+      - "artt. 1158 ss. c.c."
+    termini_chiave:
+      - "proprietà"
+      - "possesso"
+      - "detenzione"
+      - "usucapione"
+      - "interversione del possesso"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: diritti_reali_godimento
+    label: "Diritti reali di godimento (usufrutto, uso, abitazione, servitù, superficie, enfiteusi)"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1027"   # art. 1027 c.c. (servitù)
+    norme_riferimento:
+      - "artt. 978 ss. c.c."
+      - "artt. 1021 ss. c.c."
+      - "artt. 1027 ss. c.c."
+      - "artt. 952 ss. c.c."
+      - "artt. 957 ss. c.c."
+    termini_chiave:
+      - "usufrutto"
+      - "servitù"
+      - "uso"
+      - "abitazione"
+      - "superficie"
+      - "enfiteusi"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: successioni_testamento_legittima
+    label: "Successioni, testamento e quota di legittima"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art456"   # art. 456 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art536"   # art. 536 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art587"   # art. 587 c.c.
+    norme_riferimento:
+      - "artt. 456 ss. c.c."
+      - "artt. 536 ss. c.c."
+      - "artt. 587 ss. c.c."
+    termini_chiave:
+      - "successione"
+      - "testamento"
+      - "legittimari"
+      - "quota di legittima"
+      - "riduzione"
+      - "collazione"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: famiglia_filiazione
+    label: "Famiglia, matrimonio, unione civile e filiazione"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art143"   # art. 143 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art315"   # art. 315 c.c.
+      - "urn:nir:stato:legge:2016-05-20;76~art1"              # l. 76/2016 (unioni civili)
+    norme_riferimento:
+      - "artt. 79 ss. c.c."
+      - "artt. 143 ss. c.c."
+      - "artt. 315 ss. c.c."
+      - "l. 76/2016"
+    termini_chiave:
+      - "matrimonio"
+      - "separazione"
+      - "divorzio"
+      - "filiazione"
+      - "responsabilità genitoriale"
+      - "unione civile"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: amministrazione_sostegno_interdizione_inabilitazione
+    label: "Protezione delle persone fragili (amministrazione di sostegno, interdizione, inabilitazione)"
+    settore: civile
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art404"   # art. 404 c.c.
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art414"   # art. 414 c.c.
+    norme_riferimento:
+      - "artt. 404 ss. c.c."
+      - "artt. 414 ss. c.c."
+    termini_chiave:
+      - "amministrazione di sostegno"
+      - "interdizione"
+      - "inabilitazione"
+      - "beneficiario"
+      - "incapacità"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # AMMINISTRATIVO
+  # =======================================================================
+  - id: procedimento_amministrativo_partecipazione
+    label: "Procedimento amministrativo e partecipazione"
+    settore: amministrativo
+    norme_urn:
+      - "urn:nir:stato:legge:1990-08-07;241~art2"   # art. 2 l. 241/1990
+    norme_riferimento:
+      - "l. 241/1990"
+    termini_chiave:
+      - "procedimento amministrativo"
+      - "avvio del procedimento"
+      - "partecipazione procedimentale"
+      - "responsabile del procedimento"
+      - "motivazione"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: provvedimento_amministrativo_invalidita
+    label: "Provvedimento amministrativo e invalidità"
+    settore: amministrativo
+    norme_urn: []
+    norme_riferimento:
+      - "l. 241/1990"
+      - "art. 21-octies l. 241/1990"
+      - "art. 21-nonies l. 241/1990"
+    termini_chiave:
+      - "provvedimento amministrativo"
+      - "annullabilità"
+      - "nullità"
+      - "vizio di legittimità"
+      - "eccesso di potere"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: accesso_documentale_civico
+    label: "Accesso documentale, accesso civico semplice e generalizzato"
+    settore: amministrativo
+    norme_urn:
+      - "urn:nir:stato:legge:1990-08-07;241~art22"          # art. 22 l. 241/1990
+      - "urn:nir:stato:decreto.legislativo:2013-03-14;33~art5"   # art. 5 d.lgs. 33/2013 (accesso civico)
+    norme_riferimento:
+      - "artt. 22 ss. l. 241/1990"
+      - "d.lgs. 33/2013"
+    termini_chiave:
+      - "accesso agli atti"
+      - "accesso documentale"
+      - "accesso civico"
+      - "foia"
+      - "ostensione"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: silenzio_pubblica_amministrazione
+    label: "Silenzio della pubblica amministrazione"
+    settore: amministrativo
+    norme_urn:
+      - "urn:nir:stato:legge:1990-08-07;241~art2"   # art. 2 l. 241/1990 (obbligo di provvedere)
+    norme_riferimento:
+      - "art. 2 l. 241/1990"
+      - "art. 20 l. 241/1990"
+      - "c.p.a."
+    termini_chiave:
+      - "silenzio inadempimento"
+      - "silenzio assenso"
+      - "obbligo di provvedere"
+      - "inerzia della PA"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: autotutela_annullamento_revoca
+    label: "Autotutela amministrativa: annullamento d'ufficio e revoca"
+    settore: amministrativo
+    norme_urn: []
+    norme_riferimento:
+      - "art. 21-nonies l. 241/1990"
+      - "art. 21-quinquies l. 241/1990"
+    termini_chiave:
+      - "autotutela"
+      - "annullamento d'ufficio"
+      - "revoca"
+      - "interesse pubblico sopravvenuto"
+      - "affidamento del privato"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: appalti_pubblici
+    label: "Contratti pubblici e appalti"
+    settore: amministrativo
+    norme_urn: []
+    norme_riferimento:
+      - "d.lgs. 36/2023"
+    termini_chiave:
+      - "appalto pubblico"
+      - "gara"
+      - "offerta economicamente più vantaggiosa"
+      - "esclusione"
+      - "avvalimento"
+      - "soccorso istruttorio"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concorsi_pubblici
+    label: "Concorsi pubblici e accesso al pubblico impiego"
+    settore: amministrativo
+    norme_urn:
+      - "urn:nir:stato:decreto.legislativo:2001-03-30;165~art35"   # art. 35 d.lgs. 165/2001
+    norme_riferimento:
+      - "art. 97 Cost."
+      - "d.lgs. 165/2001"
+    termini_chiave:
+      - "concorso pubblico"
+      - "graduatoria"
+      - "commissione"
+      - "titoli ed esami"
+      - "accesso al pubblico impiego"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # LAVORO
+  # =======================================================================
+  - id: subordinazione_eterodirezione
+    label: "Lavoro subordinato e criteri di subordinazione"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2094"        # art. 2094 c.c.
+      - "urn:nir:stato:decreto.legislativo:2015-06-15;81~art2"      # art. 2 d.lgs. 81/2015
+    norme_riferimento:
+      - "art. 2094 c.c."
+      - "d.lgs. 81/2015"
+    termini_chiave:
+      - "lavoro subordinato"
+      - "eterodirezione"
+      - "etero-organizzazione"
+      - "lavoro autonomo"
+      - "collaborazione"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: licenziamento_giusta_causa_giustificato_motivo
+    label: "Licenziamento: giusta causa, giustificato motivo e tutele"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2119"     # art. 2119 c.c.
+      - "urn:nir:stato:legge:1966-07-15;604~art1"                # l. 604/1966
+      - "urn:nir:stato:legge:1970-05-20;300~art18"               # art. 18 St. lav.
+      - "urn:nir:stato:decreto.legislativo:2015-03-04;23~art1"   # d.lgs. 23/2015 (tutele crescenti)
+    norme_riferimento:
+      - "art. 2119 c.c."
+      - "l. 604/1966"
+      - "art. 18 l. 300/1970"
+      - "d.lgs. 23/2015"
+    termini_chiave:
+      - "licenziamento"
+      - "giusta causa"
+      - "giustificato motivo"
+      - "reintegrazione"
+      - "tutela indennitaria"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: mansioni_demansionamento
+    label: "Mansioni, inquadramento e demansionamento"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2103"   # art. 2103 c.c.
+    norme_riferimento:
+      - "art. 2103 c.c."
+    termini_chiave:
+      - "mansioni"
+      - "demansionamento"
+      - "inquadramento"
+      - "ius variandi"
+      - "professionalità"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: trasferimento_azienda_2112
+    label: "Trasferimento d'azienda e tutela dei rapporti di lavoro"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2112"   # art. 2112 c.c.
+    norme_riferimento:
+      - "art. 2112 c.c."
+    termini_chiave:
+      - "trasferimento d'azienda"
+      - "continuità del rapporto"
+      - "cessionario"
+      - "cedente"
+      - "ramo d'azienda"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sicurezza_lavoro_infortunio_malattia_professionale
+    label: "Sicurezza sul lavoro, infortunio e malattia professionale"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2087"       # art. 2087 c.c.
+      - "urn:nir:stato:decreto.legislativo:2008-04-09;81~art2"     # art. 2 d.lgs. 81/2008
+    norme_riferimento:
+      - "art. 2087 c.c."
+      - "d.lgs. 81/2008"
+      - "d.P.R. 1124/1965"
+    termini_chiave:
+      - "sicurezza sul lavoro"
+      - "infortunio"
+      - "malattia professionale"
+      - "obbligo di sicurezza"
+      - "dvr"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: discriminazione_mobbing_straining
+    label: "Discriminazione, mobbing e straining"
+    settore: lavoro
+    norme_urn:
+      - "urn:nir:stato:decreto.legislativo:2006-04-11;198~art25"    # d.lgs. 198/2006
+      - "urn:nir:stato:decreto.legislativo:2003-07-09;216~art2"     # d.lgs. 216/2003
+    norme_riferimento:
+      - "art. 2087 c.c."
+      - "d.lgs. 198/2006"
+      - "d.lgs. 216/2003"
+    termini_chiave:
+      - "mobbing"
+      - "straining"
+      - "discriminazione"
+      - "condotta vessatoria"
+      - "ambiente lavorativo ostile"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # TRIBUTARIO
+  # =======================================================================
+  - id: accertamento_tributario
+    label: "Accertamento tributario"
+    settore: tributario
+    norme_urn:
+      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art38"   # art. 38 d.P.R. 600/1973
+    norme_riferimento:
+      - "d.P.R. 600/1973"
+      - "d.P.R. 633/1972"
+      - "Statuto del contribuente"
+    termini_chiave:
+      - "avviso di accertamento"
+      - "rettifica"
+      - "accertamento analitico"
+      - "accertamento induttivo"
+      - "motivazione dell'atto"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: abuso_diritto_elusione_fiscale
+    label: "Abuso del diritto ed elusione fiscale"
+    settore: tributario
+    norme_urn: []
+    norme_riferimento:
+      - "art. 10-bis l. 212/2000"
+    termini_chiave:
+      - "abuso del diritto"
+      - "elusione fiscale"
+      - "vantaggio fiscale indebito"
+      - "operazioni prive di sostanza economica"
+    disambigua_da:
+      evasione_fiscale_reato_tributario:
+        - "art. 10-bis"
+        - "operazione abusiva"
+        - "assenza di violazione penale necessaria"
+    sentenze_pilota: []
+
+  - id: detrazione_iva_inerenza
+    label: "IVA: detrazione, inerenza e operazioni soggettivamente/oggettivamente inesistenti"
+    settore: tributario
+    norme_urn:
+      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art19"   # art. 19 d.P.R. 633/1972
+    norme_riferimento:
+      - "d.P.R. 633/1972"
+      - "principi unionali IVA"
+    termini_chiave:
+      - "detrazione IVA"
+      - "inerenza"
+      - "fatture per operazioni inesistenti"
+      - "buona fede del cessionario"
+      - "indetraibilità"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: riscossione_cartella_intimazione_fermo_ipoteca
+    label: "Riscossione: cartella, intimazione, fermo e ipoteca"
+    settore: tributario
+    norme_urn:
+      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;602~art50"   # art. 50 d.P.R. 602/1973
+    norme_riferimento:
+      - "d.P.R. 602/1973"
+    termini_chiave:
+      - "cartella di pagamento"
+      - "intimazione di pagamento"
+      - "fermo amministrativo"
+      - "ipoteca esattoriale"
+      - "riscossione coattiva"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sanzioni_tributarie
+    label: "Sanzioni tributarie amministrative"
+    settore: tributario
+    norme_urn:
+      - "urn:nir:stato:decreto.legislativo:1997-12-18;472~art5"   # art. 5 d.lgs. 472/1997
+    norme_riferimento:
+      - "d.lgs. 472/1997"
+    termini_chiave:
+      - "sanzione tributaria"
+      - "colpevolezza"
+      - "cumulo giuridico"
+      - "ravvedimento operoso"
+      - "obiettiva incertezza normativa"
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rimborso_tributi_indebiti
+    label: "Rimborso di tributi indebitamente versati"
+    settore: tributario
+    norme_urn: []
+    norme_riferimento:
+      - "d.P.R. 602/1973"
+      - "norme speciali di imposta"
+    termini_chiave:
+      - "rimborso"
+      - "indebito tributario"
+      - "istanza di rimborso"
+      - "silenzio-rifiuto"
+      - "restituzione di imposta"
+    disambigua_da: {}
+    sentenze_pilota: []

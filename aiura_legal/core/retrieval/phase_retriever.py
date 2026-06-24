@@ -25,11 +25,15 @@ from loguru import logger
 from aiura_legal.core.retrieval.hybrid_retriever import (
     HybridRetriever,
     _WEIGHTS_NORMATIVA,
+    _WEIGHTS_NORMATIVA_DOCTRINE,
     _WEIGHTS_GIURISPRUDENZA,
     _WEIGHTS_DOTTRINA,
+    _WEIGHTS_DOTTRINA_DOCTRINE,
+    _WEIGHTS_MASSIMARIO,
     _FILTER_NORMATIVA,
     _FILTER_GIURISPRUDENZA,
     _FILTER_DOTTRINA,
+    _FILTER_MASSIMARIO,
 )
 from aiura_legal.core.types import SearchResult
 
@@ -146,9 +150,12 @@ class PhaseRetriever:
         top_k: int = 6,
         settore: str | None = None,
         settore_confidence: float = 0.0,
+        query_type: str = "case",
     ) -> list[SearchResult]:
         """
-        Re-query su corpus=normattiva con pesi BM25-heavy.
+        Re-query su corpus=normattiva con pesi BM25-heavy (o vector-heavy
+        se query_type="doctrine": domande astratte su un istituto non
+        quotano articoli puntuali, quindi il match esatto BM25 pesa meno).
         Usa la QUESTIONE distillata dalla Fase 1 come query.
 
         Per query di diritto penale: augmenta la query e inietta Art. 43 c.p.
@@ -166,7 +173,12 @@ class PhaseRetriever:
         else:
             query_effective = query
 
-        logger.info(f"[PhaseRetriever] normativa re-query: {query_effective[:80]!r}")
+        is_doctrine = query_type == "doctrine"
+        weights = _WEIGHTS_NORMATIVA_DOCTRINE if is_doctrine else _WEIGHTS_NORMATIVA
+        logger.info(
+            f"[PhaseRetriever] normativa re-query ({query_type}): {query_effective[:80]!r} "
+            f"w={weights}"
+        )
 
         chunk_filter = self._effective_filter(
             base_filter=_FILTER_NORMATIVA,
@@ -179,7 +191,7 @@ class PhaseRetriever:
 
         results = self._search_with_fallback(
             query=query_effective,
-            weights=_WEIGHTS_NORMATIVA,
+            weights=weights,
             chunk_filter=chunk_filter,
             base_filter=_FILTER_NORMATIVA,
             top_k_retrieve=top_k_retrieve,
@@ -264,8 +276,48 @@ class PhaseRetriever:
 
         for r in results:
             r.source_layer = "giurisprudenza"
+        # NB: il massimario NON è fuso qui. È un corpus distinto recuperato in
+        # un round dedicato (retrieve_massimario) e presentato in un blocco
+        # separato nel prompt di Fase 3 — niente concorrenza per gli slot top_k
+        # delle sentenze reali (simmetrico a normattiva‖dottrina in Fase 2).
         logger.info(f"[PhaseRetriever] giurisprudenza: {len(results)} fonti")
         return results
+
+    def retrieve_giurisprudenza_multi(
+        self,
+        queries: list[str],
+        top_k: int = 6,
+        settore: str | None = None,
+        settore_confidence: float = 0.0,
+    ) -> list[SearchResult]:
+        """
+        Multi-query expansion per la giurisprudenza: esegue retrieve_giurisprudenza
+        una volta per ciascuna formulazione alternativa (vedi Fase 1,
+        `giurisprudenza_retrieval_varianti`) e fonde i risultati per doc_id,
+        ordinando per score decrescente.
+
+        Ogni variante riusa interamente i pesi/filtri/golden-injection di
+        retrieve_giurisprudenza — nessuna logica duplicata. Con una sola
+        query il comportamento è identico a chiamare retrieve_giurisprudenza
+        direttamente (fallback retro-compatibile).
+        """
+        queries = [q.strip() for q in queries if q and q.strip()]
+        if not queries:
+            logger.warning("[PhaseRetriever] nessuna query giurisprudenza — skip")
+            return []
+        if len(queries) == 1:
+            return self.retrieve_giurisprudenza(queries[0], top_k, settore, settore_confidence)
+
+        logger.info(f"[PhaseRetriever] giurisprudenza multi-query: {len(queries)} varianti")
+        merged: list[SearchResult] = []
+        seen: set[str] = set()
+        for q in queries:
+            for r in self.retrieve_giurisprudenza(q, top_k, settore, settore_confidence):
+                if r.doc_id not in seen:
+                    seen.add(r.doc_id)
+                    merged.append(r)
+        merged.sort(key=lambda r: r.score, reverse=True)
+        return merged[:top_k]
 
     # ------------------------------------------------------------------
     # Dottrina — Fase 2
@@ -277,15 +329,21 @@ class PhaseRetriever:
         top_k: int = 4,
         settore: str | None = None,
         settore_confidence: float = 0.0,
+        query_type: str = "case",
     ) -> list[SearchResult]:
         """
-        Re-query su corpus=dottrina con pesi bilanciati BM25+Vector.
+        Re-query su corpus=dottrina con pesi bilanciati BM25+Vector (più
+        vector-heavy se query_type="doctrine": la dottrina interpretativa
+        conta concettualmente più della terminologia esatta per domande
+        astratte sull'istituto).
         Ritorna lista vuota (non errore) se nessun documento dottrinale è indicizzato.
         """
         if not query.strip():
             return []
 
-        logger.info(f"[PhaseRetriever] dottrina re-query: {query[:80]!r}")
+        is_doctrine = query_type == "doctrine"
+        weights = _WEIGHTS_DOTTRINA_DOCTRINE if is_doctrine else _WEIGHTS_DOTTRINA
+        logger.info(f"[PhaseRetriever] dottrina re-query ({query_type}): {query[:80]!r} w={weights}")
 
         chunk_filter = self._effective_filter(
             base_filter=_FILTER_DOTTRINA,
@@ -298,7 +356,7 @@ class PhaseRetriever:
 
         results = self._search_with_fallback(
             query=query,
-            weights=_WEIGHTS_DOTTRINA,
+            weights=weights,
             chunk_filter=chunk_filter,
             base_filter=_FILTER_DOTTRINA,
             top_k_retrieve=top_k_retrieve,
@@ -349,6 +407,64 @@ class PhaseRetriever:
             return results
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"[PhaseRetriever] prassi skip: {exc}")
+            return []
+
+    # ------------------------------------------------------------------
+    # Massimario — Fase 3, blocco dedicato (digesto dei principi)
+    # ------------------------------------------------------------------
+
+    def retrieve_massimario(
+        self,
+        query: str,
+        top_k: int = 3,
+        settore: str | None = None,
+        settore_confidence: float = 0.0,
+    ) -> list[SearchResult]:
+        """
+        Re-query su corpus=massimario (Rassegne annuali del Massimario della
+        Cassazione): digesti ragionati che riportano i principi delle sentenze
+        pilota CON la citazione, anche per anni storici fuori dalla finestra
+        delle sentenze indicizzate.
+
+        Round DEDICATO e SEPARATO dalla giurisprudenza: il massimario ha il
+        proprio budget di chunk e il proprio blocco nel prompt di Fase 3 — non
+        compete per gli slot top_k delle sentenze reali (simmetrico a dottrina
+        in Fase 2). Ritorna lista vuota (non errore) se il corpus è assente.
+        """
+        if not query.strip():
+            return []
+
+        logger.info(f"[PhaseRetriever] massimario re-query: {query[:80]!r} w={_WEIGHTS_MASSIMARIO}")
+        try:
+            chunk_filter = self._effective_filter(
+                base_filter=_FILTER_MASSIMARIO,
+                settore=settore,
+                settore_confidence=settore_confidence,
+                label="massimario",
+            )
+            use_soft = bool(settore and _SETTORE_SOFT_ENABLED and 0.4 <= settore_confidence < 0.7)
+            top_k_retrieve = 10 if not use_soft else 20
+
+            results = self._search_with_fallback(
+                query=query,
+                weights=_WEIGHTS_MASSIMARIO,
+                chunk_filter=chunk_filter,
+                base_filter=_FILTER_MASSIMARIO,
+                top_k_retrieve=top_k_retrieve,
+                top_k_rerank=top_k,
+                label="massimario",
+            )
+
+            if use_soft and settore:
+                results = _apply_soft_penalty(results, settore)
+                results = results[:top_k]
+
+            for r in results:
+                r.source_layer = "massimario"
+            logger.info(f"[PhaseRetriever] massimario: {len(results)} fonti")
+            return results
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"[PhaseRetriever] massimario skip: {exc}")
             return []
 
     # ------------------------------------------------------------------

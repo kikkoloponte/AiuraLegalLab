@@ -48,6 +48,18 @@ def _article_node(
     }
 
 
+@pytest.fixture(autouse=True)
+def _force_networkx_backend(monkeypatch):
+    """
+    Questi test costruiscono grafi ad-hoc in tmp_path e verificano il
+    comportamento del backend NetworkX. Devono restare isolati dalla
+    configurazione di ambiente (.env): AIURA_GRAPH_BACKEND=neo4j in
+    produzione punterebbe altrimenti tutti questi test al Neo4j reale,
+    ignorando silenziosamente i grafi di test in tmp_path.
+    """
+    monkeypatch.setenv("AIURA_GRAPH_BACKEND", "networkx")
+
+
 def _make_graph(edges: list[tuple[str, str, str]]) -> nx.DiGraph:
     """Costruisce un DiGraph con nodi article e archi dati come (from, to, edge_type)."""
     G: nx.DiGraph = nx.DiGraph()
@@ -266,3 +278,133 @@ class TestGetConflicts:
         r = GraphRetriever(str(tmp_path))
         conflicts = r.get_conflicts(["A", "B"])  # C non incluso
         assert conflicts == []
+
+
+class TestGraphHealth:
+    """Guardrail di staleness — vedi GraphHealthSettings in retriever.py."""
+
+    def test_file_assente_available_false(self, tmp_path):
+        r = GraphRetriever(str(tmp_path))
+        h = r.get_health()
+        assert h.available is False
+        assert h.is_stale is False
+
+    def test_built_at_assente_e_stale(self, tmp_path):
+        """Grafo salvato senza built_at (legacy, pre-guardrail) → stale."""
+        G = _make_graph([("A", "B", "RINVIA")])
+        _save_graph(G, tmp_path)
+        r = GraphRetriever(str(tmp_path))
+        h = r.get_health()
+        assert h.available is True
+        assert h.is_stale is True
+        assert any("built_at assente" in reason for reason in h.stale_reasons)
+
+    def test_built_at_recente_non_stale(self, tmp_path):
+        from datetime import datetime, timezone
+        G = _make_graph([("A", "B", "RINVIA")])
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+        _save_graph(G, tmp_path)
+        r = GraphRetriever(str(tmp_path))
+        h = r.get_health()
+        assert h.is_stale is False
+        assert h.age_hours is not None
+        assert h.age_hours < 1.0
+
+    def test_built_at_vecchio_supera_soglia_age(self, tmp_path, monkeypatch):
+        from datetime import datetime, timedelta, timezone
+        monkeypatch.setenv("GRAPH_MAX_AGE_HOURS", "1")
+        G = _make_graph([("A", "B", "RINVIA")])
+        old = datetime.now(timezone.utc) - timedelta(hours=10)
+        G.graph["built_at"] = old.isoformat()
+        _save_graph(G, tmp_path)
+
+        # Le settings sono lette a import-time: ricreo l'istanza con le env aggiornate
+        import aiura_legal.core.graph.retriever as retriever_module
+        monkeypatch.setattr(
+            retriever_module, "_health_settings", retriever_module.GraphHealthSettings()
+        )
+
+        r = GraphRetriever(str(tmp_path))
+        h = r.get_health()
+        assert h.is_stale is True
+        assert any("age=" in reason for reason in h.stale_reasons)
+
+    def test_size_oltre_soglia(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("GRAPH_MAX_SIZE_MB", "0.0001")
+        import aiura_legal.core.graph.retriever as retriever_module
+        monkeypatch.setattr(
+            retriever_module, "_health_settings", retriever_module.GraphHealthSettings()
+        )
+
+        from datetime import datetime, timezone
+        G = _make_graph([("A", "B", "RINVIA")])
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        h = r.get_health()
+        assert h.is_stale is True
+        assert any("size=" in reason for reason in h.stale_reasons)
+
+
+# ---------------------------------------------------------------------------
+# expand() — nodi sentenza via INTERPRETA/APPLICATA_IN (merge_jurisprudence_graph)
+# ---------------------------------------------------------------------------
+
+def _sentenza_node(node_id: str, organo: str = "cassazione", numero: str = "123", anno: str = "2021") -> dict:
+    return {
+        "node_type": "sentenza",
+        "organo": organo,
+        "numero": numero,
+        "anno": anno,
+        "materia": "",
+    }
+
+
+class TestExpandSentenza:
+
+    def test_da_norma_trova_sentenza_via_applicata_in(self, tmp_path):
+        """Da un articolo recuperato, expand() trova la sentenza che lo interpreta."""
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:nir:art2119", **_article_node("urn:nir:art2119", art_num="2119"))
+        G.add_node("a1b2c3d4e5f60718", **_sentenza_node("a1b2c3d4e5f60718"))
+        G.add_edge("a1b2c3d4e5f60718", "urn:nir:art2119", edge_type="INTERPRETA")
+        G.add_edge("urn:nir:art2119", "a1b2c3d4e5f60718", edge_type="APPLICATA_IN")
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        results = r.expand(["urn:nir:art2119"])
+
+        assert len(results) == 1
+        assert results[0].source_id == "a1b2c3d4e5f60718"
+        assert results[0].source_layer == "giurisprudenza"
+        assert results[0].metadata["organo"] == "cassazione"
+
+    def test_da_sentenza_trova_norma_via_interpreta(self, tmp_path):
+        """Da una sentenza recuperata, expand() trova la norma che interpreta."""
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:nir:art2119", **_article_node("urn:nir:art2119", art_num="2119"))
+        G.add_node("a1b2c3d4e5f60718", **_sentenza_node("a1b2c3d4e5f60718"))
+        G.add_edge("a1b2c3d4e5f60718", "urn:nir:art2119", edge_type="INTERPRETA")
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        results = r.expand(["a1b2c3d4e5f60718"])
+
+        assert len(results) == 1
+        assert results[0].source_id == "urn:nir:art2119"
+        assert results[0].source_layer == "normativa"
+
+    def test_sentenza_non_filtrata_da_valid_on(self, tmp_path):
+        """Le sentenze non hanno valid_from/to: valid_on non le esclude mai."""
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:nir:art2119", **_article_node("urn:nir:art2119", art_num="2119"))
+        G.add_node("a1b2c3d4e5f60718", **_sentenza_node("a1b2c3d4e5f60718"))
+        G.add_edge("urn:nir:art2119", "a1b2c3d4e5f60718", edge_type="APPLICATA_IN")
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        results = r.expand(["urn:nir:art2119"], valid_on=date(2024, 1, 1))
+
+        assert len(results) == 1
+        assert results[0].source_id == "a1b2c3d4e5f60718"

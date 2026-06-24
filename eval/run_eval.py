@@ -70,6 +70,7 @@ def _load_queries(
                     module=data.get("module", ""),
                     difficulty=data.get("difficulty", "medium"),
                     top_k=data.get("top_k", 10),
+                    query_type=data.get("query_type", ""),
                 )
                 if module_filter is None or q.module == module_filter:
                     queries.append(q)
@@ -79,6 +80,40 @@ def _load_queries(
                 logger.warning(f"Riga {line_no}: JSON non valido ({e}) — ignorata")
 
     return queries
+
+
+def _load_all_queries(
+    queries_dir: str,
+    module_filter: str | None = None,
+    workspace_override: str | None = None,
+) -> tuple[list[EvalQuery], str]:
+    """
+    Carica e unisce tutti i file *.jsonl dalla directory indicata.
+    Deduplica per id (primo file vince).
+    Ritorna (queries, label) dove label elenca i file caricati.
+    """
+    d = Path(queries_dir)
+    files = sorted(d.glob("*.jsonl"))
+    if not files:
+        logger.error(f"Nessun file JSONL trovato in: {queries_dir}")
+        return [], ""
+
+    all_queries: list[EvalQuery] = []
+    seen_ids: set[str] = set()
+    for f in files:
+        batch = _load_queries(str(f), module_filter, workspace_override)
+        added = 0
+        for q in batch:
+            if q.id not in seen_ids:
+                seen_ids.add(q.id)
+                all_queries.append(q)
+                added += 1
+            else:
+                logger.warning(f"ID duplicato {q.id!r} in {f.name} — ignorata")
+        logger.info(f"  {f.name}: {added} query")
+
+    label = ", ".join(f.name for f in files)
+    return all_queries, label
 
 
 def _write_json(report: EvalReport, path: Path) -> None:
@@ -205,11 +240,27 @@ def _print_chunks(q: "EvalQuery", r: "EvalResult") -> None:
 # ---------------------------------------------------------------------------
 
 async def _run(args: argparse.Namespace) -> int:
-    queries = _load_queries(
-        args.queries,
-        module_filter=args.module,
-        workspace_override=args.workspace,
+    _default_queries_dir = str(
+        Path(__file__).parent.parent / "tests" / "script_json"
     )
+
+    if getattr(args, "all", False):
+        queries_dir = getattr(args, "queries_dir", None) or _default_queries_dir
+        logger.info(f"Modalità --all: carico tutti i JSONL da {queries_dir}")
+        queries, files_label = _load_all_queries(
+            queries_dir,
+            module_filter=args.module,
+            workspace_override=args.workspace,
+        )
+        queries_file_label = f"[all] {files_label}"
+    else:
+        queries = _load_queries(
+            args.queries,
+            module_filter=args.module,
+            workspace_override=args.workspace,
+        )
+        queries_file_label = args.queries
+
     if not queries:
         logger.error(
             "Nessuna query caricata. "
@@ -255,7 +306,7 @@ async def _run(args: argparse.Namespace) -> int:
     report = Evaluator.build_report(
         results,
         run_id=run_id,
-        queries_file=str(Path(args.queries).resolve()),
+        queries_file=queries_file_label,
     )
 
     # Scrivi output
@@ -316,7 +367,26 @@ def main() -> None:
         metavar="FILE",
         help=(
             "File JSONL con le query di valutazione "
-            f"(default: tests/script_json/test_aiura_01.jsonl)"
+            "(default: tests/script_json/test_aiura_01.jsonl). "
+            "Ignorato se --all è attivo."
+        ),
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help=(
+            "Carica e unisce tutti i file *.jsonl da --queries-dir "
+            "(default: tests/script_json/). "
+            "Deduplica per id."
+        ),
+    )
+    parser.add_argument(
+        "--queries-dir",
+        default=None,
+        metavar="DIR",
+        help=(
+            "Directory da cui caricare tutti i JSONL con --all "
+            "(default: tests/script_json/)"
         ),
     )
     parser.add_argument(

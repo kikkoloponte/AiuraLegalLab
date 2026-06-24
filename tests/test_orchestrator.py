@@ -13,7 +13,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from aiura_legal.agents.analyst import AnalystAgent, AnalysisResult
+from aiura_legal.agents.analyst import AnalystAgent, AnalysisResult, AnalysisSection, PhaseResult
 from aiura_legal.agents.orchestrator import LegalOrchestrator, OrchestratorResult
 from aiura_legal.core.reviewer.reviewer import CitationReviewer
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
@@ -81,28 +81,38 @@ def orchestrator(mock_retriever, mock_ollama):
 class TestAnalystContextBuilding:
 
     def test_context_includes_source_ids(self, analyst):
+        """Il source_id grezzo NON deve apparire nel prompt: il modello cita
+        SOLO il riferimento FN, risolto al source_id reale lato sistema
+        (vedi PhaseResult/AnalysisResult.ref_map)."""
         packet = _make_packet([
             _make_source("CC_ART_1218", "Testo art. 1218"),
             _make_source("CC_ART_1453", "Testo art. 1453"),
         ])
-        ctx = analyst._build_context(packet)
-        assert "CC_ART_1218" in ctx
-        assert "CC_ART_1453" in ctx
+        ctx, ref_map = analyst._build_context(packet)
+        assert "CC_ART_1218" not in ctx
+        assert "CC_ART_1453" not in ctx
+        assert ref_map == {"CC_ART_1218": "F1", "CC_ART_1453": "F2"}
+        assert "FONTE F1" in ctx and "FONTE F2" in ctx
 
     def test_context_empty_packet(self, analyst):
         packet = _make_packet([])
-        ctx = analyst._build_context(packet)
+        ctx, ref_map = analyst._build_context(packet)
         assert "NESSUNA FONTE" in ctx.upper()
+        assert ref_map == {}
 
     def test_prompt_contains_query(self, analyst):
         packet = _make_packet()
-        prompt = analyst._build_prompt("contratto inadempimento", packet)
+        prompt, _ref_map = analyst._build_prompt("contratto inadempimento", packet)
         assert "contratto inadempimento" in prompt
 
     def test_prompt_contains_source_id(self, analyst):
+        """Il prompt cita il riferimento FN, non il source_id reale — che è
+        risolto lato sistema via ref_map prima del check del Reviewer."""
         packet = _make_packet([_make_source("CC_ART_1218")])
-        prompt = analyst._build_prompt("query test", packet)
-        assert "CC_ART_1218" in prompt
+        prompt, ref_map = analyst._build_prompt("query test", packet)
+        assert "CC_ART_1218" not in prompt
+        assert ref_map == {"CC_ART_1218": "F1"}
+        assert "FONTE F1" in prompt
 
 
 # ---------------------------------------------------------------------------
@@ -274,10 +284,11 @@ class TestOrchestrator:
         mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_norma_lookup_calls_standard_retriever(self, orchestrator, mock_retriever, mock_ollama):
+    async def test_run_norma_lookup_calls_bifasico_retriever(self, orchestrator, mock_retriever, mock_ollama):
+        """NORMA_LOOKUP deve usare build_research_packet_bifasico (corpus=normattiva filtrato)."""
         mock_ollama.generate = AsyncMock(return_value='{"analysis_sections": [], "overall_confidence": "LOW"}')
         await orchestrator.run(query="test", intent=QueryIntent.NORMA_LOOKUP, workspace="ws")
-        mock_retriever.build_research_packet.assert_called_once()
+        mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_run_s5_review_pass(self, orchestrator, mock_ollama):
@@ -316,7 +327,7 @@ class TestOrchestrator:
 
     @pytest.mark.asyncio
     async def test_run_with_chunk_filter(self, orchestrator, mock_retriever, mock_ollama):
-        """chunk_filter deve essere passato al retriever (percorso mono-layer NORMA_LOOKUP)."""
+        """NORMA_LOOKUP usa build_research_packet_bifasico che applica il filtro corpus internamente."""
         mock_ollama.generate = AsyncMock(return_value='{"analysis_sections": [], "overall_confidence": "LOW"}')
         await orchestrator.run(
             query="test",
@@ -324,8 +335,8 @@ class TestOrchestrator:
             intent=QueryIntent.NORMA_LOOKUP,
             chunk_filter={"corpus": "normattiva"},
         )
-        call_kwargs = mock_retriever.build_research_packet.call_args.kwargs
-        assert call_kwargs.get("chunk_filter") == {"corpus": "normattiva"}
+        # Con il fix routing, NORMA_LOOKUP va sempre su bifasico (corpus filtrato internamente)
+        mock_retriever.build_research_packet_bifasico.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_run_sources_from_packet(self, orchestrator, mock_retriever, mock_ollama):
@@ -374,3 +385,120 @@ class TestCitationContract:
         # CC_ART_9999 non è nel packet → S5 deve segnalare problema
         # (FAIL o WARN a seconda della severità)
         assert result.reviewer_verdict in ("FAIL", "WARN")
+
+
+# ---------------------------------------------------------------------------
+# Bug #5 — RE_RETRIEVAL confinato a Fase 4: retry mirato della Sintesi
+# invece di BLOCK secco. Se le citazioni ungrounded provengono da Fase 2/3
+# (non rigenerate) il comportamento resta BLOCK come prima (nessuna regressione).
+# ---------------------------------------------------------------------------
+
+def _phase(phase: int, name: str, sections: list) -> PhaseResult:
+    return PhaseResult(phase=phase, name=name, sections=sections, sources_used=[])
+
+
+def _section(step: str, source_id: str | None = None) -> AnalysisSection:
+    citations = [{"source_id": source_id}] if source_id else []
+    return AnalysisSection(step=step, content=f"Contenuto {step}.", citations=citations)
+
+
+class TestRetryFase4ReRetrieval:
+
+    @pytest.mark.asyncio
+    async def test_retry_fase4_risolve_citazione_ungrounded_confinata(
+        self, mock_retriever, mock_ollama,
+    ):
+        """Fase 4 cita un source_id ungrounded ("CC_ART_9999") in CONCLUSIONE.
+        Il retry mirato rigenera solo la Fase 4 con istruzione correttiva e la
+        nuova versione cita solo fonti valide → verdetto finale DELIVER, non BLOCK."""
+        packet = _make_packet([_make_source("CC_ART_1218")])
+        mock_retriever.build_research_packet_bifasico.return_value = packet
+
+        orch = LegalOrchestrator(retriever=mock_retriever, ollama=mock_ollama, reviewer=CitationReviewer())
+
+        bad_phase4 = _phase(4, "SINTESI", [
+            _section("SUSSUNZIONE", "CC_ART_1218"),
+            _section("CONCLUSIONE", "CC_ART_9999"),  # ungrounded
+        ])
+        phases = [
+            _phase(1, "FRAMING", [_section("QUESTIONE")]),
+            _phase(2, "NORMATIVA", [_section("FONTI_NORMATIVE", "CC_ART_1218")]),
+            _phase(3, "GIURISPRUDENZA", [_section("GIURISPRUDENZA")]),
+            bad_phase4,
+        ]
+        orch._analyst.analyze_sequential = lambda **kw: _async_iter(phases)
+
+        fixed_phase4 = _phase(4, "SINTESI", [
+            _section("SUSSUNZIONE", "CC_ART_1218"),
+            _section("CONCLUSIONE", "CC_ART_1218"),
+        ])
+        orch._analyst.regenerate_fase4 = AsyncMock(return_value=fixed_phase4)
+
+        events = [e async for e in orch.run_sequential(query="test", workspace="ws")]
+        review_done = next(e for e in events if e["event"] == "review_done")
+
+        orch._analyst.regenerate_fase4.assert_awaited_once()
+        assert "CC_ART_9999" in orch._analyst.regenerate_fase4.call_args.kwargs["ungrounded_ids"]
+        assert review_done["action"] == "DELIVER"
+        assert review_done["verdict"] in ("PASS", "WARN")
+
+    @pytest.mark.asyncio
+    async def test_retry_non_tentato_se_ungrounded_in_fase2(
+        self, mock_retriever, mock_ollama,
+    ):
+        """Se la citazione ungrounded proviene da Fase 2 (non rigenerabile dal
+        retry di Fase 4), il retry NON deve essere tentato e l'azione resta
+        BLOCK — stesso comportamento di prima di questo fix."""
+        packet = _make_packet([_make_source("CC_ART_1218")])
+        mock_retriever.build_research_packet_bifasico.return_value = packet
+
+        orch = LegalOrchestrator(retriever=mock_retriever, ollama=mock_ollama, reviewer=CitationReviewer())
+
+        phases = [
+            _phase(1, "FRAMING", [_section("QUESTIONE")]),
+            _phase(2, "NORMATIVA", [_section("FONTI_NORMATIVE", "CC_ART_9999")]),  # ungrounded
+            _phase(3, "GIURISPRUDENZA", [_section("GIURISPRUDENZA")]),
+            _phase(4, "SINTESI", [_section("CONCLUSIONE", "CC_ART_1218")]),
+        ]
+        orch._analyst.analyze_sequential = lambda **kw: _async_iter(phases)
+        orch._analyst.regenerate_fase4 = AsyncMock()
+
+        events = [e async for e in orch.run_sequential(query="test", workspace="ws")]
+        review_done = next(e for e in events if e["event"] == "review_done")
+
+        orch._analyst.regenerate_fase4.assert_not_awaited()
+        assert review_done["action"] == "BLOCK"
+
+    @pytest.mark.asyncio
+    async def test_retry_fase4_esaurito_resta_block(
+        self, mock_retriever, mock_ollama,
+    ):
+        """Se il retry di Fase 4 produce di nuovo una citazione ungrounded,
+        non si ritenta una seconda volta — budget di un solo retry — e
+        l'azione finale resta BLOCK."""
+        packet = _make_packet([_make_source("CC_ART_1218")])
+        mock_retriever.build_research_packet_bifasico.return_value = packet
+
+        orch = LegalOrchestrator(retriever=mock_retriever, ollama=mock_ollama, reviewer=CitationReviewer())
+
+        phases = [
+            _phase(1, "FRAMING", [_section("QUESTIONE")]),
+            _phase(2, "NORMATIVA", [_section("FONTI_NORMATIVE", "CC_ART_1218")]),
+            _phase(3, "GIURISPRUDENZA", [_section("GIURISPRUDENZA")]),
+            _phase(4, "SINTESI", [_section("CONCLUSIONE", "CC_ART_8888")]),  # ungrounded
+        ]
+        orch._analyst.analyze_sequential = lambda **kw: _async_iter(phases)
+
+        still_bad_phase4 = _phase(4, "SINTESI", [_section("CONCLUSIONE", "CC_ART_7777")])  # ancora ungrounded
+        orch._analyst.regenerate_fase4 = AsyncMock(return_value=still_bad_phase4)
+
+        events = [e async for e in orch.run_sequential(query="test", workspace="ws")]
+        review_done = next(e for e in events if e["event"] == "review_done")
+
+        orch._analyst.regenerate_fase4.assert_awaited_once()
+        assert review_done["action"] == "BLOCK"
+
+
+async def _async_iter(items: list):
+    for item in items:
+        yield item

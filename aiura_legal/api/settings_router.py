@@ -66,7 +66,10 @@ _DEFAULTS: dict[str, str] = {
     "LLM_MAX_TOKENS_FASE4":      "1000",
     "RETRIEVAL_TOP_K_RERANK":    "6",
     "RETRIEVAL_TOP_K_RETRIEVE":  "20",
-    "QDRANT_URL":                "http://localhost:6333",
+    # Vuoto = Qdrant embedded (path locale) — deve coincidere con il default
+    # di QdrantSettings, altrimenti un .env senza la chiave flipperebbe in
+    # server mode al primo salvataggio dalla UI.
+    "QDRANT_URL":                "",
 }
 
 
@@ -93,12 +96,27 @@ class LLMSettings(BaseModel):
     llm_max_tokens_fase4:     int   = Field(1536,   ge=512,  le=2700)
     retrieval_top_k_rerank:   int   = Field(6,      ge=1,    le=20)
     retrieval_top_k_retrieve: int   = Field(20,     ge=5,    le=50)
+    # Vuoto = Qdrant embedded (path locale), valorizzato = server mode
+    qdrant_url:               str   = ""
 
     @field_validator("ollama_base_url", "lmstudio_base_url")
     @classmethod
     def must_be_url(cls, v: str) -> str:
         if not v.startswith(("http://", "https://")):
             raise ValueError("deve essere un URL valido (http:// o https://)")
+        return v.rstrip("/")
+
+    @field_validator("qdrant_url")
+    @classmethod
+    def must_be_url_or_empty(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            return ""
+        if not v.startswith(("http://", "https://")):
+            raise ValueError(
+                "deve essere un URL valido (http:// o https://) "
+                "oppure vuoto per Qdrant embedded"
+            )
         return v.rstrip("/")
 
 
@@ -206,6 +224,7 @@ def _settings_from_env() -> LLMSettings:
         llm_max_tokens_fase4     = int(g("LLM_MAX_TOKENS_FASE4") or 1000),
         retrieval_top_k_rerank   = int(g("RETRIEVAL_TOP_K_RERANK") or 6),
         retrieval_top_k_retrieve = int(g("RETRIEVAL_TOP_K_RETRIEVE") or 20),
+        qdrant_url               = g("QDRANT_URL"),
     )
 
 
@@ -313,6 +332,7 @@ async def save_settings(
         "LLM_MAX_TOKENS_FASE4":      str(body.llm_max_tokens_fase4),
         "RETRIEVAL_TOP_K_RERANK":    str(body.retrieval_top_k_rerank),
         "RETRIEVAL_TOP_K_RETRIEVE":  str(body.retrieval_top_k_retrieve),
+        "QDRANT_URL":                body.qdrant_url,
     }
 
     try:

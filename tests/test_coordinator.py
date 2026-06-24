@@ -16,7 +16,11 @@ from aiura_legal.jurisprudence.models import (
 )
 
 
-def _make_doc(numero: str = "1", channel: SourceChannel = SourceChannel.SCRAPING) -> JurisprudenceDocument:
+def _make_doc(
+    numero: str = "1",
+    channel: SourceChannel = SourceChannel.SCRAPING,
+    motivazione: str = "La motivazione.",
+) -> JurisprudenceDocument:
     return JurisprudenceDocument(
         organo=OrganoGiudicante.CASSAZIONE,
         numero=numero,
@@ -25,10 +29,19 @@ def _make_doc(numero: str = "1", channel: SourceChannel = SourceChannel.SCRAPING
         sezione="III Civile",
         materia="contratti",
         massima="La massima.",
-        motivazione="La motivazione.",
+        motivazione=motivazione,
         dispositivo="Il dispositivo.",
         source_channel=channel,
     )
+
+
+def _make_doc_long_motivazione(num_words: int = 5000) -> JurisprudenceDocument:
+    """Sentenza con motivazione lunga (> 512 token) per test chunking."""
+    # ~4 caratteri/parola media in italiano + spazio → ~5 token/parola con tiktoken
+    # 5000 parole ~= ~4000+ token
+    parola = "motivazione responsabilità contrattuale inadempimento risarcimento"
+    text = (parola + " ") * num_words
+    return _make_doc(motivazione=text)
 
 
 def _make_db(existing_id: str | None = None):
@@ -58,28 +71,88 @@ def _make_db(existing_id: str | None = None):
 
 
 # ---------------------------------------------------------------------------
-# to_chunks
+# to_chunks — comportamento base
 # ---------------------------------------------------------------------------
 
-def test_to_chunks_genera_tre_chunk():
+def test_to_chunks_massima_e_dispositivo_monolitici():
+    """Massima e dispositivo restano chunk singoli (ID senza indice numerico)."""
     doc = _make_doc()
     chunks = to_chunks(doc)
-    assert len(chunks) == 3
-    types = {c.metadata["chunk_type"] for c in chunks}
-    assert types == {"massima", "motivazione", "dispositivo"}
+    ids = [c.id for c in chunks]
+    assert f"{doc.id}_massima" in ids
+    assert f"{doc.id}_dispositivo" in ids
+
+
+def test_to_chunks_motivazione_breve_singolo_chunk():
+    """Motivazione < 512 token → 1 chunk con ID {hex16}_motivazione_000."""
+    doc = _make_doc(motivazione="Breve motivazione.")
+    chunks = to_chunks(doc)
+    mot_chunks = [c for c in chunks if c.metadata["chunk_type"] == "motivazione"]
+    assert len(mot_chunks) == 1
+    assert mot_chunks[0].id == f"{doc.id}_motivazione_000"
+    assert mot_chunks[0].metadata["chunk_index"] == 0
+
+
+def test_to_chunks_motivazione_lunga_multipli_chunk():
+    """Motivazione > 512 token → N chunk con ID {hex16}_motivazione_{i:03d}."""
+    doc = _make_doc_long_motivazione(num_words=3000)
+    chunks = to_chunks(doc)
+    mot_chunks = [c for c in chunks if c.metadata["chunk_type"] == "motivazione"]
+    # Con ~3k parole (~12k token) e Chunker(512, 64) ci aspettiamo molti chunk
+    assert len(mot_chunks) > 1, f"Attesi >1 chunk, ottenuti {len(mot_chunks)}"
+    # Verifica indici consecutivi a partire da 0
+    for i, ch in enumerate(mot_chunks):
+        assert ch.id == f"{doc.id}_motivazione_{i:03d}"
+        assert ch.metadata["chunk_index"] == i
+
+
+def test_to_chunks_overlap_corretto():
+    """I chunk motivazione si sovrappongono (overlap 64 token)."""
+    doc = _make_doc_long_motivazione(num_words=1000)
+    chunks = to_chunks(doc)
+    mot_chunks = [c for c in chunks if c.metadata["chunk_type"] == "motivazione"]
+    if len(mot_chunks) < 2:
+        pytest.skip("Motivazione troppo corta per testare overlap")
+    # Verifico che chunk[1] inizi con la coda di chunk[0]
+    # (overlap = i token finali del chunk precedente compaiono all'inizio del successivo)
+    end_of_first = mot_chunks[0].text[-50:]  # ultimi 50 caratteri
+    start_of_second = mot_chunks[1].text[:200]
+    # L'overlap garantisce che parte del testo si sovrapponga
+    # (almeno qualche parola in comune)
+    words_first_end = set(end_of_first.split())
+    words_second_start = set(start_of_second.split())
+    assert words_first_end & words_second_start, "Nessuna sovrapposizione rilevata"
+
+
+def test_to_chunks_integrità_massima():
+    """La massima NON viene spezzata anche se > 512 token."""
+    massima_lunga = "La massima della corte. " * 200  # ~2400 token circa
+    doc = _make_doc(motivazione="Breve.")
+    doc.massima = massima_lunga
+    chunks = to_chunks(doc)
+    massima_chunks = [c for c in chunks if c.metadata["chunk_type"] == "massima"]
+    assert len(massima_chunks) == 1
+    assert massima_chunks[0].id == f"{doc.id}_massima"
+    assert massima_chunks[0].text == massima_lunga
 
 
 def test_to_chunks_id_univoci():
-    doc = _make_doc()
+    doc = _make_doc_long_motivazione(num_words=2000)
     chunks = to_chunks(doc)
     ids = [c.id for c in chunks]
     assert len(ids) == len(set(ids))
 
 
 def test_to_chunks_jdoc_id():
-    doc = _make_doc()
+    doc = _make_doc_long_motivazione(num_words=2000)
     chunks = to_chunks(doc)
     assert all(c.metadata["jdoc_id"] == doc.id for c in chunks)
+
+
+def test_to_chunks_corpus_giurisprudenza():
+    doc = _make_doc()
+    chunks = to_chunks(doc)
+    assert all(c.metadata["corpus"] == "giurisprudenza" for c in chunks)
 
 
 def test_to_chunks_salta_testo_vuoto():
@@ -88,7 +161,14 @@ def test_to_chunks_salta_testo_vuoto():
     chunks = to_chunks(doc)
     types = {c.metadata["chunk_type"] for c in chunks}
     assert "massima" not in types
-    assert len(chunks) == 2
+
+
+def test_to_chunks_metadati_chunk_index():
+    """chunk_index deve essere presente in tutti i chunk."""
+    doc = _make_doc_long_motivazione(num_words=2000)
+    chunks = to_chunks(doc)
+    for c in chunks:
+        assert "chunk_index" in c.metadata
 
 
 # ---------------------------------------------------------------------------

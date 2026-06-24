@@ -37,6 +37,7 @@ export interface LegalResponse {
   analysis_sections?: AnalysisSection[]
   verdict: 'PASS' | 'FAIL' | 'WARN' | 'RE_RETRIEVAL'
   confidence: 'HIGH' | 'MEDIUM' | 'LOW'
+  query_type?: 'case' | 'doctrine'
   sources: Source[]
   elapsed_ms?: number
   gaps?: string[]
@@ -48,16 +49,20 @@ export interface LegalResponse {
 // ---------------------------------------------------------------------------
 
 const STEP_LABELS: Record<string, string> = {
-  RICOSTRUZIONE_FATTO: 'Ricostruzione del fatto',
-  QUALIFICAZIONE: 'Qualificazione giuridica',
-  QUESTIONE: 'Questione giuridica',
-  FONTI_NORMATIVE: 'Fonti normative',
-  INTERPRETAZIONE: 'Interpretazione',
-  GIURISPRUDENZA: 'Orientamenti giurisprudenziali',
-  SUSSUNZIONE: 'Sussunzione',
-  OBIEZIONI: 'Obiezioni e tesi contrarie',
-  CONCLUSIONE: 'Conclusione',
-  ANALISI: 'Analisi',
+  RICOSTRUZIONE_FATTO:  'Ricostruzione del fatto',
+  QUALIFICAZIONE:       'Qualificazione giuridica',
+  QUESTIONE:            'Questione giuridica',
+  FONTI_NORMATIVE:      'Fonti normative',
+  INTERPRETAZIONE:      'Interpretazione',
+  GIURISPRUDENZA:       'Orientamenti giurisprudenziali',
+  SUSSUNZIONE:          'Sussunzione',
+  OBIEZIONI:            'Obiezioni e tesi contrarie',
+  CONCLUSIONE:          'Conclusione',
+  ANALISI:              'Analisi',
+  // Flusso dottrinale
+  INQUADRAMENTO_ISTITUTO: "Inquadramento dell'istituto",
+  PERIMETRO_DOTTRINALE:   'Perimetro dottrinale',
+  QUESTIONE_ANALITICA:    'Questione analitica',
 }
 
 function stepLabel(step: string) {
@@ -291,14 +296,19 @@ export function ResponseCard({ response, className, onGraphOpen }: ResponseCardP
 
   return (
     <div className={cn('rounded-lg border border-border bg-card overflow-hidden', className)}>
-      {/* Reviewer badge */}
-      <div className="px-4 py-3 border-b border-border">
+      {/* Reviewer badge + query type */}
+      <div className="px-4 py-3 border-b border-border flex items-center gap-2 flex-wrap">
         <ReviewerBadge
           verdict={response.verdict}
           confidence={response.confidence}
           sources={response.sources.length}
           elapsedMs={response.elapsed_ms}
         />
+        {response.query_type === 'doctrine' && (
+          <span className="inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            Analisi dottrinale
+          </span>
+        )}
       </div>
 
       {/* Summary */}
@@ -307,10 +317,10 @@ export function ResponseCard({ response, className, onGraphOpen }: ResponseCardP
         <p className="text-sm text-foreground leading-relaxed">{response.summary}</p>
       </div>
 
-      {/* Analisi strutturata IQRAC */}
+      {/* Analisi strutturata IQRAC / dottrinale */}
       {hasSections && (
         <PhaseBlock
-          title="Analisi IQRAC"
+          title={response.query_type === 'doctrine' ? 'Analisi dottrinale' : 'Analisi IQRAC'}
           icon={<Scale className="w-3.5 h-3.5" />}
           sections={response.analysis_sections ?? []}
           sources={response.sources}

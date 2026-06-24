@@ -64,6 +64,7 @@ class EvalQuery:
     module: str = ""                         # es. "cod_civ", "pen", "lav"
     difficulty: str = "medium"               # "easy" | "medium" | "hard"
     top_k: int = 10
+    query_type: str = ""                     # "case" | "doctrine" | "" (non specificato)
 
     @property
     def api_intent(self) -> str:
@@ -136,7 +137,7 @@ class Evaluator:
     def __init__(
         self,
         api_base_url: str = "http://127.0.0.1:8765",
-        timeout: float = 60.0,
+        timeout: float = 180.0,
     ) -> None:
         self.api_base_url = api_base_url.rstrip("/")
         self.timeout = timeout

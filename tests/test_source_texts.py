@@ -209,3 +209,92 @@ class TestFlagEAsync:
         await fetch_full_texts([r], db=db)
 
         assert r.full_text == ""
+
+
+# ---------------------------------------------------------------------------
+# Sub-chunk Fase 1: motivazione_{i:03d} — lookup in chunks (non jurisprudence)
+# ---------------------------------------------------------------------------
+
+class TestGiuriSubChunkFase1:
+    @pytest.fixture()
+    def db_con_subchunk(self, db):
+        """DB con sub-chunk motivazione Fase 1 nella collection chunks."""
+        db["chunks"].insert_one({
+            "_id": "e65a598d71052357_motivazione_003",
+            "corpus": "giurisprudenza",
+            "chunk_type": "motivazione",
+            "chunk_index": 3,
+            "jdoc_id": "e65a598d71052357",
+            "text": "Testo del sub-chunk numero 3. " * 20,
+        })
+        # Anche la sentenza monolitica esiste in jurisprudence (non deve essere usata)
+        db["jurisprudence"].insert_one({
+            "_id": "e65a598d71052357",
+            "massima": "La massima intera.",
+            "motivazione": "La motivazione INTERA della sentenza. " * 50,
+            "dispositivo": "Il dispositivo.",
+        })
+        return db
+
+    def test_subchunk_lookup_in_chunks_collection(self, db_con_subchunk):
+        """Sub-chunk motivazione_{i:03d} viene recuperato da chunks, non da jurisprudence."""
+        r = _result(
+            "e65a598d71052357_motivazione_003",
+            "giurisprudenza",
+            metadata={
+                "corpus": "giurisprudenza",
+                "chunk_type": "motivazione",
+                "chunk_index": 3,
+                "jdoc_id": "e65a598d71052357",
+            },
+        )
+
+        fetch_full_texts_sync([r], db=db_con_subchunk)
+
+        assert r.full_text.startswith("Testo del sub-chunk numero 3.")
+        # Non deve contenere la motivazione intera
+        assert "INTERA" not in r.full_text
+
+    def test_subchunk_restituisce_solo_porzione(self, db_con_subchunk):
+        """full_text è il testo del chunk atomico, non l'intera motivazione."""
+        r = _result(
+            "e65a598d71052357_motivazione_003",
+            "giurisprudenza",
+        )
+
+        fetch_full_texts_sync([r], db=db_con_subchunk)
+
+        # La motivazione intera è molto più lunga del singolo chunk
+        assert len(r.full_text) < len("La motivazione INTERA della sentenza. " * 50)
+
+    def test_subchunk_mancante_fallback_vuoto(self, db):
+        """Sub-chunk non trovato → full_text vuoto (mai eccezioni)."""
+        r = _result(
+            "ffffffffffffffff_motivazione_007",
+            "giurisprudenza",
+            metadata={"corpus": "giurisprudenza", "chunk_index": 7},
+        )
+
+        fetch_full_texts_sync([r], db=db)
+
+        assert r.full_text == ""
+
+    def test_mix_legacy_e_subchunk(self, db_con_subchunk):
+        """Mix di chunk legacy e sub-chunk Fase 1 vengono gestiti correttamente."""
+        # Chunk legacy massima
+        r_legacy = _result(
+            "e65a598d71052357_massima",
+            "giurisprudenza",
+            metadata={"jdoc_id": "e65a598d71052357", "chunk_type": "massima"},
+        )
+        # Sub-chunk Fase 1
+        r_sub = _result(
+            "e65a598d71052357_motivazione_003",
+            "giurisprudenza",
+            metadata={"corpus": "giurisprudenza", "chunk_type": "motivazione", "chunk_index": 3},
+        )
+
+        fetch_full_texts_sync([r_legacy, r_sub], db=db_con_subchunk)
+
+        assert r_legacy.full_text.startswith("La massima intera.")
+        assert r_sub.full_text.startswith("Testo del sub-chunk numero 3.")

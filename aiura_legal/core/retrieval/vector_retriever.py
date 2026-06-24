@@ -1,22 +1,24 @@
 """
 Vector Retriever — Qdrant server mode (Docker) con fallback embedded.
 
-Modello: paraphrase-multilingual-MiniLM-L12-v2 (384 dim, cosine).
+Due versioni disponibili:
+  v1 (default): paraphrase-multilingual-MiniLM-L12-v2 (384 dim) → collezione legal_docs
+  v2           : intfloat/multilingual-e5-base (768 dim)          → collezione legal_docs_v2
 
 Connessione:
   - Server mode (preferito): QDRANT_URL=http://localhost:6333  → nessun limite di punti
   - Embedded fallback: se QDRANT_URL non è configurato → usa path locale
 
-Qdrant è 5-10x più veloce di ChromaDB per volumi > 500k chunk:
-  - Indice HNSW in Rust vs Python
-  - Batch embedding diretto con SentenceTransformer (batch_size=256)
-  - Filtri payload nativi ad alte prestazioni
+Il cutover da v1 a v2 è atomico: quando legal_docs_v2 supera il gate eval,
+aggiornare _COLLECTION_NAME/_EMBED_MODEL/_VECTOR_SIZE al valore v2 e rimuovere
+la vecchia collezione. Fino ad allora i due indici coesistono nella stessa
+istanza Docker.
 """
 from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from loguru import logger
 from pydantic import ConfigDict
@@ -24,10 +26,20 @@ from pydantic_settings import BaseSettings
 
 from aiura_legal.core.types import Document, SearchResult
 
+# ── v1: modello corrente (produzione) ──────────────────────────────────────
 _EMBED_MODEL     = "paraphrase-multilingual-MiniLM-L12-v2"
 _COLLECTION_NAME = "legal_docs"
-_VECTOR_SIZE     = 384       # dimensioni MiniLM-L12-v2
-_EMBED_BATCH     = 256       # batch embedding
+_VECTOR_SIZE     = 384
+_EMBED_BATCH     = 256
+
+# ── v2: modello candidato (Fase 2) ─────────────────────────────────────────
+# multilingual-e5-base richiede prefissi e5: "query: " per le query,
+# "passage: " per i documenti — parte del protocollo di addestramento.
+_EMBED_MODEL_V2     = "intfloat/multilingual-e5-base"
+_COLLECTION_V2      = "legal_docs_v2"
+_VECTOR_SIZE_V2     = 768
+_E5_QUERY_PREFIX    = "query: "
+_E5_PASSAGE_PREFIX  = "passage: "
 
 
 class QdrantSettings(BaseSettings):
@@ -88,7 +100,9 @@ def _flatten_chroma_filter(f: dict) -> dict[str, object]:
             result.update(_flatten_chroma_filter(f["$or"][0]))
     else:
         for k, v in f.items():
-            if k.startswith("$"):
+            if k.startswith("$") or k.startswith("_"):
+                # Chiavi "$..." = operatori ChromaDB; chiavi "_..." = filtri BM25-only
+                # (es. _source_id_in) che Qdrant non può gestire — skippa silenziosamente.
                 continue
             if isinstance(v, dict) and "$in" in v:
                 result[k] = v["$in"]          # lista → MatchAny
@@ -102,20 +116,29 @@ def _flatten_chroma_filter(f: dict) -> dict[str, object]:
 def _build_qdrant_filter(
     chunk_filter: Optional[dict],
     valid_on: Optional[date],
+    workspace: Optional[str] = None,
 ):
     """
-    Costruisce un Qdrant Filter da chunk_filter ChromaDB-style e valid_on.
-    Ritorna None se nessun filtro è necessario.
+    Costruisce un Qdrant Filter da chunk_filter ChromaDB-style, valid_on e workspace.
+    Ritorna None se nessun filtro e' necessario.
+
+    workspace:
+        Quando passato, aggiunge una condizione should che accetta i punti con
+        payload["workspace"] == workspace OPPURE i punti in cui il campo e'
+        assente (IsEmptyCondition) — garantisce retrocompatibilita' con i
+        vettori indicizzati prima della Fase 0 (nessun campo workspace).
     """
     from qdrant_client.models import (
-        Filter, FieldCondition, MatchValue, MatchAny, Range,
+        Filter, FieldCondition, MatchValue, MatchAny, Range, IsEmptyCondition,
+        PayloadField,
     )
 
-    conditions = []
+    must_conditions = []
+    should_conditions: list = []
 
     if valid_on:
         d_int = _date_to_int(valid_on)
-        conditions.append(
+        must_conditions.append(
             FieldCondition(key="valid_from_int", range=Range(lte=d_int))
         )
 
@@ -126,21 +149,32 @@ def _build_qdrant_filter(
                 real_key = k[7:]
                 val_int = _parse_date_int(str(v))
                 if val_int:
-                    conditions.append(
+                    must_conditions.append(
                         FieldCondition(key=f"{real_key}_int", range=Range(lte=val_int))
                     )
             elif isinstance(v, list):
-                conditions.append(
+                must_conditions.append(
                     FieldCondition(key=k, match=MatchAny(any=[str(x) for x in v]))
                 )
             else:
-                conditions.append(
+                must_conditions.append(
                     FieldCondition(key=k, match=MatchValue(value=str(v)))
                 )
 
-    if not conditions:
+    # Filtro workspace: accetta punti con workspace corrispondente
+    # OPPURE punti in cui il campo workspace e' assente (retrocompatibilita')
+    if workspace:
+        should_conditions = [
+            FieldCondition(key="workspace", match=MatchValue(value=workspace)),
+            IsEmptyCondition(is_empty=PayloadField(key="workspace")),
+        ]
+
+    if not must_conditions and not should_conditions:
         return None
-    return Filter(must=conditions)
+    return Filter(
+        must=must_conditions if must_conditions else None,
+        should=should_conditions if should_conditions else None,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -174,7 +208,7 @@ class VectorRetriever:
     def _init_qdrant(self) -> None:
         try:
             from qdrant_client import QdrantClient
-            from qdrant_client.models import Distance, VectorParams, OptimizersConfigDiff
+            from qdrant_client.models import Distance, VectorParams, OptimizersConfigDiff, PayloadSchemaType
 
             qdrant_url = QdrantSettings().qdrant_url.strip()
 
@@ -202,6 +236,7 @@ class VectorRetriever:
                     optimizers_config=OptimizersConfigDiff(
                         indexing_threshold=20_000,
                     ),
+                    on_disk_payload=False,  # evita il bug gridstore di Qdrant 1.18.x
                 )
                 logger.info(f"Qdrant: collection '{_COLLECTION_NAME}' creata ({self._mode})")
                 self._warn_if_empty(0)
@@ -211,6 +246,8 @@ class VectorRetriever:
                     f"Qdrant pronto [{self._mode}]: {count:,} punti"
                 )
                 self._warn_if_empty(count)
+
+            self._ensure_payload_indexes()
 
         except ImportError:
             logger.error(
@@ -233,6 +270,41 @@ class VectorRetriever:
             "Verifica QDRANT_URL nel .env (server Docker) oppure esegui "
             "scripts/build_indexes.py per popolare l'indice."
         )
+
+    def _ensure_payload_indexes(self) -> None:
+        """Crea payload index su workspace/corpus (KEYWORD) e valid_*_int (INTEGER).
+
+        Gli indici integer DEVONO essere dichiarati prima dell'upsert: se mancano,
+        Qdrant tenta di ricostruirli lazily al riavvio leggendo i raw bytes del
+        gridstore — se il processo era stato killato durante un upsert i bytes
+        sono parziali e Qdrant crasha (LiteralOutOfBounds / OffsetZero).
+        """
+        if not self._client:
+            return
+        try:
+            from qdrant_client.models import PayloadSchemaType
+            info = self._client.get_collection(_COLLECTION_NAME)
+            existing = set(info.payload_schema.keys()) if info.payload_schema else set()
+            keyword_fields = ("workspace", "corpus")
+            integer_fields = ("valid_from_int", "valid_to_int")
+            for field in keyword_fields:
+                if field not in existing:
+                    self._client.create_payload_index(
+                        collection_name=_COLLECTION_NAME,
+                        field_name=field,
+                        field_schema=PayloadSchemaType.KEYWORD,
+                    )
+                    logger.info(f"Qdrant: creato payload index KEYWORD su '{field}'")
+            for field in integer_fields:
+                if field not in existing:
+                    self._client.create_payload_index(
+                        collection_name=_COLLECTION_NAME,
+                        field_name=field,
+                        field_schema=PayloadSchemaType.INTEGER,
+                    )
+                    logger.info(f"Qdrant: creato payload index INTEGER su '{field}'")
+        except Exception as e:
+            logger.warning(f"Qdrant: impossibile creare payload index: {e}")
 
     def _get_model(self):
         """Lazy load del modello SentenceTransformer."""
@@ -374,21 +446,26 @@ class VectorRetriever:
         top_k: int = 15,
         valid_on: Optional[date] = None,
         chunk_filter: Optional[dict] = None,
+        workspace: Optional[str] = None,
     ) -> list[SearchResult]:
         """
-        Ricerca vettoriale con filtro opzionale per corpus/fonte/valid_on.
+        Ricerca vettoriale con filtro opzionale per corpus/fonte/valid_on/workspace.
 
         chunk_filter accetta lo stesso formato ChromaDB:
           {"corpus": "normattiva"}
           {"$and": [{"corpus": "normattiva"}, {"fonte": "legge"}]}
           {"fonte": {"$in": ["legge", "dlgs"]}}
+
+        workspace:
+          Se passato, filtra i punti per workspace (con retrocompatibilita' IsEmpty
+          per i vettori pre-Fase0 senza campo workspace nel payload).
         """
         if not self._client:
             return []
 
         try:
             query_vec = self._embed([query])[0]
-            qdrant_filter = _build_qdrant_filter(chunk_filter, valid_on)
+            qdrant_filter = _build_qdrant_filter(chunk_filter, valid_on, workspace)
 
             response = self._client.query_points(
                 collection_name=_COLLECTION_NAME,
@@ -468,3 +545,369 @@ class VectorRetriever:
                 logger.info(f"Qdrant [{self._mode}]: collection ricreata da zero")
             except Exception as e:
                 logger.warning(f"Qdrant reset: {e}")
+
+
+# ---------------------------------------------------------------------------
+# VectorRetrieverV2 — multilingual-e5-base (768 dim) su legal_docs_v2
+# ---------------------------------------------------------------------------
+
+class VectorRetrieverV2(VectorRetriever):
+    """
+    Retriever vettoriale su Qdrant, collezione legal_docs_v2.
+
+    Usa intfloat/multilingual-e5-base (768 dim) con i prefissi e5:
+      - Embedding documenti: "passage: " + testo
+      - Embedding query:     "query: "   + testo
+
+    Coesiste con VectorRetriever (legal_docs v1) durante la fase di valutazione.
+    Cutover atomico quando il gate eval supera R > 0.737.
+    """
+
+    def __init__(self, workspace_path: str) -> None:
+        # Bypassa __init__ del padre; reinizializza con parametri v2.
+        self._ws = Path(workspace_path)
+        self._qdrant_path = str(self._ws / "indices" / "qdrant_v2")
+        self._client = None
+        self._model = None
+        self._mode: str = "embedded"
+        self._collection = _COLLECTION_V2
+        self._vector_size = _VECTOR_SIZE_V2
+        self._init_qdrant_v2()
+
+    def _init_qdrant_v2(self) -> None:
+        try:
+            from qdrant_client import QdrantClient
+            from qdrant_client.models import Distance, VectorParams, OptimizersConfigDiff, PayloadSchemaType
+
+            qdrant_url = QdrantSettings().qdrant_url.strip()
+            if qdrant_url:
+                self._client = QdrantClient(url=qdrant_url, timeout=30)
+                self._mode = "server"
+                logger.info(f"Qdrant v2: server mode → {qdrant_url}")
+            else:
+                Path(self._qdrant_path).mkdir(parents=True, exist_ok=True)
+                self._client = QdrantClient(path=self._qdrant_path)
+                self._mode = "embedded"
+                logger.info(f"Qdrant v2: embedded mode → {self._qdrant_path}")
+
+            existing = [c.name for c in self._client.get_collections().collections]
+            if _COLLECTION_V2 not in existing:
+                self._client.create_collection(
+                    collection_name=_COLLECTION_V2,
+                    vectors_config=VectorParams(
+                        size=_VECTOR_SIZE_V2,
+                        distance=Distance.COSINE,
+                    ),
+                    optimizers_config=OptimizersConfigDiff(indexing_threshold=20_000),
+                    # on_disk_payload=False: payload in RocksDB (WAL transazionale).
+                    # Il default True usa mmap gridstore che ha un bug noto in Qdrant
+                    # 1.18.x — sotto set_payload rapidi lascia due WAL "open" in stato
+                    # inconsistente, corrompendo il payload al riavvio successivo.
+                    on_disk_payload=False,
+                )
+                logger.info(f"Qdrant v2: collection '{_COLLECTION_V2}' creata ({self._mode})")
+            else:
+                count = self._client.count(_COLLECTION_V2).count
+                logger.info(f"Qdrant v2 pronto [{self._mode}]: {count:,} punti in '{_COLLECTION_V2}'")
+
+            # Payload indexes — tutti dichiarati esplicitamente prima di qualsiasi
+            # upsert. Se mancano e Qdrant li ricostruisce lazily al riavvio su
+            # segment data parzialmente scritti → crash gridstore (LiteralOutOfBounds).
+            try:
+                info = self._client.get_collection(_COLLECTION_V2)
+                existing_fields = set(info.payload_schema.keys()) if info.payload_schema else set()
+                for field in ("workspace", "corpus"):
+                    if field not in existing_fields:
+                        self._client.create_payload_index(
+                            collection_name=_COLLECTION_V2,
+                            field_name=field,
+                            field_schema=PayloadSchemaType.KEYWORD,
+                        )
+                        logger.info(f"Qdrant v2: creato payload index KEYWORD su '{field}'")
+                for field in ("valid_from_int", "valid_to_int"):
+                    if field not in existing_fields:
+                        self._client.create_payload_index(
+                            collection_name=_COLLECTION_V2,
+                            field_name=field,
+                            field_schema=PayloadSchemaType.INTEGER,
+                        )
+                        logger.info(f"Qdrant v2: creato payload index INTEGER su '{field}'")
+            except Exception as e:
+                logger.warning(f"Qdrant v2: payload index: {e}")
+
+        except ImportError:
+            logger.error("qdrant-client non installato.")
+        except Exception as e:
+            logger.error(f"Qdrant v2 init fallita: {e}")
+
+    # ------------------------------------------------------------------
+    # Embedding v2: prefissi e5
+    # ------------------------------------------------------------------
+
+    def _get_model(self):
+        if self._model is None:
+            from sentence_transformers import SentenceTransformer
+            logger.info(f"Caricamento modello embedding v2: {_EMBED_MODEL_V2}")
+            self._model = SentenceTransformer(_EMBED_MODEL_V2)
+        return self._model
+
+    def _embed_passages(self, texts: list[str]) -> list[list[float]]:
+        """Embedding batch per documenti (prefisso 'passage: ')."""
+        model = self._get_model()
+        prefixed = [_E5_PASSAGE_PREFIX + t for t in texts]
+        vecs = model.encode(
+            prefixed,
+            batch_size=_EMBED_BATCH,
+            show_progress_bar=False,
+            normalize_embeddings=True,
+        )
+        return vecs.tolist()
+
+    def _embed(self, texts: list[str]) -> list[list[float]]:
+        """Embedding batch per query (prefisso 'query: ')."""
+        model = self._get_model()
+        prefixed = [_E5_QUERY_PREFIX + t for t in texts]
+        vecs = model.encode(
+            prefixed,
+            batch_size=_EMBED_BATCH,
+            show_progress_bar=False,
+            normalize_embeddings=True,
+        )
+        return vecs.tolist()
+
+    # ------------------------------------------------------------------
+    # Build: usa _embed_passages per i documenti
+    # ------------------------------------------------------------------
+
+    def add_documents_batch(
+        self,
+        docs: list[Document],
+        batch_size: int = 512,
+        skip_existing: bool = True,
+    ) -> None:
+        if not self._client:
+            return
+
+        effective_batch = batch_size if self._mode == "server" else min(batch_size, 256)
+        from qdrant_client.models import PointStruct
+
+        total_skipped = 0
+        total_upserted = 0
+
+        for i in range(0, len(docs), effective_batch):
+            batch = docs[i : i + effective_batch]
+
+            if skip_existing:
+                uuids = [_to_qdrant_id(d.id) for d in batch]
+                try:
+                    existing = self._client.retrieve(
+                        collection_name=_COLLECTION_V2,
+                        ids=uuids,
+                        with_payload=False,
+                        with_vectors=False,
+                    )
+                    existing_set = {str(p.id) for p in existing}
+                except Exception as e:
+                    logger.warning(f"Qdrant v2 retrieve fallito: {e}")
+                    existing_set = set()
+
+                to_embed = [d for d, uid in zip(batch, uuids) if uid not in existing_set]
+                skipped = len(batch) - len(to_embed)
+                total_skipped += skipped
+            else:
+                to_embed = batch
+
+            if not to_embed:
+                continue
+
+            # Usa passage prefix per i documenti
+            vectors = self._embed_passages([d.text for d in to_embed])
+
+            points = []
+            for doc, vec in zip(to_embed, vectors):
+                payload = {
+                    **{k: str(v) for k, v in doc.metadata.items()},
+                    "source_id":      doc.source_id,
+                    "mongo_id":       doc.id,
+                    "text":           doc.text[:1000],
+                    "valid_from_int": _parse_date_int(
+                        str(doc.metadata.get("valid_from", ""))
+                    ) or 0,
+                    "valid_to_int":   _parse_date_int(
+                        str(doc.metadata.get("valid_to", ""))
+                    ) or 99999999,
+                }
+                if doc.metadata.get("workspace"):
+                    payload["workspace"] = str(doc.metadata["workspace"])
+                points.append(PointStruct(
+                    id=_to_qdrant_id(doc.id),
+                    vector=vec,
+                    payload=payload,
+                ))
+
+            self._client.upsert(
+                collection_name=_COLLECTION_V2,
+                points=points,
+                wait=True,
+            )
+            total_upserted += len(points)
+
+        if total_skipped:
+            logger.info(
+                f"Qdrant v2 [{self._mode}]: {total_upserted} upsertati, "
+                f"{total_skipped} saltati"
+            )
+        else:
+            logger.debug(f"Qdrant v2 [{self._mode}]: {total_upserted} punti upsertati")
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 15,
+        valid_on: Optional[date] = None,
+        chunk_filter: Optional[dict] = None,
+        workspace: Optional[str] = None,
+    ) -> list[SearchResult]:
+        if not self._client:
+            return []
+        try:
+            query_vec = self._embed([query])[0]
+            qdrant_filter = _build_qdrant_filter(chunk_filter, valid_on, workspace)
+            response = self._client.query_points(
+                collection_name=_COLLECTION_V2,
+                query=query_vec,
+                query_filter=qdrant_filter,
+                limit=top_k,
+                with_payload=True,
+            )
+            hits = response.points
+        except Exception as e:
+            logger.error(f"Qdrant v2 search fallita: {e}")
+            return []
+
+        results = []
+        for hit in hits:
+            payload = hit.payload or {}
+            doc_id = str(payload.get("mongo_id") or hit.id)
+            results.append(SearchResult(
+                doc_id=doc_id,
+                score=float(hit.score),
+                snippet=str(payload.get("text", ""))[:300] if "text" in payload else "",
+                metadata={k: v for k, v in payload.items() if not k.endswith("_int")},
+                source_id=payload.get("source_id", ""),
+                retrieval_method="vector",
+            ))
+        return results
+
+    def count(self) -> int:
+        if not self._client:
+            return 0
+        try:
+            return self._client.count(_COLLECTION_V2).count
+        except Exception:
+            return 0
+
+    def save(self) -> None:
+        if self._client:
+            try:
+                from qdrant_client.models import OptimizersConfigDiff
+                self._client.update_collection(
+                    collection_name=_COLLECTION_V2,
+                    optimizer_config=OptimizersConfigDiff(indexing_threshold=0),
+                )
+                logger.info(f"Qdrant v2 [{self._mode}]: ottimizzazione HNSW avviata")
+            except Exception as e:
+                logger.warning(f"Qdrant v2 save: {e}")
+
+    def _init_chroma(self) -> None:
+        """Reset di legal_docs_v2 (solo per test/rebuild forzato)."""
+        if self._client:
+            try:
+                from qdrant_client.models import Distance, VectorParams
+                existing = [c.name for c in self._client.get_collections().collections]
+                if _COLLECTION_V2 in existing:
+                    self._client.delete_collection(_COLLECTION_V2)
+                self._client.create_collection(
+                    collection_name=_COLLECTION_V2,
+                    vectors_config=VectorParams(size=_VECTOR_SIZE_V2, distance=Distance.COSINE),
+                    on_disk_payload=False,
+                )
+                logger.info(f"Qdrant v2 [{self._mode}]: collection ricreata da zero")
+            except Exception as e:
+                logger.warning(f"Qdrant v2 reset: {e}")
+
+    def create_snapshot(self, timeout: int = 1800) -> str | None:
+        """
+        Crea uno snapshot Qdrant di legal_docs_v2 e restituisce il nome del file.
+
+        Lo snapshot è salvato nella directory snapshots/ del server Qdrant e può
+        essere ripristinato con restore_snapshot() senza dover ri-eseguire reindex_v2.py
+        (~2-4h di GPU).
+
+        Usa un client dedicato con timeout lungo (default 30 minuti): per collection
+        da milioni di punti (~8GB+) il timeout di default (30s) del client server-mode
+        scade prima che il server finisca di scrivere il file, facendo fallire la
+        chiamata anche se lo snapshot viene comunque completato lato server.
+
+        Funziona solo in server mode (Docker/standalone). In embedded mode ritorna None.
+        """
+        if not self._client or self._mode != "server":
+            logger.warning("Qdrant v2 snapshot: disponibile solo in server mode")
+            return None
+        try:
+            from qdrant_client import QdrantClient
+            qdrant_url = QdrantSettings().qdrant_url.strip()
+            long_client = QdrantClient(url=qdrant_url, timeout=timeout)
+            snap = long_client.create_snapshot(collection_name=_COLLECTION_V2, wait=True)
+            name = snap.name if hasattr(snap, "name") else str(snap)
+            logger.success(f"Qdrant v2: snapshot creato → {name}")
+            return name
+        except Exception as e:
+            logger.error(f"Qdrant v2 snapshot fallito: {e}")
+            return None
+
+    def list_snapshots(self) -> list[str]:
+        """Elenca gli snapshot disponibili per legal_docs_v2."""
+        if not self._client or self._mode != "server":
+            return []
+        try:
+            snaps = self._client.list_snapshots(collection_name=_COLLECTION_V2)
+            return [s.name for s in snaps]
+        except Exception as e:
+            logger.warning(f"Qdrant v2 list_snapshots: {e}")
+            return []
+
+    def restore_snapshot(self, snapshot_name: str) -> bool:
+        """
+        Ripristina legal_docs_v2 da uno snapshot esistente.
+
+        Elimina la collection corrente, poi usa recover_snapshot per ricostruirla
+        dallo snapshot in pochi secondi (invece di ore di re-embedding).
+
+        Args:
+            snapshot_name: nome snapshot (da list_snapshots())
+
+        Returns:
+            True se il ripristino è riuscito.
+        """
+        if not self._client or self._mode != "server":
+            logger.error("Qdrant v2 restore: disponibile solo in server mode")
+            return False
+        try:
+            existing = [c.name for c in self._client.get_collections().collections]
+            if _COLLECTION_V2 in existing:
+                self._client.delete_collection(_COLLECTION_V2)
+                logger.info(f"Qdrant v2: collection '{_COLLECTION_V2}' eliminata per restore")
+
+            self._client.recover_snapshot(
+                collection_name=_COLLECTION_V2,
+                location=f"http://localhost:6333/collections/{_COLLECTION_V2}/snapshots/{snapshot_name}",
+            )
+            count = self._client.count(_COLLECTION_V2).count
+            logger.success(
+                f"Qdrant v2: ripristinato da snapshot '{snapshot_name}' → {count:,} punti"
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Qdrant v2 restore fallito: {e}")
+            return False

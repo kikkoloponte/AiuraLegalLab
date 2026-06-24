@@ -13,7 +13,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from aiura_legal.agents.analyst import AnalystAgent, PhaseResult
+from aiura_legal.agents.analyst import AnalystAgent, PhaseResult, _format_source, _assign_refs
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
 
@@ -50,7 +50,11 @@ def _make_packet() -> ResearchPacket:
     )
 
 
-def _phase_json(step_names: list[str], questione_retrieval: str = "") -> str:
+def _phase_json(
+    step_names: list[str],
+    questione_retrieval: str = "",
+    giurisprudenza_retrieval_varianti: list[str] | None = None,
+) -> str:
     sections = [
         {"step": name, "content": f"Contenuto {name}.", "citations": []}
         for name in step_names
@@ -63,6 +67,8 @@ def _phase_json(step_names: list[str], questione_retrieval: str = "") -> str:
     if questione_retrieval:
         data["questione_retrieval"] = questione_retrieval
         data["qualificazione_retrieval"] = questione_retrieval + " giurisprudenza"
+    if giurisprudenza_retrieval_varianti is not None:
+        data["giurisprudenza_retrieval_varianti"] = giurisprudenza_retrieval_varianti
     return json.dumps(data)
 
 
@@ -106,10 +112,11 @@ def mock_phase_retriever():
     pr.retrieve_normativa.return_value = [
         _make_source("ART_43_CP_REQUERY", "normativa", "Art. 43 — requery.")
     ]
-    pr.retrieve_giurisprudenza.return_value = [
+    pr.retrieve_giurisprudenza_multi.return_value = [
         _make_source("giurisprudenza_thyssen_requery", "giurisprudenza", "ThyssenKrupp requery.")
     ]
     pr.retrieve_dottrina.return_value = []
+    pr.retrieve_massimario.return_value = []
     return pr
 
 
@@ -171,12 +178,107 @@ async def test_analyze_sequential_uses_phase_retriever(analyst, mock_phase_retri
         pass
 
     mock_phase_retriever.retrieve_normativa.assert_called_once()
-    mock_phase_retriever.retrieve_giurisprudenza.assert_called_once()
+    mock_phase_retriever.retrieve_giurisprudenza_multi.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_fase3_massimario_blocco_separato(analyst, mock_phase_retriever):
+    """Fase 3 recupera il massimario in un round dedicato (retrieve_massimario)
+    e lo aggrega in phase3.sources_used accanto alla giurisprudenza — blocco
+    separato, non in concorrenza con le sentenze."""
+    mock_phase_retriever.retrieve_massimario.return_value = [
+        _make_source("MASS_principio", "massimario", "Principio Gubert (Sez. U. 10561/2014).")
+    ]
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="sequestro per equivalente terzo", packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        phases.append(phase)
+
+    mock_phase_retriever.retrieve_massimario.assert_called_once()
+    phase3 = phases[2]
+    assert "MASS_principio" in phase3.sources_used
+    # convivono giurisprudenza e massimario nelle fonti di fase
+    assert "giurisprudenza_thyssen_requery" in phase3.sources_used
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_phase1_fallback_varianti_assenti(analyst, mock_phase_retriever):
+    """Se il JSON di Fase 1 non contiene giurisprudenza_retrieval_varianti (caso
+    di default usato dal mock_ollama fixture), il fallback è una lista con la
+    sola qualificazione_retrieval — comportamento identico a prima del campo."""
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever
+    ):
+        phases.append(phase)
+
+    phase1 = phases[0]
+    assert phase1.giurisprudenza_retrieval_varianti == [phase1.qualificazione_retrieval]
+
+
+@pytest.mark.asyncio
+async def test_analyze_sequential_phase1_estrae_varianti_multiple():
+    """Se il modello produce giurisprudenza_retrieval_varianti, Fase 1 le
+    propaga (max 3) e Fase 3 le passa a retrieve_giurisprudenza_multi."""
+    call_count = {"n": 0}
+    responses = [
+        _phase_json(
+            ["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+            questione_retrieval="sequestro preventivo per equivalente",
+            giurisprudenza_retrieval_varianti=[
+                "sequestro preventivo per equivalente terzo estraneo",
+                "sequestro per equivalente buona fede vantaggio terzo",
+                "  ",  # voce vuota, deve essere scartata
+                "sequestro per equivalente Gubert",
+            ],
+        ),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(**kwargs):
+        n = call_count["n"]
+        call_count["n"] += 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama = MagicMock()
+    ollama.model = "test"
+    ollama.generate = _generate
+    agent = AnalystAgent(ollama=ollama)
+
+    pr = MagicMock(spec=PhaseRetriever)
+    pr.retrieve_normativa.return_value = []
+    pr.retrieve_dottrina.return_value = []
+    pr.retrieve_giurisprudenza_multi.return_value = []
+    pr.retrieve_massimario.return_value = []
+
+    packet = _make_packet()
+    phases = []
+    async for phase in agent.analyze_sequential(
+        query="test", packet=packet, phase_retriever=pr
+    ):
+        phases.append(phase)
+
+    phase1 = phases[0]
+    # max 3 varianti, voci vuote scartate
+    assert phase1.giurisprudenza_retrieval_varianti == [
+        "sequestro preventivo per equivalente terzo estraneo",
+        "sequestro per equivalente buona fede vantaggio terzo",
+        "sequestro per equivalente Gubert",
+    ]
+    pr.retrieve_giurisprudenza_multi.assert_called_once()
+    call_args = pr.retrieve_giurisprudenza_multi.call_args
+    assert call_args.args[0] == phase1.giurisprudenza_retrieval_varianti
 
 
 @pytest.mark.asyncio
 async def test_retrieve_giurisprudenza_settore_confidence_numerico(analyst, mock_phase_retriever):
-    """Regressione: il 4o argomento di retrieve_giurisprudenza è settore_confidence
+    """Regressione: il 3o argomento di retrieve_giurisprudenza_multi è settore_confidence
     (float), non una seconda query — passare una stringa causava TypeError in
     _effective_filter (str >= float) quando il settore era valorizzato."""
     import inspect
@@ -189,8 +291,8 @@ async def test_retrieve_giurisprudenza_settore_confidence_numerico(analyst, mock
     ):
         pass
 
-    call = mock_phase_retriever.retrieve_giurisprudenza.call_args
-    bound = inspect.signature(PhaseRetriever.retrieve_giurisprudenza).bind(
+    call = mock_phase_retriever.retrieve_giurisprudenza_multi.call_args
+    bound = inspect.signature(PhaseRetriever.retrieve_giurisprudenza_multi).bind(
         mock_phase_retriever, *call.args, **call.kwargs
     )
     bound.apply_defaults()
@@ -199,6 +301,7 @@ async def test_retrieve_giurisprudenza_settore_confidence_numerico(analyst, mock
         f"ricevuto {bound.arguments['settore_confidence']!r}"
     )
     assert bound.arguments["settore"] == "penale"
+    assert isinstance(bound.arguments["queries"], list)
 
 
 @pytest.mark.asyncio
@@ -312,9 +415,9 @@ def test_phase_retriever_retrieve_normativa_calls_search_round():
 
 
 def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
-    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden ThyssenKrupp.
-
-    La query criminal ("ThyssenKrupp") attiva la golden source injection.
+    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden
+    ThyssenKrupp. Il massimario NON è incluso qui — è un round dedicato
+    separato (retrieve_massimario), non in concorrenza per gli slot.
     """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
@@ -328,7 +431,75 @@ def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
     assert len(calls) == 2, f"Attesi 2 round (main+golden), eseguiti {len(calls)}"
     assert calls[0].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
     assert calls[1].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    # Nessun chunk massimario: la giurisprudenza non lo recupera
     assert all(r.source_layer == "giurisprudenza" for r in results)
+
+
+def test_retrieve_massimario_round_dedicato():
+    """retrieve_massimario() è un round dedicato su corpus=massimario,
+    con i risultati taggati source_layer='massimario'."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [_make_source("MASS_1", "massimario")]
+    pr = PhaseRetriever(mock_retriever)
+
+    results = pr.retrieve_massimario("sequestro per equivalente terzo", top_k=3)
+
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 1
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "massimario"}
+    assert results and all(r.source_layer == "massimario" for r in results)
+
+
+def test_retrieve_massimario_query_vuota():
+    """Query vuota → lista vuota, nessuna chiamata al retriever."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+    assert pr.retrieve_massimario("  ") == []
+    mock_retriever._search_round.assert_not_called()
+
+
+def test_retrieve_giurisprudenza_non_recupera_massimario():
+    """La giurisprudenza non deve mai interrogare il corpus massimario:
+    nessun round con chunk_filter corpus=massimario."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [_make_source("CASS_1", "giurisprudenza")]
+    pr = PhaseRetriever(mock_retriever)
+
+    pr.retrieve_giurisprudenza("responsabilità medica", top_k=4)
+
+    filters = [c.kwargs.get("chunk_filter") for c in mock_retriever._search_round.call_args_list]
+    assert {"corpus": "massimario"} not in filters
+
+
+def test_format_source_non_mostra_source_id_grezzo():
+    """Il modello non deve mai vedere il source_id reale nel prompt: cita
+    SOLO il riferimento FN, risolto al source_id reale lato sistema (vedi
+    PhaseResult.ref_map + CitationReviewer._resolve_ref_citations). Elimina
+    sia la copia-malfatta (bug storico "1"/"2" copiato come id) sia
+    l'allucinazione di id plausibili ma non mostrati."""
+    s = _make_source("urn:nir:stato:legge:2020-01-01;1", "giurisprudenza", "Testo.")
+    lines = "\n".join(_format_source("F1", s))
+
+    assert "FONTE F1" in lines
+    assert "urn:nir:stato:legge:2020-01-01;1" not in lines
+
+
+def test_assign_refs_progressivo_e_univoco():
+    """_assign_refs assegna F{n} progressivi, senza duplicare fonti già viste
+    (stesso source_id ripetuto in due liste), e prosegue da `start`."""
+    a = _make_source("URN_A", "normativa")
+    b = _make_source("URN_B", "normativa")
+    c = _make_source("URN_A", "dottrina")  # stesso source_id di a, fonte diversa
+
+    refs, next_i = _assign_refs([a, b])
+    assert refs == {"URN_A": "F1", "URN_B": "F2"}
+    assert next_i == 3
+
+    # Una seconda lista che riusa lo stesso source_id non duplica il ref se
+    # passata nella stessa chiamata; con start esplicito prosegue oltre.
+    refs2, next_i2 = _assign_refs([c], start=next_i)
+    assert refs2 == {"URN_A": "F3"}  # nuova chiamata = nuovo round, ref nuovo
+    assert next_i2 == 4
 
 
 def test_phase_retriever_empty_query_returns_empty():
@@ -339,6 +510,64 @@ def test_phase_retriever_empty_query_returns_empty():
     assert pr.retrieve_normativa("") == []
     assert pr.retrieve_giurisprudenza("  ") == []
     mock_retriever._search_round.assert_not_called()
+
+
+def test_retrieve_giurisprudenza_multi_query_singola_delega():
+    """Con una sola query, retrieve_giurisprudenza_multi deve comportarsi
+    esattamente come retrieve_giurisprudenza (retro-compatibilità)."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [_make_source("CASS_1", "giurisprudenza")]
+    pr = PhaseRetriever(mock_retriever)
+
+    results = pr.retrieve_giurisprudenza_multi(["responsabilità medica"], top_k=4)
+
+    assert len(results) == 1
+    assert results[0].doc_id == "CASS_1"
+
+
+def test_retrieve_giurisprudenza_multi_unisce_e_deduplica():
+    """Con più varianti, i risultati devono essere fusi per doc_id e ordinati
+    per score decrescente, senza duplicati."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+
+    def _fake_single(query, top_k=6, settore=None, settore_confidence=0.0):
+        if query == "variante A":
+            return [_make_source("DOC_1", "giurisprudenza"), _make_source("DOC_2", "giurisprudenza")]
+        return [_make_source("DOC_2", "giurisprudenza"), _make_source("DOC_3", "giurisprudenza")]
+
+    pr.retrieve_giurisprudenza = _fake_single  # type: ignore[method-assign]
+
+    results = pr.retrieve_giurisprudenza_multi(["variante A", "variante B"], top_k=6)
+
+    doc_ids = [r.doc_id for r in results]
+    assert doc_ids == ["DOC_1", "DOC_2", "DOC_3"], "deduplicato per doc_id, niente DOC_2 ripetuto"
+
+
+def test_retrieve_giurisprudenza_multi_lista_vuota():
+    """Lista di query vuota (o solo stringhe vuote) → [] senza chiamare il retriever."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+
+    assert pr.retrieve_giurisprudenza_multi([]) == []
+    assert pr.retrieve_giurisprudenza_multi(["  ", ""]) == []
+    mock_retriever._search_round.assert_not_called()
+
+
+def test_retrieve_giurisprudenza_multi_rispetta_top_k():
+    """Con più varianti che producono più risultati del top_k, il risultato finale
+    deve essere troncato a top_k."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+
+    def _fake_single(query, top_k=6, settore=None, settore_confidence=0.0):
+        idx = query[-1]
+        return [_make_source(f"DOC_{idx}_{i}", "giurisprudenza") for i in range(4)]
+
+    pr.retrieve_giurisprudenza = _fake_single  # type: ignore[method-assign]
+
+    results = pr.retrieve_giurisprudenza_multi(["v1", "v2"], top_k=3)
+    assert len(results) == 3
 
 
 # ---------------------------------------------------------------------------
@@ -369,6 +598,28 @@ def _capture_ollama(captured: list[dict]) -> MagicMock:
 
     ollama.generate = _generate
     return ollama
+
+
+async def test_analyze_sequential_tutte_le_4_fasi_temperature_zero(monkeypatch):
+    """
+    Regressione Bug #3 (instabilità di verdetto su query equivalenti): prima
+    del fix solo la Fase 2 era deterministica (temperature=0.0), mentre
+    Fase 1/3/4 usavano il default ~0.10 — varianza pura di sampling che si
+    propagava al re-retrieval (Fase 1 genera la QUESTIONE usata in Fase 2/3)
+    e alle citazioni finali (Fase 4). Tutte le 4 fasi devono essere
+    deterministiche.
+    """
+    captured: list[dict] = []
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    phases = []
+    async for phase in agent.analyze_sequential(
+        query="clausola penale", packet=_packet_with_full_text(), phase_retriever=None
+    ):
+        phases.append(phase)
+
+    assert len(captured) == 4
+    assert [kwargs["temperature"] for kwargs in captured] == [0.0, 0.0, 0.0, 0.0]
 
 
 def _packet_with_full_text() -> ResearchPacket:
@@ -442,8 +693,11 @@ async def test_prompt_anti_overflow_token_budget(monkeypatch):
     pr.retrieve_dottrina.return_value = [
         _huge_source(f"DOTT_{i}", "dottrina") for i in range(4)
     ]
-    pr.retrieve_giurisprudenza.return_value = [
+    pr.retrieve_giurisprudenza_multi.return_value = [
         _huge_source(f"giurisprudenza_{i}", "giurisprudenza") for i in range(6)
+    ]
+    pr.retrieve_massimario.return_value = [
+        _huge_source(f"massimario_{i}", "massimario") for i in range(3)
     ]
 
     captured: list[dict] = []

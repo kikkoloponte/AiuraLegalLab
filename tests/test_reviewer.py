@@ -298,3 +298,354 @@ def test_norma_presente_in_normattiva_pass():
 
         assert result.verdict == "PASS"
         assert not any("NORMA_NOT_IN_NORMATTIVA" in v for v in result.checks.values())
+
+
+# ------------------------------------------------------------------
+# Grounding sub-chunk Fase 1 (motivazione_{i:03d})
+# ------------------------------------------------------------------
+
+def _make_packet_with_sub_chunk(hex16: str, chunk_idx: int = 1) -> ResearchPacket:
+    """Packet con un sub-chunk motivazione Fase 1."""
+    chunk_id = f"{hex16}_motivazione_{chunk_idx:03d}"
+    sources = [
+        SearchResult(
+            doc_id=chunk_id,
+            score=1.0,
+            snippet="Testo della motivazione...",
+            source_id=chunk_id,
+            metadata={"corpus": "giurisprudenza", "chunk_type": "motivazione", "chunk_index": chunk_idx},
+        )
+    ]
+    return ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.GIURISPRUDENZA_SEARCH,
+        sources=sources,
+    )
+
+
+def test_grounding_subchunk_motivazione_pass():
+    """PASS: risposta cita hex16, packet contiene {hex16}_motivazione_001."""
+    reviewer = CitationReviewer()
+    hex16 = "ebab1dbfae1b7d10"
+    packet = _make_packet_with_sub_chunk(hex16, chunk_idx=1)
+    # Il LLM cita solo l'hex16 della sentenza (non il chunk specifico)
+    result = reviewer.verify(f"Come da sentenza {hex16}, il principio e' valido.", packet)
+    assert result.checks.get("jurisprudence_grounding") == "PASS"
+    assert hex16 not in result.ungrounded_citations
+
+
+def test_grounding_subchunk_motivazione_fail_hex_assente():
+    """FAIL: risposta cita hex16 diverso da quello nel packet."""
+    reviewer = CitationReviewer()
+    hex16_in_packet = "ebab1dbfae1b7d10"
+    hex16_inventato = "ffffffffffffffff"
+    packet = _make_packet_with_sub_chunk(hex16_in_packet, chunk_idx=0)
+    result = reviewer.verify(f"La sentenza {hex16_inventato} stabilisce.", packet)
+    assert result.verdict == "FAIL"
+    assert hex16_inventato in result.ungrounded_citations
+
+
+def test_grounding_multipli_subchunk_stessa_sentenza():
+    """PASS: packet con chunk 000 e 002 della stessa sentenza, risposta cita hex16."""
+    reviewer = CitationReviewer()
+    hex16 = "ebab1dbfae1b7d10"
+    sources = [
+        SearchResult(
+            doc_id=f"{hex16}_motivazione_000",
+            score=1.0, snippet="...", source_id=f"{hex16}_motivazione_000",
+            metadata={"corpus": "giurisprudenza"},
+        ),
+        SearchResult(
+            doc_id=f"{hex16}_motivazione_002",
+            score=0.8, snippet="...", source_id=f"{hex16}_motivazione_002",
+            metadata={"corpus": "giurisprudenza"},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.GIURISPRUDENZA_SEARCH,
+        sources=sources,
+    )
+    result = reviewer.verify(f"Come da sentenza {hex16}.", packet)
+    assert result.checks.get("jurisprudence_grounding") == "PASS"
+
+
+# ------------------------------------------------------------------
+# Normalizzazione citazioni "numero/anno" (vedi GitHub issue: query
+# dottrinale reale dove l'LLM cita "29164/2021" invece dell'hex16
+# mostrato nel prompt — il reviewer bloccava una risposta corretta
+# per un problema di formato, non di grounding reale)
+# ------------------------------------------------------------------
+
+def test_numero_anno_risolto_da_research_packet():
+    """PASS: citazione 'numero/anno' risolta a una fonte nel Research Packet."""
+    reviewer = CitationReviewer()
+    hex16 = "785e6993d6e7272f"
+    sources = [
+        SearchResult(
+            doc_id=hex16, score=1.0, snippet="...", source_id=hex16,
+            metadata={"corpus": "giurisprudenza", "numero": "29164", "anno": "2021"},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.GIURISPRUDENZA_SEARCH, sources=sources,
+    )
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=["29164/2021"],
+    )
+    assert result.verdict == "PASS"
+    assert "29164/2021" not in result.ungrounded_citations
+
+
+def test_numero_anno_risolto_da_phase_sources_metadata():
+    """PASS: citazione 'numero/anno' risolta tramite le fonti del PhaseRetriever
+    (Fase 3 giurisprudenza), non presenti nel packet S2 iniziale."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()  # packet S2 vuoto
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["29164/2021"],
+        phase_sources_metadata={
+            "785e6993d6e7272f": {"corpus": "giurisprudenza", "numero": "29164", "anno": "2021"},
+        },
+    )
+    assert result.verdict == "PASS"
+    assert "29164/2021" not in result.ungrounded_citations
+
+
+def test_numero_anno_non_risolvibile_resta_ungrounded():
+    """FAIL: citazione 'numero/anno' che non corrisponde a nessuna fonte recuperata
+    resta ungrounded — la normalizzazione non bypassa il Citation Contract."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=["99999/1999"],
+    )
+    assert result.verdict == "FAIL"
+
+
+# ------------------------------------------------------------------
+# Risoluzione URN "logico" su articolo storicamente rinumerato
+# (es. art. 322-ter c.p. indicizzato nel corpus come ~art383 del R.D.
+# 1398/1930): l'LLM ricostruisce l'URN "come lo conosce" invece di
+# copiare quello iniettato — se stesso atto e stesso articolo per nome
+# è la stessa norma, non un'allucinazione.
+# ------------------------------------------------------------------
+
+def test_ref_f1_risolto_a_source_id_reale():
+    """PASS: il modello cita 'F1' (il riferimento mostrato nel prompt, vedi
+    analyst._assign_refs) e il Reviewer lo risolve al source_id reale —
+    elimina sia la copia-malfatta di URN/hash sia l'allucinazione di id
+    plausibili ma non mostrati (il modello non vede mai il source_id grezzo)."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    real_sid = "4709c9382a24aa8e"
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["F1"],
+        phase_sources_metadata={real_sid: {"corpus": "giurisprudenza"}},
+        ref_map={"F1": real_sid},
+    )
+    assert result.verdict == "PASS"
+    assert "F1" not in result.ungrounded_citations
+
+
+def test_ref_non_mappato_resta_ungrounded():
+    """FAIL: un ref non presente in ref_map (es. 'F99' inventato, o un id
+    diverso da F1/F2 ricostruito dal pretraining) non viene risolto — la
+    normalizzazione non bypassa il Citation Contract."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["F99"],
+        ref_map={"F1": "4709c9382a24aa8e"},
+    )
+    assert result.verdict == "FAIL"
+    assert "F99" in result.ungrounded_citations
+
+
+def test_articolo_rinumerato_risolto_da_research_packet():
+    """PASS: URN logico (~art322-ter) risolto al source_id reale del corpus
+    (~art383) perché stesso atto e articolo_num corrispondente."""
+    reviewer = CitationReviewer()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    sources = [
+        SearchResult(
+            doc_id=real_sid, score=1.0, snippet="...", source_id=real_sid,
+            metadata={"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.NORMA_LOOKUP, sources=sources,
+    )
+    logical_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art322-ter"
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=[logical_sid],
+    )
+    assert result.verdict == "PASS"
+    assert logical_sid not in result.ungrounded_citations
+
+
+def test_articolo_rinumerato_risolto_da_phase_sources_metadata():
+    """PASS: stessa risoluzione tramite le fonti del PhaseRetriever (Fase 2)."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    logical_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art322-ter"
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=[logical_sid],
+        phase_sources_metadata={
+            real_sid: {"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        },
+    )
+    assert result.verdict == "PASS"
+    assert logical_sid not in result.ungrounded_citations
+
+
+def test_articolo_diverso_non_risolvibile_resta_ungrounded():
+    """FAIL: un articolo diverso (anche sullo stesso atto) NON viene risolto —
+    la normalizzazione non bypassa il Citation Contract su articoli inventati."""
+    reviewer = CitationReviewer()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    sources = [
+        SearchResult(
+            doc_id=real_sid, score=1.0, snippet="...", source_id=real_sid,
+            metadata={"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.NORMA_LOOKUP, sources=sources,
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["urn:nir:stato:regio.decreto:1930-10-19;1398~art640"],
+    )
+    assert result.verdict == "FAIL"
+
+
+# ------------------------------------------------------------------
+# Claim relevance — citazione formalmente grounded ma topicamente
+# scorrelata dal claim (Bug #1: hallucination "a posteriori")
+# ------------------------------------------------------------------
+
+def _make_packet_with_text(source_id: str, full_text: str) -> ResearchPacket:
+    sources = [
+        SearchResult(
+            doc_id=source_id,
+            score=1.0,
+            snippet=full_text[:200],
+            source_id=source_id,
+            full_text=full_text,
+            metadata={},
+        )
+    ]
+    return ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.NORMA_LOOKUP,
+        sources=sources,
+    )
+
+
+def test_warn_claim_topicamente_scorrelato(reviewer):
+    """
+    WARN (non FAIL): il source_id è realmente nel packet (grounded), ma il
+    claim associato non condivide vocabolario col testo della fonte — sintomo
+    del bug osservato in produzione (citazione corretta ma irrilevante).
+    """
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "La risoluzione del contratto per inadempimento di una delle parti "
+        "può essere domandata giudizialmente quando una delle parti non "
+        "esegue le sue obbligazioni contrattuali.",
+    )
+    result = reviewer.verify(
+        "Il termine di prescrizione decennale si applica ai diritti reali.",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{
+            "source_id": "CC_ART_1453",
+            "claim": "il termine di prescrizione decennale per i diritti reali immobiliari",
+        }],
+    )
+    assert result.checks["claim_relevance"] == "WARN"
+    assert any("CC_ART_1453" in c for c in result.irrelevant_citations)
+    assert result.verdict == "WARN"
+    assert result.action == "DELIVER"  # WARN non blocca, solo segnala
+
+
+def test_pass_claim_pertinente_alla_fonte(reviewer):
+    """PASS: il claim condivide vocabolario di contenuto con la fonte citata."""
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "La risoluzione del contratto per inadempimento di una delle parti "
+        "può essere domandata giudizialmente quando una delle parti non "
+        "esegue le sue obbligazioni contrattuali.",
+    )
+    result = reviewer.verify(
+        "Si applica la risoluzione del contratto.",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{
+            "source_id": "CC_ART_1453",
+            "claim": "risoluzione del contratto per inadempimento contrattuale",
+        }],
+    )
+    assert result.checks["claim_relevance"] == "PASS"
+    assert result.irrelevant_citations == []
+    assert result.verdict == "PASS"
+
+
+def test_claim_relevance_non_valuta_citazioni_ungrounded(reviewer):
+    """Una citazione già ungrounded non viene anche segnalata da claim_relevance
+    (eviterebbe doppio conteggio dello stesso problema sotto due check diversi)."""
+    packet = _make_packet("CC_ART_1218")
+    result = reviewer.verify(
+        "Vedi CC_ART_999.",
+        packet,
+        structured_cited_ids=["CC_ART_999"],
+        cited_claims=[{"source_id": "CC_ART_999", "claim": "qualcosa di completamente scorrelato"}],
+    )
+    assert result.checks["citation_grounding"] == "FAIL"
+    assert result.irrelevant_citations == []
+
+
+def test_claim_relevance_claim_troppo_corto_non_valutato(reviewer):
+    """Claim troppo corti (poco token di contenuto) non sono valutabili in modo
+    affidabile col semplice overlap lessicale — nessun falso positivo."""
+    packet = _make_packet_with_text(
+        "CC_ART_1453",
+        "Testo completamente diverso su tutt'altro argomento giuridico.",
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{"source_id": "CC_ART_1453", "claim": "risoluzione"}],
+    )
+    assert result.checks["claim_relevance"] == "PASS"
+
+
+def test_claim_relevance_nessun_testo_fonte_non_valutato(reviewer):
+    """Se la fonte non ha testo disponibile (full_text/snippet vuoti), il check
+    non può valutare la pertinenza e non genera falsi positivi."""
+    packet = ResearchPacket(
+        query_original="test",
+        query_intent=QueryIntent.NORMA_LOOKUP,
+        sources=[
+            SearchResult(doc_id="CC_ART_1453", score=1.0, snippet="", source_id="CC_ART_1453"),
+        ],
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["CC_ART_1453"],
+        cited_claims=[{"source_id": "CC_ART_1453", "claim": "una affermazione qualunque non verificabile"}],
+    )
+    assert result.checks["claim_relevance"] == "PASS"

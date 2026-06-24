@@ -50,9 +50,17 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 from loguru import logger
 
 from aiura_legal.core.retrieval.bm25_retriever import BM25Retriever
-from aiura_legal.core.retrieval.vector_retriever import VectorRetriever
+from aiura_legal.core.retrieval.vector_retriever import VectorRetriever, VectorRetrieverV2
 from aiura_legal.core.types import Document
 from aiura_legal.ingestion.mongodb.client import MongoClient
+
+# Allinea il backend vettoriale alla produzione: se USE_VECTOR_V2 è attivo,
+# l'API legge legal_docs_v2 (multilingual-e5-base). Scrivere sul vecchio
+# legal_docs (v1) sarebbe inutile (collection non letta) e — sul DB corrente —
+# fa pure panic Qdrant ("New page has just been created"). Per i vettori v2 lo
+# strumento dedicato resta reindex_v2.py; questo allineamento evita solo il
+# footgun di chi lancia build_indexes senza --skip-vector.
+_USE_VECTOR_V2 = os.getenv("USE_VECTOR_V2", "0").strip().lower() in ("1", "true", "yes", "on")
 
 
 async def build(
@@ -97,8 +105,19 @@ async def build(
     ws_path = Path(_ws_base) / workspace
     ws_path.mkdir(parents=True, exist_ok=True)
 
-    bm25   = BM25Retriever(str(ws_path)) if not skip_bm25   else None
-    vector = VectorRetriever(str(ws_path)) if not skip_vector else None
+    bm25 = BM25Retriever(str(ws_path)) if not skip_bm25 else None
+    if skip_vector:
+        vector = None
+    elif _USE_VECTOR_V2:
+        vector = VectorRetrieverV2(str(ws_path))
+        logger.info("Qdrant: backend v2 (legal_docs_v2) — allineato alla produzione")
+    else:
+        vector = VectorRetriever(str(ws_path))
+        logger.warning(
+            "Qdrant: backend v1 (legal_docs) — LEGACY. Se la produzione usa v2 "
+            "(USE_VECTOR_V2=1) questi vettori non verranno letti: preferisci "
+            "reindex_v2.py per i vettori, oppure --skip-vector qui."
+        )
 
     # ── BM25 reset strategy ──────────────────────────────────────────────
     #   Con --corpus X : rimuove solo i chunk di quel corpus, gli altri restano
@@ -175,6 +194,7 @@ async def build(
                 "articolo":   chunk.get("articolo_num", ""),
                 "valid_from": str(chunk.get("valid_from", "") or ""),
                 "valid_to":   str(chunk.get("valid_to", "") or ""),
+                "settore":    ",".join(chunk.get("settore") or []),
             },
         )
         batch.append(doc)
@@ -227,7 +247,7 @@ Full rebuild (usa rebuild_all_indexes.py che gestisce l'ordine corretto):
     parser.add_argument("--limit", type=int, default=None,
                         help="Limita numero chunk (test)")
     parser.add_argument("--corpus", default=None,
-                        choices=["normattiva", "studio", "dottrina", "giurisprudenza"],
+                        choices=["normattiva", "studio", "dottrina", "giurisprudenza", "massimario"],
                         help="Corpus da aggiornare (CONSIGLIATO — non tocca gli altri)")
     parser.add_argument("--fonte", nargs="+", default=None,
                         help="Filtra per fonte (es. --fonte legge dlgs)")

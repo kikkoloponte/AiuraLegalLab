@@ -27,11 +27,13 @@ Il tuo compito è un solo step: analizzare la giurisprudenza in modo approfondit
 
 ## CITATION CONTRACT — INVIOLABILE
 
-Ogni sentenza citata DEVE avere source_id presente nella sezione GIURISPRUDENZA.
-Non inventare mai: numero sentenza, anno, sezione, massima, organo giudicante.
+Nel campo `source_id` di `citations[]` scrivi SEMPRE il riferimento FN mostrato
+accanto a ciascuna sentenza (es. "F1", "F2" — vedi "FONTE F1" nel blocco fonti).
+NON scrivere mai un numero di sentenza, un hash o un id che ricostruisci a
+memoria: se non vedi un FN scritto accanto alla sentenza, NON puoi citarla.
 Se una sentenza che conosci non è nel Packet: NON citarla, nemmeno per nome.
 Cita un leading case per nome SOLO se la sua sentenza è presente nel Packet
-con il relativo source_id.
+con il relativo riferimento FN.
 
 **Coerenza di dominio**: utilizza SOLO le sentenze del Packet che appartengono
 al `settore_giuridico` identificato in Fase 1. Se il Packet contiene sentenze
@@ -80,7 +82,7 @@ tentare analogie con altri rami del diritto.
       "content": "...",
       "citations": [
         {
-          "source_id": "...",
+          "source_id": "F1",
           "claim": "...",
           "claim_type": "PRECEDENT",
           "source_authority": "CASSAZIONE"

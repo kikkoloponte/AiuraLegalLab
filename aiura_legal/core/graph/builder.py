@@ -13,12 +13,20 @@ Struttura del grafo (nx.DiGraph):
     MODIFICA    X → A  (X modifica A)
     CONTRASTA   A ↔ B  (bidirezionale, inserito manualmente o da LLM)
     APPARTIENE_A article → provvedimento
+    INTERPRETA    sentenza → article  (da merge_jurisprudence_graph)
+    APPLICATA_IN  article → sentenza  (inverso di INTERPRETA)
+
+  Nodi sentenza   : ID = hex16
+                    attrs: node_type="sentenza", organo, numero, anno, materia
 
 File su disco: {workspace_path}/indices/graph.json (NetworkX node-link JSON)
 """
 from __future__ import annotations
 
 import json
+import re
+from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -96,6 +104,8 @@ class LegalGraphBuilder:
         for chunk in chunks:
             self._add_edges(G, chunk, lookup)
 
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+
         path = self._graph_path(workspace_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         self._save(G, path)
@@ -129,6 +139,7 @@ class LegalGraphBuilder:
 
         self._add_edges(G, chunk, lookup)
 
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
         path.parent.mkdir(parents=True, exist_ok=True)
         self._save(G, path)
 
@@ -154,6 +165,7 @@ class LegalGraphBuilder:
         for chunk in chunks:
             self._add_edges(G, chunk, lookup)
 
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
         path.parent.mkdir(parents=True, exist_ok=True)
         self._save(G, path)
         logger.debug(
@@ -167,6 +179,160 @@ class LegalGraphBuilder:
         if path.exists():
             path.unlink()
             logger.info(f"[GraphBuilder] reset: {path} rimosso")
+
+    # ------------------------------------------------------------------
+    # Merge con il grafo giurisprudenziale (sentenza → norma)
+    # ------------------------------------------------------------------
+
+    def merge_jurisprudence_graph(
+        self,
+        jurisprudence_graph: "nx.DiGraph",
+        workspace_path: str,
+    ) -> dict:
+        """
+        Importa nodi sentenza e archi INTERPRETA/APPLICATA_IN dal grafo
+        giurisprudenziale (JurisprudenceGraphBuilder) in graph.json del
+        workspace, quello letto da GraphRetriever per il retrieval.
+
+        I nodi "norma" del grafo giurisprudenziale sono stringhe grezze non
+        risolte a URN (es. "art.380", "art. 380 cod."), prodotte da un regex
+        sulle sentenze senza informazione di fonte strutturata. La risoluzione
+        a URN usa il numero di articolo normalizzato; se più articoli con lo
+        stesso numero esistono in fonti diverse (es. art. 380 c.c. vs c.p.c.),
+        prova prima a disambiguare con l'hint di fonte presente nella stringa
+        grezza stessa (es. "cod. civ.", "cod. proc. pen." — vedi
+        _extract_fonte_hint). Se l'hint non è presente o non riduce a un solo
+        match, il match resta ambiguo e viene scartato — precisione alta,
+        recall parziale per design (non si indovina la fonte a caso).
+
+        Returns:
+            Statistiche: sentenza_nodes_added, edges_added,
+            edges_resolved_via_fonte_hint, edges_skipped_ambiguous,
+            edges_skipped_no_match.
+        """
+        path = self._graph_path(workspace_path)
+        G = self._load(path) if path.exists() else nx.DiGraph()
+
+        # Lookup {numero_articolo_normalizzato → [(URN, fonte), ...]} dai nodi
+        # article già presenti nel grafo target (normativa vigente nel workspace).
+        articolo_to_entries: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        for node_id, attrs in G.nodes(data=True):
+            if attrs.get("node_type") != "article":
+                continue
+            num = self._norm_num(attrs.get("articolo_num", ""))
+            if num:
+                articolo_to_entries[num].append((str(node_id), attrs.get("fonte", "")))
+
+        stats = {
+            "sentenza_nodes_added": 0,
+            "edges_added": 0,
+            "edges_resolved_via_fonte_hint": 0,
+            "edges_skipped_ambiguous": 0,
+            "edges_skipped_no_match": 0,
+        }
+
+        for sid, attrs in jurisprudence_graph.nodes(data=True):
+            if attrs.get("type") != "sentenza":
+                continue
+
+            norma_targets: list[str] = []
+            for _, raw_norma, edge_attrs in jurisprudence_graph.out_edges(sid, data=True):
+                if edge_attrs.get("type") != "interpreta":
+                    continue
+                num = self._extract_articolo_number(raw_norma)
+                if not num:
+                    stats["edges_skipped_no_match"] += 1
+                    continue
+                entries = articolo_to_entries.get(num, [])
+                if len(entries) == 0:
+                    stats["edges_skipped_no_match"] += 1
+                    continue
+                if len(entries) == 1:
+                    norma_targets.append(entries[0][0])
+                    continue
+
+                # Ambiguo sul solo numero — prova a restringere con l'hint di fonte.
+                fonte_hint = self._extract_fonte_hint(raw_norma)
+                filtered = [urn for urn, fonte in entries if fonte_hint and fonte == fonte_hint]
+                if len(filtered) == 1:
+                    norma_targets.append(filtered[0])
+                    stats["edges_resolved_via_fonte_hint"] += 1
+                else:
+                    stats["edges_skipped_ambiguous"] += 1
+
+            if not norma_targets:
+                continue
+
+            if not G.has_node(sid):
+                G.add_node(
+                    sid,
+                    node_type="sentenza",
+                    organo=attrs.get("organo", ""),
+                    numero=attrs.get("numero", ""),
+                    anno=attrs.get("anno", ""),
+                    materia=attrs.get("materia", ""),
+                )
+                stats["sentenza_nodes_added"] += 1
+
+            for urn in norma_targets:
+                if not G.has_edge(sid, urn):
+                    G.add_edge(sid, urn, edge_type="INTERPRETA")
+                    stats["edges_added"] += 1
+                if not G.has_edge(urn, sid):
+                    G.add_edge(urn, sid, edge_type="APPLICATA_IN")
+                    stats["edges_added"] += 1
+
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._save(G, path)
+
+        logger.info(
+            f"[GraphBuilder] merge_jurisprudence_graph: "
+            f"+{stats['sentenza_nodes_added']} nodi sentenza, "
+            f"+{stats['edges_added']} archi "
+            f"(di cui {stats['edges_resolved_via_fonte_hint']} via hint di fonte), "
+            f"{stats['edges_skipped_ambiguous']} scartati (ambigui), "
+            f"{stats['edges_skipped_no_match']} scartati (nessun match) → {path}"
+        )
+        return stats
+
+    # Hint di fonte nella stringa grezza → label "fonte" usata nei nodi article.
+    # Ordine di priorità: pattern più specifici (proc. civ./proc. pen.) prima
+    # dei generici (civ./pen.), altrimenti "proc. civ." matcherebbe anche "civ.".
+    _FONTE_HINT_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+        (re.compile(r"proc(?:edura)?\.?\s*civ", re.IGNORECASE), "codice_proc_civile"),
+        (re.compile(r"proc(?:edura)?\.?\s*pen", re.IGNORECASE), "codice_proc_penale"),
+        (re.compile(r"\bciv(?:ile)?\b", re.IGNORECASE), "codice_civile"),
+        (re.compile(r"\bpen(?:ale)?\b", re.IGNORECASE), "codice_penale"),
+    ]
+
+    @classmethod
+    def _extract_fonte_hint(cls, raw: str) -> str:
+        """
+        Rileva l'hint di fonte da una stringa grezza tipo "art. 391 cod. proc.
+        civ.", "art. 2729 cod. civ.", "art. 191 cod. pen.". Ritorna "" se
+        nessun hint riconoscibile (es. "art. 111 dello stesso codice").
+        """
+        for pattern, fonte in cls._FONTE_HINT_PATTERNS:
+            if pattern.search(raw):
+                return fonte
+        return ""
+
+    @staticmethod
+    def _extract_articolo_number(raw: str) -> str:
+        """
+        Estrae il numero di articolo da una stringa grezza tipo "art. 380",
+        "art.380", "art. 391 cod.". Ritorna "" se non riconoscibile.
+        """
+        m = re.search(
+            r"art(?:icolo)?\.?\s*(\d+[a-z\-]*(?:\s*-\s*(?:bis|ter|quater|quinquies))?)",
+            raw,
+            re.IGNORECASE,
+        )
+        if not m:
+            return ""
+        s = m.group(1).rstrip(".,;:")
+        return re.sub(r"\s*-\s*", "-", s).strip().lower()
 
     # ------------------------------------------------------------------
     # Nodi

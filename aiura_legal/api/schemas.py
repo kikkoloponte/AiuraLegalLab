@@ -315,6 +315,7 @@ class HistoryEntry(BaseModel):
     sources:           list[dict] = Field(default_factory=list)
     sources_count: int = 0
     duration_total_s: float = 0.0
+    query_type: Optional[str] = None    # "case" | "doctrine" | None (doc vecchi)
     created_at: str                     # ISO 8601
     # Feedback (opzionali — presenti solo dopo PATCH /history/{id}/feedback)
     feedback_rating: Optional[int] = None
@@ -374,3 +375,20 @@ class HealthResponse(BaseModel):
     mongodb: bool
     ollama: bool
     version: str = "0.1.0.dev0"
+
+
+# ---------------------------------------------------------------------------
+# /workspace/{name}/graph-health
+# ---------------------------------------------------------------------------
+
+class GraphHealthResponse(BaseModel):
+    available: bool
+    path: str = ""
+    size_mb: float = 0.0
+    load_s: float = 0.0
+    node_count: int = 0
+    edge_count: int = 0
+    built_at: Optional[str] = None
+    age_hours: Optional[float] = None
+    is_stale: bool
+    stale_reasons: list[str] = []
