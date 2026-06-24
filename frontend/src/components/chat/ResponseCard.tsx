@@ -55,6 +55,7 @@ const STEP_LABELS: Record<string, string> = {
   FONTI_NORMATIVE:      'Fonti normative',
   INTERPRETAZIONE:      'Interpretazione',
   GIURISPRUDENZA:       'Orientamenti giurisprudenziali',
+  MASSIMARIO:           'Massimario — principio consolidato',
   SUSSUNZIONE:          'Sussunzione',
   OBIEZIONI:            'Obiezioni e tesi contrarie',
   CONCLUSIONE:          'Conclusione',
@@ -76,7 +77,7 @@ function stepColor(step: string) {
     return 'text-sky-400 border-sky-800'
   if (['FONTI_NORMATIVE', 'INTERPRETAZIONE'].includes(s))
     return 'text-violet-400 border-violet-800'
-  if (s === 'GIURISPRUDENZA')
+  if (s === 'GIURISPRUDENZA' || s === 'MASSIMARIO')
     return 'text-amber-400 border-amber-800'
   if (['SUSSUNZIONE', 'OBIEZIONI'].includes(s))
     return 'text-orange-400 border-orange-800'

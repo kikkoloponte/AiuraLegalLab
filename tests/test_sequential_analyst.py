@@ -205,6 +205,89 @@ async def test_fase3_massimario_blocco_separato(analyst, mock_phase_retriever):
 
 
 @pytest.mark.asyncio
+async def test_fase3_massimario_step_separato_non_concorrente(mock_phase_retriever):
+    """Quando il massimario è presente, il prompt di Fase 3 deve chiedere DUE
+    step separati (GIURISPRUDENZA + MASSIMARIO) con budget di citazione
+    indipendenti — non un unico step in cui il massimario compete con le
+    sentenze per lo stesso budget di citations[] (vedi indicazione utente:
+    i due corpus non devono concorrere nel ragionamento, non solo nel retrieval)."""
+    mock_phase_retriever.retrieve_massimario.return_value = [
+        _make_source("MASS_principio", "massimario", "Principio Gubert (Sez. U. 10561/2014).")
+    ]
+    prompts: list[str] = []
+    ollama = MagicMock()
+    ollama.model = "qwen2.5:7b-test"
+    responses = [
+        _phase_json(["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+                    questione_retrieval="sequestro per equivalente terzo"),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA", "MASSIMARIO"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(prompt: str = "", **kwargs):
+        prompts.append(prompt)
+        n = len(prompts) - 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    analyst_local = AnalystAgent(ollama=ollama)
+
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst_local.analyze_sequential(
+        query="sequestro per equivalente terzo", packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        phases.append(phase)
+
+    prompt_f3 = prompts[2]
+    assert "DUE step separati" in prompt_f3
+    assert "MASSIMARIO" in prompt_f3
+    assert "anche se hai già citato a sufficienza" in prompt_f3
+
+    phase3 = phases[2]
+    steps = [s.step for s in phase3.sections]
+    assert "GIURISPRUDENZA" in steps
+    assert "MASSIMARIO" in steps
+
+
+@pytest.mark.asyncio
+async def test_fase3_senza_massimario_un_solo_step_istruito(mock_phase_retriever):
+    """Senza fonti massimario, il prompt richiede SOLO il passo GIURISPRUDENZA
+    (nessuna istruzione fantasma su un secondo step che non esiste)."""
+    mock_phase_retriever.retrieve_massimario.return_value = []
+    prompts: list[str] = []
+    ollama = MagicMock()
+    ollama.model = "qwen2.5:7b-test"
+    responses = [
+        _phase_json(["RICOSTRUZIONE_FATTO", "QUALIFICAZIONE", "QUESTIONE"],
+                    questione_retrieval="test"),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(prompt: str = "", **kwargs):
+        prompts.append(prompt)
+        n = len(prompts) - 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    analyst_local = AnalystAgent(ollama=ollama)
+
+    packet = _make_packet()
+    async for _ in analyst_local.analyze_sequential(
+        query="test", packet=packet, phase_retriever=mock_phase_retriever,
+    ):
+        pass
+
+    prompt_f3 = prompts[2]
+    assert "DUE step separati" not in prompt_f3
+    assert "Produci il passo GIURISPRUDENZA" in prompt_f3
+
+
+@pytest.mark.asyncio
 async def test_analyze_sequential_phase1_fallback_varianti_assenti(analyst, mock_phase_retriever):
     """Se il JSON di Fase 1 non contiene giurisprudenza_retrieval_varianti (caso
     di default usato dal mock_ollama fixture), il fallback è una lista con la
