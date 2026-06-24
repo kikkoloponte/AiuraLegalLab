@@ -1199,21 +1199,47 @@ class AnalystAgent:
 
         ref_map_f3 = {**ref_map_giuri, **ref_map_mass}
         phase_context = self._build_phase_context(completed_phases)
-        _budget_f3 = _llm_settings.llm_max_tokens_fase3 - 80
+        # Budget token più alto quando deve produrre anche lo step MASSIMARIO
+        # (due step separati, non un riassunto unico — vedi _step_istruzione).
+        _max_tokens_f3 = (
+            int(_llm_settings.llm_max_tokens_fase3 * 1.4) if ctx_mass
+            else _llm_settings.llm_max_tokens_fase3
+        )
+        _budget_f3 = _max_tokens_f3 - 80
+
+        # GIURISPRUDENZA e MASSIMARIO sono due STEP separati con budget di
+        # citazione indipendenti — non un unico step che li riassume insieme.
+        # Altrimenti il modello, vincolato a poche citations[] totali, sceglie
+        # le sentenze (più numerose) e il massimario/pilota dell'istituto
+        # (spesso la sostanza della risposta su istituti confondibili, es.
+        # il principio Gubert sul terzo estraneo) resta fuori per budget,
+        # non per irrilevanza.
+        if ctx_mass:
+            _step_istruzione = (
+                "Produci DUE step separati: GIURISPRUDENZA (analizza le sentenze) "
+                "e MASSIMARIO (riporta il principio consolidato del blocco MASSIMARIO). "
+                "Sono due fonti diverse con budget di citazione indipendenti: produci "
+                "SEMPRE entrambi gli step, anche se hai già citato a sufficienza "
+                "nell'altro — non saltare MASSIMARIO per aver già citato GIURISPRUDENZA.\n"
+            )
+            _vincoli_step = (
+                "- GIURISPRUDENZA: massimo 120 parole, citations[] massimo 2 elementi\n"
+                "- MASSIMARIO: massimo 100 parole, citations[] massimo 2 elementi\n"
+            )
+        else:
+            _step_istruzione = "Produci il passo GIURISPRUDENZA analizzando le sentenze nel Packet.\n"
+            _vincoli_step = "- GIURISPRUDENZA: massimo 120 parole nel campo content, citations[] massimo 3 elementi\n"
+
         prompt_f3 = (
             f"{phase_context}\n\n"
             f"{ctx_giuri}\n\n"
             f"{ctx_mass}"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
-            "Produci il passo GIURISPRUDENZA analizzando le sentenze nel Packet.\n"
-            "Le SENTENZE sono il supporto giurisprudenziale diretto; il MASSIMARIO "
-            "(se presente) fornisce il principio consolidato con la citazione della "
-            "sentenza pilota — citalo a sostegno del principio quando pertinente.\n"
+            f"{_step_istruzione}"
             "Ogni fonte citata DEVE citare il riferimento FN (es. F2) mostrato accanto "
             "alla fonte — NON inventare o ricostruire altri identificatori (URN, numeri, hash).\n"
             "VINCOLI:\n"
-            "- GIURISPRUDENZA: massimo 120 parole nel campo content\n"
-            "- citations[]: massimo 3 elementi\n"
+            f"{_vincoli_step}"
             f"- BUDGET TOKEN: il JSON DEVE terminare entro {_budget_f3} token\n"
             "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
@@ -1221,7 +1247,7 @@ class AnalystAgent:
         try:
             raw_f3 = await self._ollama.generate(
                 prompt=prompt_f3, temperature=0.0,           # deterministico: vedi docstring
-                max_tokens=_llm_settings.llm_max_tokens_fase3,
+                max_tokens=_max_tokens_f3,
                 system=_SYSTEM_PROMPT_GIURISPRUDENZA_SEQ,
                 n_ctx=_llm_settings.llm_n_ctx,
                 n_batch=_llm_settings.llm_n_batch,
