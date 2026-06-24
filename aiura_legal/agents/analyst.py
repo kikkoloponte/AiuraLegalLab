@@ -291,18 +291,51 @@ def _source_texts_for_prompt(sources: list[SearchResult], corpus: str) -> list[s
     return _budget_mgr.budget_texts(sources, corpus)
 
 
-def _format_source(i: int, s: SearchResult, text: Optional[str] = None) -> list[str]:
+def _assign_refs(sources: list[SearchResult], start: int = 1) -> tuple[dict[str, str], int]:
     """
-    NOTA: l'indice `i` (FONTE #N) è solo un'etichetta posizionale per la
-    lettura umana del prompt — NON è il source_id. Bug osservato: il modello
-    ha citato "1"/"2" come source_id copiando l'indice invece della stringa
-    reale sulla riga successiva. Per questo l'indice e il source_id sono ora
-    su righe separate con etichette inequivocabili.
+    Assegna riferimenti sequenziali "F{n}" alle fonti di UNA chiamata LLM
+    (un round di Fase 2 o Fase 3), a partire da `start`.
+
+    Sostituisce il source_id grezzo come token da citare: un modello piccolo
+    (qwen2.5-7b) non copia in modo affidabile stringhe opache come URN lunghi
+    o hash hex16 — le ricostruisce "a memoria" o le allucina (osservato più
+    volte: id reali ma non presenti nel packet corrente). Un riferimento
+    corto e progressivo (F1, F2…) è un token che il modello copia in modo
+    affidabile; la risoluzione al source_id reale avviene lato sistema
+    (vedi PhaseResult.ref_map e CitationReviewer._resolve_ref_citations).
+
+    Lo start prosegue tra Fase 2 e Fase 3 nella stessa analisi (i ref sono
+    quindi univoci sull'intera risposta, non solo all'interno di una fase):
+    l'orchestrator pool i citations di tutte le fasi in un solo controllo
+    Reviewer finale, quindi un F3 non deve poter risolvere a due fonti diverse.
+
+    Ritorna (source_id -> ref, prossimo indice libero).
+    """
+    refs: dict[str, str] = {}
+    i = start
+    for s in sources:
+        if s.source_id not in refs:
+            refs[s.source_id] = f"F{i}"
+            i += 1
+    return refs, i
+
+
+def _invert_ref_map(fwd: dict[str, str]) -> dict[str, str]:
+    """source_id->ref (usato per il rendering del prompt, vedi _assign_refs)
+    → ref->source_id (formato richiesto da CitationReviewer.verify(ref_map=))."""
+    return {ref: sid for sid, ref in fwd.items()}
+
+
+def _format_source(ref: str, s: SearchResult, text: Optional[str] = None) -> list[str]:
+    """
+    `ref` è il riferimento da citare (es. "F1"), assegnato da _assign_refs.
+    Il source_id reale NON viene mostrato nel prompt: è risolto lato sistema
+    dopo la generazione, così il modello non può copiarlo male né ricostruirlo
+    dal pretraining (vedi _assign_refs).
     """
     meta = s.metadata or {}
     lines = [
-        f"\nFONTE #{i} (solo etichetta, NON usare come source_id)",
-        f"    source_id ESATTO da copiare in citations[]: {s.source_id}",
+        f"\nFONTE {ref}",
     ]
     # Normativa
     if meta.get("titolo"):
@@ -356,6 +389,7 @@ class AnalysisResult:
     duration_s: float = 0.0
     raw_response: str = ""                         # per debug/audit
     parse_ok: bool = True                          # False se JSON non parsabile
+    ref_map: dict[str, str] = field(default_factory=dict)  # F1, F2… → source_id reale
 
 
 @dataclass
@@ -379,6 +413,11 @@ class PhaseResult:
     # di normalizzare citazioni in formato alternativo, es. "numero/anno" invece
     # di hex16, su fonti che non sono nel Research Packet S2 iniziale).
     sources_metadata: dict[str, dict] = field(default_factory=dict)
+    # ref ("F1", "F2"…) → source_id reale delle fonti mostrate in questa fase.
+    # Il modello cita il ref (vedi _assign_refs); il Reviewer lo risolve al
+    # source_id reale prima del check di grounding — il modello non vede mai
+    # il source_id grezzo, quindi non può copiarlo male né allucinarlo.
+    ref_map: dict[str, str] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -414,34 +453,36 @@ class AnalystAgent:
             return "giurisprudenza"
         return s.source_layer
 
-    def _build_context(self, packet: ResearchPacket) -> str:
+    def _build_context(self, packet: ResearchPacket) -> tuple[str, dict[str, str]]:
         """Serializza le fonti del Research Packet in due sezioni per layer."""
         if not packet.sources:
-            return "NESSUNA FONTE DISPONIBILE NEL RESEARCH PACKET."
+            return "NESSUNA FONTE DISPONIBILE NEL RESEARCH PACKET.", {}
 
         norm  = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
         giuri = [s for s in packet.sources if self._effective_layer(s) == "giurisprudenza"]
 
         lines = [
-            "RESEARCH PACKET — usa SOLO questi source_id nelle citazioni:",
+            "RESEARCH PACKET — cita SOLO il riferimento FN mostrato accanto a ciascuna fonte:",
             "=" * 60,
         ]
+        ref_map_norm, _next = _assign_refs(norm)
         if norm:
             norm_texts = _source_texts_for_prompt(norm, "normativa")
             lines.append("\n## FONTI NORMATIVE\n")
-            for i, (s, t) in enumerate(zip(norm, norm_texts), 1):
-                lines.extend(_format_source(i, s, t))
+            for s, t in zip(norm, norm_texts):
+                lines.extend(_format_source(ref_map_norm[s.source_id], s, t))
+        ref_map_giuri, _ = _assign_refs(giuri, start=_next)
         if giuri:
             giuri_texts = _source_texts_for_prompt(giuri, "giurisprudenza")
             lines.append("\n## GIURISPRUDENZA\n")
-            for i, (s, t) in enumerate(zip(giuri, giuri_texts), 1):
-                lines.extend(_format_source(i, s, t))
+            for s, t in zip(giuri, giuri_texts):
+                lines.extend(_format_source(ref_map_giuri[s.source_id], s, t))
         lines.append("=" * 60)
-        return "\n".join(lines)
+        return "\n".join(lines), {**ref_map_norm, **ref_map_giuri}
 
-    def _build_prompt(self, query: str, packet: ResearchPacket) -> str:
-        context = self._build_context(packet)
-        return (
+    def _build_prompt(self, query: str, packet: ResearchPacket) -> tuple[str, dict[str, str]]:
+        context, ref_map = self._build_context(packet)
+        prompt = (
             f"{context}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Analizza secondo lo schema IQRAC italiano in 9 passi:\n"
@@ -450,9 +491,11 @@ class AnalystAgent:
             "Per FONTI_NORMATIVE e INTERPRETAZIONE usa SOLO fonti dalla sezione "
             "'## FONTI NORMATIVE' del Packet.\n"
             "Per GIURISPRUDENZA usa SOLO fonti dalla sezione '## GIURISPRUDENZA' del Packet.\n"
-            "Ogni claim fattuale DEVE avere il source_id corrispondente dal Packet.\n"
+            "Ogni claim fattuale DEVE citare il riferimento FN (es. F1) mostrato accanto "
+            "alla fonte — NON inventare o ricostruire altri identificatori.\n"
             "Rispondi ESCLUSIVAMENTE in JSON valido, senza testo prima o dopo il JSON.\n"
         )
+        return prompt, ref_map
 
     # ------------------------------------------------------------------
     # Response parsing
@@ -570,27 +613,29 @@ class AnalystAgent:
     # Deep mode helpers
     # ------------------------------------------------------------------
 
-    def _build_context_normativa(self, packet: ResearchPacket) -> str:
+    def _build_context_normativa(self, packet: ResearchPacket) -> tuple[str, dict[str, str]]:
         norm = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
         if not norm:
-            return "NESSUNA FONTE NORMATIVA NEL RESEARCH PACKET."
+            return "NESSUNA FONTE NORMATIVA NEL RESEARCH PACKET.", {}
         texts = _source_texts_for_prompt(norm, "normativa")
-        lines = ["FONTI NORMATIVE — usa SOLO questi source_id:", "=" * 60]
-        for i, (s, t) in enumerate(zip(norm, texts), 1):
-            lines.extend(_format_source(i, s, t))
+        ref_map, _ = _assign_refs(norm)
+        lines = ["FONTI NORMATIVE — cita SOLO il riferimento FN mostrato:", "=" * 60]
+        for s, t in zip(norm, texts):
+            lines.extend(_format_source(ref_map[s.source_id], s, t))
         lines.append("=" * 60)
-        return "\n".join(lines)
+        return "\n".join(lines), ref_map
 
-    def _build_context_giurisprudenza(self, packet: ResearchPacket) -> str:
+    def _build_context_giurisprudenza(self, packet: ResearchPacket, start: int = 1) -> tuple[str, dict[str, str]]:
         giuri = [s for s in packet.sources if self._effective_layer(s) == "giurisprudenza"]
         if not giuri:
-            return "NESSUNA GIURISPRUDENZA NEL RESEARCH PACKET."
+            return "NESSUNA GIURISPRUDENZA NEL RESEARCH PACKET.", {}
         texts = _source_texts_for_prompt(giuri, "giurisprudenza")
-        lines = ["GIURISPRUDENZA — usa SOLO questi source_id:", "=" * 60]
-        for i, (s, t) in enumerate(zip(giuri, texts), 1):
-            lines.extend(_format_source(i, s, t))
+        ref_map, _ = _assign_refs(giuri, start=start)
+        lines = ["GIURISPRUDENZA — cita SOLO il riferimento FN mostrato:", "=" * 60]
+        for s, t in zip(giuri, texts):
+            lines.extend(_format_source(ref_map[s.source_id], s, t))
         lines.append("=" * 60)
-        return "\n".join(lines)
+        return "\n".join(lines), ref_map
 
     @staticmethod
     def _build_fase2_summary(sections: list[AnalysisSection]) -> str:
@@ -622,15 +667,14 @@ class AnalystAgent:
         Se Fase 2 fallisce ritorna (fase1_result, None) — risposta parziale.
         """
         # ── Fase 1 ────────────────────────────────────────────────────
-        ctx_norm = self._build_context_normativa(packet)
+        ctx_norm, ref_map_f1 = self._build_context_normativa(packet)
         prompt_f1 = (
             f"{ctx_norm}\n\n"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Produci i 5 step normativi IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, "
             "QUESTIONE, FONTI_NORMATIVE, INTERPRETAZIONE.\n"
-            "Sii dettagliato. Ogni claim fattuale DEVE avere source_id dal Packet: "
-            "copia la stringa ESATTA indicata su \"source_id ESATTO da copiare\", "
-            "NON il numero \"FONTE #N\" che la precede.\n"
+            "Ogni claim fattuale DEVE citare il riferimento FN (es. F1) mostrato accanto "
+            "alla fonte — NON inventare o ricostruire altri identificatori.\n"
             "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
         )
         t0 = time.monotonic()
@@ -658,6 +702,7 @@ class AnalystAgent:
             duration_s=time.monotonic() - t0,
             raw_response=raw_f1,
             parse_ok=ok_f1,
+            ref_map=_invert_ref_map(ref_map_f1),
         )
         logger.info(
             f"[S3 Fase1] {len(sections_f1)} sezioni, "
@@ -665,7 +710,10 @@ class AnalystAgent:
         )
 
         # ── Fase 2 ────────────────────────────────────────────────────
-        ctx_giuri = self._build_context_giurisprudenza(packet)
+        # I ref proseguono da dove è arrivata la Fase 1: F1/F2 univoci su
+        # tutta l'analisi, non solo all'interno della singola chiamata LLM.
+        _next_ref = max((int(r[1:]) for r in ref_map_f1.values()), default=0) + 1
+        ctx_giuri, ref_map_f2 = self._build_context_giurisprudenza(packet, start=_next_ref)
         summary_f1 = self._build_fase2_summary(sections_f1)
         prompt_f2 = (
             f"{summary_f1}\n\n"
@@ -674,9 +722,8 @@ class AnalystAgent:
             "Costruisci i 4 step finali IQRAC: GIURISPRUDENZA, SUSSUNZIONE, "
             "OBIEZIONI, CONCLUSIONE.\n"
             "Basati sull'analisi normativa sopra. Sii dettagliato e operativo.\n"
-            "Ogni citazione giurisprudenziale DEVE avere source_id dalla sezione "
-            "GIURISPRUDENZA del Packet: copia la stringa ESATTA indicata su "
-            "\"source_id ESATTO da copiare\", NON il numero \"FONTE #N\" che la precede.\n"
+            "Ogni citazione giurisprudenziale DEVE citare il riferimento FN (es. F2) "
+            "mostrato accanto alla fonte — NON inventare o ricostruire altri identificatori.\n"
             "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
         )
         t1 = time.monotonic()
@@ -700,6 +747,7 @@ class AnalystAgent:
             duration_s=time.monotonic() - t1,
             raw_response=raw_f2,
             parse_ok=ok_f2,
+            ref_map=_invert_ref_map({**ref_map_f1, **ref_map_f2}),
         )
         logger.info(
             f"[S3 Fase2] {len(sections_f2)} sezioni, "
@@ -747,20 +795,26 @@ class AnalystAgent:
         return "\n".join(parts)
 
     @staticmethod
-    def _format_phase_sources(sources: list[SearchResult], corpus: str = "normativa") -> str:
+    def _format_phase_sources(
+        sources: list[SearchResult], corpus: str = "normativa", start: int = 1,
+    ) -> tuple[str, dict[str, str]]:
         """Serializza fonti di fase in formato leggibile per il prompt.
 
         `corpus` seleziona il budget token di ContextBudgetManager
         (full_text_slots/summary_slots) quando AIURA_FULLTEXT_CONTEXT=1.
+        `start` è il primo indice di riferimento FN libero (prosegue da fonti
+        già mostrate in altri blocchi della stessa chiamata LLM).
+        Ritorna (testo, ref_map: source_id → "FN").
         """
         if not sources:
-            return "NESSUNA FONTE DISPONIBILE PER QUESTA FASE."
+            return "NESSUNA FONTE DISPONIBILE PER QUESTA FASE.", {}
         texts = _source_texts_for_prompt(sources, corpus)
-        lines = ["FONTI PER QUESTA FASE — usa SOLO questi source_id:", "=" * 60]
-        for i, (s, t) in enumerate(zip(sources, texts), 1):
-            lines.extend(_format_source(i, s, t))
+        ref_map, _ = _assign_refs(sources, start=start)
+        lines = ["FONTI PER QUESTA FASE — cita SOLO il riferimento FN mostrato:", "=" * 60]
+        for s, t in zip(sources, texts):
+            lines.extend(_format_source(ref_map[s.source_id], s, t))
         lines.append("=" * 60)
-        return "\n".join(lines)
+        return "\n".join(lines), ref_map
 
     async def analyze_sequential(
         self,
@@ -989,19 +1043,25 @@ class AnalystAgent:
 
         # ── Fase 2: Normativa + Dottrina ──────────────────────────────
         t1 = time.monotonic()
-        ctx_norm = self._format_phase_sources(norm_sources, corpus="normativa")
+        ctx_norm, ref_map_norm = self._format_phase_sources(norm_sources, corpus="normativa")
         framing_summary = self._build_framing_summary(sections_f1, data_f1)
 
-        # Sezione dottrina opzionale — presente solo se ci sono fonti
+        # Sezione dottrina opzionale — presente solo se ci sono fonti.
+        # I ref proseguono da quelli già usati per ctx_norm: univoci nel
+        # prompt di questa chiamata (vedi _assign_refs).
         ctx_dott = ""
+        ref_map_dott: dict[str, str] = {}
         if dott_sources:
             dott_texts = _source_texts_for_prompt(dott_sources, "dottrina")
-            dott_lines = ["DOTTRINA — usa questi source_id per l'INTERPRETAZIONE:", "=" * 60]
-            for i, (s, t) in enumerate(zip(dott_sources, dott_texts), 1):
-                dott_lines.extend(_format_source(i, s, t))
+            _next = max((int(r[1:]) for r in ref_map_norm.values()), default=0) + 1
+            ref_map_dott, _ = _assign_refs(dott_sources, start=_next)
+            dott_lines = ["DOTTRINA — cita SOLO il riferimento FN mostrato per l'INTERPRETAZIONE:", "=" * 60]
+            for s, t in zip(dott_sources, dott_texts):
+                dott_lines.extend(_format_source(ref_map_dott[s.source_id], s, t))
             dott_lines.append("=" * 60)
             ctx_dott = "\n".join(dott_lines) + "\n\n"
 
+        ref_map_f2 = {**ref_map_norm, **ref_map_dott}
         _budget_f2 = _llm_settings.llm_max_tokens_fase2 - 80
         prompt_f2 = (
             f"{framing_summary}\n\n"
@@ -1011,10 +1071,9 @@ class AnalystAgent:
             "Sulla base del framing sopra, produci FONTI_NORMATIVE e INTERPRETAZIONE.\n"
             "Per FONTI_NORMATIVE usa SOLO fonti dalla sezione FONTI PER QUESTA FASE.\n"
             "Per INTERPRETAZIONE puoi citare anche la DOTTRINA (se presente) a supporto "
-            "dei criteri ermeneutici, con il relativo source_id.\n"
-            "Ogni claim DEVE avere source_id dal Packet: copia la stringa ESATTA "
-            "indicata su \"source_id ESATTO da copiare\", NON il numero \"FONTE #N\" "
-            "che la precede.\n"
+            "dei criteri ermeneutici, con il relativo riferimento FN.\n"
+            "Ogni claim DEVE citare il riferimento FN (es. F1) mostrato accanto alla "
+            "fonte — NON inventare o ricostruire altri identificatori (URN, numeri, hash).\n"
             "VINCOLI STRINGENTI:\n"
             "- OGNI sezione: massimo 100 parole nel campo content\n"
             "- citations[]: massimo 3 elementi per sezione\n"
@@ -1044,6 +1103,7 @@ class AnalystAgent:
             duration_s=time.monotonic() - t1,
             parse_ok=ok_f2,
             sources_metadata={s.source_id: s.metadata for s in norm_sources + dott_sources},
+            ref_map=_invert_ref_map(ref_map_f2),
         )
         completed_phases.append(phase2)
         logger.info(
@@ -1108,22 +1168,27 @@ class AnalystAgent:
 
         # ── Fase 3: Giurisprudenza + Massimario ───────────────────────
         t2 = time.monotonic()
-        ctx_giuri = self._format_phase_sources(giuri_sources, corpus="giurisprudenza")
+        ctx_giuri, ref_map_giuri = self._format_phase_sources(giuri_sources, corpus="giurisprudenza")
 
-        # Blocco MASSIMARIO opzionale — presente solo se ci sono fonti
+        # Blocco MASSIMARIO opzionale — presente solo se ci sono fonti.
+        # I ref proseguono da quelli già usati per ctx_giuri.
         ctx_mass = ""
+        ref_map_mass: dict[str, str] = {}
         if mass_sources:
             mass_texts = _source_texts_for_prompt(mass_sources, "massimario")
+            _next = max((int(r[1:]) for r in ref_map_giuri.values()), default=0) + 1
+            ref_map_mass, _ = _assign_refs(mass_sources, start=_next)
             mass_lines = [
                 "MASSIMARIO — digesti dei principi consolidati (con la citazione "
-                "della sentenza pilota); usa questi source_id a supporto del principio:",
+                "della sentenza pilota); cita SOLO il riferimento FN a supporto del principio:",
                 "=" * 60,
             ]
-            for i, (s, t) in enumerate(zip(mass_sources, mass_texts), 1):
-                mass_lines.extend(_format_source(i, s, t))
+            for s, t in zip(mass_sources, mass_texts):
+                mass_lines.extend(_format_source(ref_map_mass[s.source_id], s, t))
             mass_lines.append("=" * 60)
             ctx_mass = "\n".join(mass_lines) + "\n\n"
 
+        ref_map_f3 = {**ref_map_giuri, **ref_map_mass}
         phase_context = self._build_phase_context(completed_phases)
         _budget_f3 = _llm_settings.llm_max_tokens_fase3 - 80
         prompt_f3 = (
@@ -1135,9 +1200,8 @@ class AnalystAgent:
             "Le SENTENZE sono il supporto giurisprudenziale diretto; il MASSIMARIO "
             "(se presente) fornisce il principio consolidato con la citazione della "
             "sentenza pilota — citalo a sostegno del principio quando pertinente.\n"
-            "Ogni fonte citata DEVE avere source_id dalle sezioni FONTI PER QUESTA FASE: "
-            "copia la stringa ESATTA indicata su \"source_id ESATTO da copiare\", NON il "
-            "numero \"FONTE #N\" che la precede.\n"
+            "Ogni fonte citata DEVE citare il riferimento FN (es. F2) mostrato accanto "
+            "alla fonte — NON inventare o ricostruire altri identificatori (URN, numeri, hash).\n"
             "VINCOLI:\n"
             "- GIURISPRUDENZA: massimo 120 parole nel campo content\n"
             "- citations[]: massimo 3 elementi\n"
@@ -1167,6 +1231,7 @@ class AnalystAgent:
             duration_s=time.monotonic() - t2,
             parse_ok=ok_f3,
             sources_metadata={s.source_id: s.metadata for s in phase3_sources},
+            ref_map=_invert_ref_map(ref_map_f3),
         )
         completed_phases.append(phase3)
         logger.info(
@@ -1305,7 +1370,7 @@ class AnalystAgent:
                 parse_ok=False,
             )
 
-        prompt = self._build_prompt(query, packet)
+        prompt, ref_map = self._build_prompt(query, packet)
 
         try:
             raw = await self._ollama.generate(
@@ -1348,4 +1413,5 @@ class AnalystAgent:
             duration_s=time.monotonic() - t0,
             raw_response=raw,
             parse_ok=parse_ok,
+            ref_map=_invert_ref_map(ref_map),
         )

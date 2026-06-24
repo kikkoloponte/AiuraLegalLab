@@ -426,6 +426,111 @@ def test_numero_anno_non_risolvibile_resta_ungrounded():
 
 
 # ------------------------------------------------------------------
+# Risoluzione URN "logico" su articolo storicamente rinumerato
+# (es. art. 322-ter c.p. indicizzato nel corpus come ~art383 del R.D.
+# 1398/1930): l'LLM ricostruisce l'URN "come lo conosce" invece di
+# copiare quello iniettato — se stesso atto e stesso articolo per nome
+# è la stessa norma, non un'allucinazione.
+# ------------------------------------------------------------------
+
+def test_ref_f1_risolto_a_source_id_reale():
+    """PASS: il modello cita 'F1' (il riferimento mostrato nel prompt, vedi
+    analyst._assign_refs) e il Reviewer lo risolve al source_id reale —
+    elimina sia la copia-malfatta di URN/hash sia l'allucinazione di id
+    plausibili ma non mostrati (il modello non vede mai il source_id grezzo)."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    real_sid = "4709c9382a24aa8e"
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["F1"],
+        phase_sources_metadata={real_sid: {"corpus": "giurisprudenza"}},
+        ref_map={"F1": real_sid},
+    )
+    assert result.verdict == "PASS"
+    assert "F1" not in result.ungrounded_citations
+
+
+def test_ref_non_mappato_resta_ungrounded():
+    """FAIL: un ref non presente in ref_map (es. 'F99' inventato, o un id
+    diverso da F1/F2 ricostruito dal pretraining) non viene risolto — la
+    normalizzazione non bypassa il Citation Contract."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["F99"],
+        ref_map={"F1": "4709c9382a24aa8e"},
+    )
+    assert result.verdict == "FAIL"
+    assert "F99" in result.ungrounded_citations
+
+
+def test_articolo_rinumerato_risolto_da_research_packet():
+    """PASS: URN logico (~art322-ter) risolto al source_id reale del corpus
+    (~art383) perché stesso atto e articolo_num corrispondente."""
+    reviewer = CitationReviewer()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    sources = [
+        SearchResult(
+            doc_id=real_sid, score=1.0, snippet="...", source_id=real_sid,
+            metadata={"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.NORMA_LOOKUP, sources=sources,
+    )
+    logical_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art322-ter"
+    result = reviewer.verify(
+        "...", packet, structured_cited_ids=[logical_sid],
+    )
+    assert result.verdict == "PASS"
+    assert logical_sid not in result.ungrounded_citations
+
+
+def test_articolo_rinumerato_risolto_da_phase_sources_metadata():
+    """PASS: stessa risoluzione tramite le fonti del PhaseRetriever (Fase 2)."""
+    reviewer = CitationReviewer()
+    packet = _make_packet()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    logical_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art322-ter"
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=[logical_sid],
+        phase_sources_metadata={
+            real_sid: {"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        },
+    )
+    assert result.verdict == "PASS"
+    assert logical_sid not in result.ungrounded_citations
+
+
+def test_articolo_diverso_non_risolvibile_resta_ungrounded():
+    """FAIL: un articolo diverso (anche sullo stesso atto) NON viene risolto —
+    la normalizzazione non bypassa il Citation Contract su articoli inventati."""
+    reviewer = CitationReviewer()
+    real_sid = "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"
+    sources = [
+        SearchResult(
+            doc_id=real_sid, score=1.0, snippet="...", source_id=real_sid,
+            metadata={"corpus": "normattiva", "articolo_num": "Art. 322-ter."},
+        ),
+    ]
+    packet = ResearchPacket(
+        query_original="test", query_intent=QueryIntent.NORMA_LOOKUP, sources=sources,
+    )
+    result = reviewer.verify(
+        "...",
+        packet,
+        structured_cited_ids=["urn:nir:stato:regio.decreto:1930-10-19;1398~art640"],
+    )
+    assert result.verdict == "FAIL"
+
+
+# ------------------------------------------------------------------
 # Claim relevance — citazione formalmente grounded ma topicamente
 # scorrelata dal claim (Bug #1: hallucination "a posteriori")
 # ------------------------------------------------------------------

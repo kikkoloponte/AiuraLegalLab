@@ -306,6 +306,10 @@ class LegalOrchestrator:
                     (analysis_fase_1.parse_ok if analysis_fase_1 else False) or
                     (analysis_fase_2.parse_ok if analysis_fase_2 else False)
                 ),
+                ref_map={
+                    **(analysis_fase_1.ref_map if analysis_fase_1 else {}),
+                    **(analysis_fase_2.ref_map if analysis_fase_2 else {}),
+                },
             )
             logger.info(
                 f"[Orchestrator] S3 deep done: "
@@ -372,6 +376,7 @@ class LegalOrchestrator:
             reference_date=valid_on,
             structured_cited_ids=cited_section_ids,
             cited_claims=cited_section_claims,
+            ref_map=analysis.ref_map,
         )
         logger.info(
             f"[Orchestrator] S5 review: verdict={review.verdict}, "
@@ -486,6 +491,7 @@ class LegalOrchestrator:
         phases_by_number: dict[int, PhaseResult] = {}
         all_phase_source_ids: set[str] = set()
         all_phase_sources_metadata: dict[str, dict] = {}
+        all_phase_ref_map: dict[str, str] = {}
 
         async for phase in self._analyst.analyze_sequential(
             query=query,
@@ -496,6 +502,7 @@ class LegalOrchestrator:
             all_sections.extend(phase.sections)
             all_phase_source_ids.update(phase.sources_used)
             all_phase_sources_metadata.update(phase.sources_metadata)
+            all_phase_ref_map.update(phase.ref_map)
             phases_by_number[phase.phase] = phase
             last_phase = phase
             yield {"event": "phase_complete", "phase": phase}
@@ -518,6 +525,7 @@ class LegalOrchestrator:
                     phase_source_ids=all_phase_source_ids,
                     phase_sources_metadata=all_phase_sources_metadata,
                     cited_claims=claims,
+                    ref_map=all_phase_ref_map,
                 ), claims, ids
             except Exception as exc:
                 logger.error(f"[Orchestrator Seq] S5 CitationReviewer errore: {exc}")

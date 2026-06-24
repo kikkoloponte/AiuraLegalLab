@@ -25,6 +25,14 @@ _CHUNK_PREFIX_RE = re.compile(r"^([0-9a-f]{16})")
 # (vedi _resolve_numero_anno_citations).
 _NUMERO_ANNO_RE = re.compile(r"^\d+/\d{4}$")
 
+# URN normattiva: separa il prefisso dell'atto dal frammento articolo finale
+# (es. "urn:nir:...regio.decreto:1930-10-19;1398~art322-ter" → atto + "322-ter").
+# Usato per risolvere citazioni con URN "logico" (l'articolo come l'LLM lo
+# conosce dal pretraining) quando il corpus indicizza quello stesso articolo
+# sotto un frammento storicamente diverso (rinumerazioni legislative: es. l'art.
+# 322-ter c.p. è memorizzato nel corpus come "~art383" del R.D. 1398/1930).
+_URN_ART_RE = re.compile(r"^(.*~art)([\w\-]+)$", re.IGNORECASE)
+
 
 # ---------------------------------------------------------------------------
 # Pattern per estrarre citazioni da testo legale
@@ -129,6 +137,7 @@ class CitationReviewer:
         phase_source_ids: set[str] | None = None,
         phase_sources_metadata: dict[str, dict] | None = None,
         cited_claims: list[dict] | None = None,
+        ref_map: dict[str, str] | None = None,
     ) -> ReviewResult:
         """
         Esegue tutti i check in ordine.
@@ -153,6 +162,13 @@ class CitationReviewer:
                 vocabolario con il testo della fonte citata sono sospette di
                 allucinazione "a posteriori" (citazione corretta agganciata a
                 un'affermazione che la fonte non supporta).
+            ref_map: "F1"/"F2"… → source_id reale, unione dei ref_map di tutte
+                le PhaseResult. Il modello cita SOLO il riferimento mostrato nel
+                prompt (mai il source_id grezzo, vedi analyst._assign_refs):
+                questa mappa lo risolve al source_id reale prima del grounding
+                check, così un modello piccolo non deve mai copiare/ricostruire
+                URN o hash — elimina sia il bug "copia male l'id" sia il bug
+                "allucina un id plausibile ma non mostrato".
         """
         checks: dict[str, str] = {}
         warnings: list[str] = []
@@ -195,6 +211,25 @@ class CitationReviewer:
         # ungrounded normalmente (non è un bypass del Citation Contract).
         numero_anno_map = self._build_numero_anno_map(research_packet, phase_sources_metadata)
         cited = self._resolve_numero_anno_citations(cited, numero_anno_map)
+
+        # Risolve URN "logici" su articoli storicamente rinumerati (es. l'LLM
+        # cita "~art322-ter" per l'art. 322-ter c.p. mentre il corpus lo
+        # indicizza come "~art383" del R.D. 1398/1930): se stesso atto e stesso
+        # articolo per nome, è la stessa norma — non un'allucinazione.
+        articolo_map = self._build_articolo_map(research_packet, phase_sources_metadata)
+        cited = self._resolve_articolo_citations(cited, articolo_map)
+
+        # Risolve i riferimenti "F1"/"F2"… al source_id reale (vedi docstring
+        # del parametro ref_map). Applicata anche a cited_claims, così il
+        # claim-relevance check (1b) può ritrovare il testo della fonte vera.
+        if ref_map:
+            cited = self._resolve_ref_citations(cited, ref_map)
+            if cited_claims:
+                cited_claims = [
+                    {**c, "source_id": ref_map.get(str(c.get("source_id", "")).upper(), c.get("source_id"))}
+                    if isinstance(c, dict) else c
+                    for c in cited_claims
+                ]
 
         # 1. Citation Grounding
         for cit in cited:
@@ -419,6 +454,76 @@ class CitationReviewer:
             else:
                 resolved.append(cit)
         return resolved
+
+    @staticmethod
+    def _normalize_art_num(s: str) -> str:
+        """'Art. 322-ter' / 'art322ter' / '322 ter' → '322ter' (confronto robusto)."""
+        s = s.strip().lower()
+        s = re.sub(r"^art\.?\s*", "", s)
+        return re.sub(r"[\s\-.]", "", s)
+
+    @classmethod
+    def _build_articolo_map(
+        cls,
+        research_packet: ResearchPacket,
+        phase_sources_metadata: dict[str, dict] | None,
+    ) -> dict[tuple[str, str], str]:
+        """Mappa (prefisso_atto, art_normalizzato) → source_id canonico.
+
+        Permette di risolvere un URN "logico" (l'articolo come l'LLM lo
+        ricostruisce dal pretraining) sullo stesso atto quando il corpus lo
+        indicizza sotto un frammento diverso per rinumerazione storica.
+        """
+
+        def _add(m: dict[tuple[str, str], str], source_id: str, metadata: dict) -> None:
+            match = _URN_ART_RE.match(source_id)
+            if not match:
+                return
+            art_num = str((metadata or {}).get("articolo_num") or "").strip()
+            if not art_num:
+                return
+            key = (match.group(1).lower(), cls._normalize_art_num(art_num))
+            m.setdefault(key, source_id)
+
+        mapping: dict[tuple[str, str], str] = {}
+        for src in research_packet.sources:
+            _add(mapping, src.source_id, src.metadata)
+        for sid, meta in (phase_sources_metadata or {}).items():
+            _add(mapping, sid, meta)
+        return mapping
+
+    @classmethod
+    def _resolve_articolo_citations(
+        cls,
+        cited: list[str],
+        articolo_map: dict[tuple[str, str], str],
+    ) -> list[str]:
+        """Sostituisce URN "logici" non grounded con l'id canonico realmente
+        presente nel packet, se riferiscono lo stesso atto e lo stesso articolo
+        (per nome) — non se "indovinano" un articolo diverso o un atto diverso."""
+        resolved = []
+        for cit in cited:
+            match = _URN_ART_RE.match(cit)
+            if match:
+                key = (match.group(1).lower(), cls._normalize_art_num(match.group(2)))
+                canonical = articolo_map.get(key)
+                if canonical and canonical.upper() != cit.upper():
+                    logger.debug(
+                        f"[CitationReviewer] citazione {cit!r} normalizzata "
+                        f"(articolo storicamente rinumerato) → {canonical!r}"
+                    )
+                    resolved.append(canonical)
+                    continue
+            resolved.append(cit)
+        return resolved
+
+    @staticmethod
+    def _resolve_ref_citations(cited: list[str], ref_map: dict[str, str]) -> list[str]:
+        """Sostituisce i riferimenti "F1"/"F2"… con il source_id reale che
+        rappresentano. Un ref non presente in mappa (inventato, o residuo di
+        un vecchio formato) passa inalterato — resta ungrounded normalmente."""
+        upper_map = {k.upper(): v for k, v in ref_map.items()}
+        return [upper_map.get(cit.upper(), cit) for cit in cited]
 
     def extract_citations(self, text: str) -> list[str]:
         """

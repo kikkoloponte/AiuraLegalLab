@@ -81,28 +81,38 @@ def orchestrator(mock_retriever, mock_ollama):
 class TestAnalystContextBuilding:
 
     def test_context_includes_source_ids(self, analyst):
+        """Il source_id grezzo NON deve apparire nel prompt: il modello cita
+        SOLO il riferimento FN, risolto al source_id reale lato sistema
+        (vedi PhaseResult/AnalysisResult.ref_map)."""
         packet = _make_packet([
             _make_source("CC_ART_1218", "Testo art. 1218"),
             _make_source("CC_ART_1453", "Testo art. 1453"),
         ])
-        ctx = analyst._build_context(packet)
-        assert "CC_ART_1218" in ctx
-        assert "CC_ART_1453" in ctx
+        ctx, ref_map = analyst._build_context(packet)
+        assert "CC_ART_1218" not in ctx
+        assert "CC_ART_1453" not in ctx
+        assert ref_map == {"CC_ART_1218": "F1", "CC_ART_1453": "F2"}
+        assert "FONTE F1" in ctx and "FONTE F2" in ctx
 
     def test_context_empty_packet(self, analyst):
         packet = _make_packet([])
-        ctx = analyst._build_context(packet)
+        ctx, ref_map = analyst._build_context(packet)
         assert "NESSUNA FONTE" in ctx.upper()
+        assert ref_map == {}
 
     def test_prompt_contains_query(self, analyst):
         packet = _make_packet()
-        prompt = analyst._build_prompt("contratto inadempimento", packet)
+        prompt, _ref_map = analyst._build_prompt("contratto inadempimento", packet)
         assert "contratto inadempimento" in prompt
 
     def test_prompt_contains_source_id(self, analyst):
+        """Il prompt cita il riferimento FN, non il source_id reale — che è
+        risolto lato sistema via ref_map prima del check del Reviewer."""
         packet = _make_packet([_make_source("CC_ART_1218")])
-        prompt = analyst._build_prompt("query test", packet)
-        assert "CC_ART_1218" in prompt
+        prompt, ref_map = analyst._build_prompt("query test", packet)
+        assert "CC_ART_1218" not in prompt
+        assert ref_map == {"CC_ART_1218": "F1"}
+        assert "FONTE F1" in prompt
 
 
 # ---------------------------------------------------------------------------

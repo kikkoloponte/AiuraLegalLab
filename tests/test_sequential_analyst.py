@@ -13,7 +13,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from aiura_legal.agents.analyst import AnalystAgent, PhaseResult, _format_source
+from aiura_legal.agents.analyst import AnalystAgent, PhaseResult, _format_source, _assign_refs
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
 
@@ -471,21 +471,35 @@ def test_retrieve_giurisprudenza_non_recupera_massimario():
     assert {"corpus": "massimario"} not in filters
 
 
-def test_format_source_indice_non_ambiguo_con_source_id():
-    """Regressione: il modello ha citato l'indice posizionale "1"/"2" come
-    source_id (vedi test query 'sequestro preventivo per equivalente'),
-    copiandolo da una riga tipo "[1] source_id: ...". L'indice e il
-    source_id devono stare su righe separate, con etichette inequivocabili
-    che scoraggino la confusione."""
+def test_format_source_non_mostra_source_id_grezzo():
+    """Il modello non deve mai vedere il source_id reale nel prompt: cita
+    SOLO il riferimento FN, risolto al source_id reale lato sistema (vedi
+    PhaseResult.ref_map + CitationReviewer._resolve_ref_citations). Elimina
+    sia la copia-malfatta (bug storico "1"/"2" copiato come id) sia
+    l'allucinazione di id plausibili ma non mostrati."""
     s = _make_source("urn:nir:stato:legge:2020-01-01;1", "giurisprudenza", "Testo.")
-    lines = "\n".join(_format_source(1, s))
+    lines = "\n".join(_format_source("F1", s))
 
-    assert "FONTE #1" in lines
-    assert "NON usare come source_id" in lines
-    assert "source_id ESATTO da copiare" in lines
-    assert "urn:nir:stato:legge:2020-01-01;1" in lines
-    # L'indice numerico non deve comparire incollato al token "source_id"
-    assert "[1] source_id" not in lines
+    assert "FONTE F1" in lines
+    assert "urn:nir:stato:legge:2020-01-01;1" not in lines
+
+
+def test_assign_refs_progressivo_e_univoco():
+    """_assign_refs assegna F{n} progressivi, senza duplicare fonti già viste
+    (stesso source_id ripetuto in due liste), e prosegue da `start`."""
+    a = _make_source("URN_A", "normativa")
+    b = _make_source("URN_B", "normativa")
+    c = _make_source("URN_A", "dottrina")  # stesso source_id di a, fonte diversa
+
+    refs, next_i = _assign_refs([a, b])
+    assert refs == {"URN_A": "F1", "URN_B": "F2"}
+    assert next_i == 3
+
+    # Una seconda lista che riusa lo stesso source_id non duplica il ref se
+    # passata nella stessa chiamata; con start esplicito prosegue oltre.
+    refs2, next_i2 = _assign_refs([c], start=next_i)
+    assert refs2 == {"URN_A": "F3"}  # nuova chiamata = nuovo round, ref nuovo
+    assert next_i2 == 4
 
 
 def test_phase_retriever_empty_query_returns_empty():
