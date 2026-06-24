@@ -35,6 +35,9 @@ Non inventare un caso ipotetico. Non fingere che esistano fatti da ricostruire.
 2. PERIMETRO_DOTTRINALE — elenca le sotto-questioni giuridiche rilevanti che la
    domanda solleva (es. condizioni di applicabilità, limiti soggettivi, profili
    controversi in dottrina o giurisprudenza). Massimo 3-4 sotto-questioni.
+   Queste sotto-questioni guideranno direttamente `giurisprudenza_retrieval_varianti`
+   più sotto: enumera quindi profili realmente distinti, non sfaccettature
+   della stessa idea.
 
 3. QUESTIONE_ANALITICA — formula la questione giuridica precisa in UNA sola frase
    tecnica, con i termini che guideranno il retrieval normativo.
@@ -90,10 +93,15 @@ Il campo `questione_retrieval` deve contenere i termini tecnici chiave dell'isti
 per la ricerca BM25 normativa.
 Il campo `qualificazione_retrieval` combina istituto + profilo controverso per
 la ricerca giurisprudenziale.
-Il campo `giurisprudenza_retrieval_varianti` è OPZIONALE: 1-3 formulazioni
+Il campo `giurisprudenza_retrieval_varianti` è OPZIONALE: massimo 3 formulazioni
 alternative per la ricerca giurisprudenziale, ciascuna max 120 caratteri.
-Devono coprire angolazioni REALMENTE distinte (non sinonimi della stessa frase):
-es. il principio generale, un'eccezione/discriminante che cambia l'esito
-applicativo (es. condizioni soggettive di terzi, buona fede, limiti
-applicativi), oppure terminologia processuale alternativa. Se l'istituto non
-ha profili distinti rilevanti, omettere il campo.
+
+REGOLA DI COSTRUZIONE (obbligatoria se il campo è presente): NON parafrasare
+la domanda originale. Genera UNA variante per ciascuna sotto-questione che hai
+già elencato in PERIMETRO_DOTTRINALE (massimo 3, anche se ne hai elencate di
+più) — ogni variante deve essere la query che un giurista userebbe per
+cercare IN GIURISPRUDENZA quella specifica sotto-questione, con la
+terminologia tecnica autonoma di quel profilo (non i termini della domanda
+dell'avvocato). Se in PERIMETRO_DOTTRINALE hai elencato una sola
+sotto-questione, o se le sotto-questioni non hanno terminologia
+giurisprudenziale distinta tra loro, omettere il campo.

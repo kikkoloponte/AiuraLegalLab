@@ -91,6 +91,14 @@ class ContextBudgetManager:
             "full_text_tokens": 200,
             "summary_tokens":   60,
         },
+        "massimario": {
+            # Digesti dei principi: il passaggio rilevante (principio + citazione
+            # sentenza) è denso e conciso — pochi slot, full_text contenuto.
+            "full_text_slots":  1,
+            "summary_slots":    2,
+            "full_text_tokens": 250,
+            "summary_tokens":   60,
+        },
         "prassi": {
             "full_text_slots":  0,
             "summary_slots":    2,

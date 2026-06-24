@@ -62,19 +62,20 @@ class Tier1Pipeline:
         chunker: Optional[Chunker] = None,
         graph_builder: Optional[LegalGraphBuilder] = None,
         workspace_path: Optional[str] = None,  # path su disco per graph.json
-        corpus: str = "studio",  # "studio" | "dottrina"
+        corpus: str = "studio",  # "studio" | "dottrina" | "prassi" | "massimario"
     ) -> None:
         self.db = mongo_db
         self.workspace = workspace
-        self.corpus = corpus if corpus in ("studio", "dottrina", "prassi") else "studio"
+        self.corpus = corpus if corpus in ("studio", "dottrina", "prassi", "massimario") else "studio"
         self.extractor = DocumentExtractor()
         self.anonymizer = anonymizer or LegalAnonymizer(use_spacy=False)
         # NOTA: modifica chunk size invalida chunk esistenti — richiede rebuild completo
-        # dottrina e prassi: chunk più piccoli (256/32) per precisione semantica
+        # dottrina/prassi/massimario: chunk più piccoli (256/32) per precisione
+        #   semantica (il principio + citazione è un passaggio breve e denso)
         # studio: invariato (512/64)
         if chunker is not None:
             self.chunker = chunker
-        elif self.corpus in ("dottrina", "prassi"):
+        elif self.corpus in ("dottrina", "prassi", "massimario"):
             self.chunker = Chunker(max_tokens=256, overlap=32)
         else:
             self.chunker = Chunker()

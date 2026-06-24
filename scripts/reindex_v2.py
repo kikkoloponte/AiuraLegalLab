@@ -174,7 +174,7 @@ Esempi:
     parser.add_argument("--workspace", default="mio-studio",
                         help="Nome workspace (default: mio-studio)")
     parser.add_argument("--corpus", default=None,
-                        choices=["normattiva", "studio", "giurisprudenza", "dottrina"],
+                        choices=["normattiva", "studio", "giurisprudenza", "dottrina", "massimario"],
                         help="Limita a un corpus specifico (default: tutti)")
     parser.add_argument("--limit", type=int, default=None,
                         help="Numero massimo di chunk da processare")

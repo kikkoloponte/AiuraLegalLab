@@ -343,7 +343,7 @@ class _BM25Sub:
 # BM25Retriever — interfaccia pubblica (invariata)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_KNOWN_CORPORA = ("normattiva", "dottrina", "studio", "giurisprudenza")
+_KNOWN_CORPORA = ("normattiva", "dottrina", "studio", "giurisprudenza", "massimario")
 
 
 class BM25Retriever:

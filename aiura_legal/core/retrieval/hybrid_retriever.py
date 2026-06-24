@@ -55,9 +55,11 @@ _INTENT_WEIGHTS: dict[QueryIntent, tuple[float, float, float]] = {
 _WEIGHTS_NORMATIVA      = (0.65, 0.20, 0.15)   # BM25-heavy: per round normativa
 _WEIGHTS_GIURISPRUDENZA = (0.15, 0.75, 0.10)   # Vector-heavy: per round giurisprudenza
 _WEIGHTS_DOTTRINA       = (0.40, 0.50, 0.10)   # Bilanciato: dottrina richiede sia terminologia (BM25) che semantica (Vector)
+_WEIGHTS_MASSIMARIO     = (0.40, 0.50, 0.10)   # Bilanciato: digesto ragionato di giurisprudenza (principio + citazione sentenza)
 _FILTER_NORMATIVA       = {"corpus": "normattiva"}
 _FILTER_GIURISPRUDENZA  = {"corpus": "giurisprudenza"}
 _FILTER_DOTTRINA        = {"corpus": "dottrina"}
+_FILTER_MASSIMARIO      = {"corpus": "massimario"}
 
 # Pesi per query_type="doctrine" (domande astratte su istituti, non su un
 # articolo puntuale): meno peso a BM25 esatto, più peso a similarità

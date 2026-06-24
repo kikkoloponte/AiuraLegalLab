@@ -244,6 +244,7 @@ class TestRetrieveGiurisprudenza:
                 "licenziamento", settore="diritto_lavoro", settore_confidence=0.85
             )
 
+        # main (hard filter, 0 risultati) + fallback senza settore
         assert mock._search_round.call_count == 2
 
 

@@ -23,7 +23,12 @@ from pydantic_settings import BaseSettings
 
 from aiura_legal.agents.ollama_client import OllamaClient
 from aiura_legal.core.retrieval.context_budget import ContextBudgetManager
-from aiura_legal.core.retrieval.source_texts import fetch_full_texts, fulltext_enabled
+from aiura_legal.core.retrieval.source_texts import (
+    fetch_full_texts,
+    fetch_sources_by_source_id,
+    fulltext_enabled,
+)
+from aiura_legal.core.istituti.registry import get_registry
 from aiura_legal.core.types import ResearchPacket, SearchResult
 
 
@@ -287,8 +292,18 @@ def _source_texts_for_prompt(sources: list[SearchResult], corpus: str) -> list[s
 
 
 def _format_source(i: int, s: SearchResult, text: Optional[str] = None) -> list[str]:
+    """
+    NOTA: l'indice `i` (FONTE #N) è solo un'etichetta posizionale per la
+    lettura umana del prompt — NON è il source_id. Bug osservato: il modello
+    ha citato "1"/"2" come source_id copiando l'indice invece della stringa
+    reale sulla riga successiva. Per questo l'indice e il source_id sono ora
+    su righe separate con etichette inequivocabili.
+    """
     meta = s.metadata or {}
-    lines = [f"\n[{i}] source_id: {s.source_id}"]
+    lines = [
+        f"\nFONTE #{i} (solo etichetta, NON usare come source_id)",
+        f"    source_id ESATTO da copiare in citations[]: {s.source_id}",
+    ]
     # Normativa
     if meta.get("titolo"):
         lines.append(f"    titolo:   {meta['titolo']}")
@@ -613,7 +628,9 @@ class AnalystAgent:
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Produci i 5 step normativi IQRAC: RICOSTRUZIONE_FATTO, QUALIFICAZIONE, "
             "QUESTIONE, FONTI_NORMATIVE, INTERPRETAZIONE.\n"
-            "Sii dettagliato. Ogni claim fattuale DEVE avere source_id dal Packet.\n"
+            "Sii dettagliato. Ogni claim fattuale DEVE avere source_id dal Packet: "
+            "copia la stringa ESATTA indicata su \"source_id ESATTO da copiare\", "
+            "NON il numero \"FONTE #N\" che la precede.\n"
             "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
         )
         t0 = time.monotonic()
@@ -658,7 +675,8 @@ class AnalystAgent:
             "OBIEZIONI, CONCLUSIONE.\n"
             "Basati sull'analisi normativa sopra. Sii dettagliato e operativo.\n"
             "Ogni citazione giurisprudenziale DEVE avere source_id dalla sezione "
-            "GIURISPRUDENZA del Packet.\n"
+            "GIURISPRUDENZA del Packet: copia la stringa ESATTA indicata su "
+            "\"source_id ESATTO da copiare\", NON il numero \"FONTE #N\" che la precede.\n"
             "Rispondi ESCLUSIVAMENTE in JSON valido.\n"
         )
         t1 = time.monotonic()
@@ -839,6 +857,21 @@ class AnalystAgent:
         if not giurisprudenza_retrieval_varianti:
             giurisprudenza_retrieval_varianti = [qualificazione_retrieval]
 
+        # Visibilità di debug: le varianti dovrebbero derivare dalle sotto-questioni
+        # già enumerate in PERIMETRO_DOTTRINALE/QUALIFICAZIONE — log affiancato per
+        # verificare a colpo d'occhio se il modello le ha effettivamente derivate da
+        # lì o se ha solo riparafrasato la domanda originale.
+        _sottoquestioni_content = next(
+            (s.content for s in sections_f1 if s.step in ("PERIMETRO_DOTTRINALE", "QUALIFICAZIONE")), ""
+        )
+        logger.info(
+            f"[S3 Seq] sotto-questioni enumerate ({_phase1_name}): {_sottoquestioni_content!r}"
+        )
+        logger.info(
+            f"[S3 Seq] giurisprudenza_retrieval_varianti ({len(giurisprudenza_retrieval_varianti)}): "
+            f"{giurisprudenza_retrieval_varianti!r}"
+        )
+
         # Estrai settore_giuridico dalla Fase 1 (tassonomia: penale|civile|amministrativo|lavoro|tributario)
         _SETTORI_VALIDI = frozenset({"penale", "civile", "amministrativo", "lavoro", "tributario"})
         settore_giuridico = str(data_f1.get("settore_giuridico", "")).strip().lower()
@@ -864,6 +897,22 @@ class AnalystAgent:
             logger.info(f"[S3 Seq] settore_giuridico estratto da Fase 1: {settore_giuridico!r}")
         else:
             logger.info("[S3 Seq] settore_giuridico non riconosciuto — retrieval senza filtro settore")
+
+        # Classificazione ISTITUTO dal registro (vocabolario chiuso, deterministico).
+        # Serve a (a) iniettare la norma cardine in Fase 2 — separando istituti che
+        # condividono il lessico (es. sequestro penale ex 321 c.p.p. vs confisca
+        # antimafia ex 25 d.lgs. 159) — e (b) iniettare le sentenze pilota
+        # groundabili in Fase 3.
+        istituto = None
+        try:
+            _ist_matches = get_registry().match_query(
+                f"{query} {questione_retrieval} {qualificazione_retrieval}"
+            )
+            istituto = _ist_matches[0][0] if _ist_matches else None
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(f"[S3 Seq] classificazione istituto fallita: {exc}")
+        if istituto:
+            logger.info(f"[S3 Seq] istituto classificato: {istituto.id!r} ({istituto.settore})")
 
         phase1 = PhaseResult(
             phase=1, name=_phase1_name,
@@ -917,6 +966,22 @@ class AnalystAgent:
                 if self._effective_layer(s) == "normativa"
             ]
 
+        # Iniezione norma cardine dell'istituto (garantita, in cima): evita che
+        # la norma di un istituto confondibile (es. art. 25 antimafia) scalzi
+        # quella corretta (es. art. 321 c.p.p.) per collisione lessicale.
+        if istituto and istituto.norme_urn:
+            import asyncio as _asyncio
+            _inj = await _asyncio.to_thread(
+                fetch_sources_by_source_id, list(istituto.norme_urn), "normativa",
+            )
+            _existing = {s.source_id for s in norm_sources}
+            _new = [s for s in _inj if s.source_id not in _existing]
+            if _new:
+                logger.info(
+                    f"[S3 Seq] iniettate {len(_new)} norme cardine istituto {istituto.id!r}"
+                )
+                norm_sources = _new + norm_sources
+
         # Testo pieno per le fonti di fase (no-op se AIURA_FULLTEXT_CONTEXT=0
         # o se le fonti sono già arricchite dall'orchestrator dopo S2)
         await fetch_full_texts(norm_sources)
@@ -947,7 +1012,9 @@ class AnalystAgent:
             "Per FONTI_NORMATIVE usa SOLO fonti dalla sezione FONTI PER QUESTA FASE.\n"
             "Per INTERPRETAZIONE puoi citare anche la DOTTRINA (se presente) a supporto "
             "dei criteri ermeneutici, con il relativo source_id.\n"
-            "Ogni claim DEVE avere source_id dal Packet.\n"
+            "Ogni claim DEVE avere source_id dal Packet: copia la stringa ESATTA "
+            "indicata su \"source_id ESATTO da copiare\", NON il numero \"FONTE #N\" "
+            "che la precede.\n"
             "VINCOLI STRINGENTI:\n"
             "- OGNI sezione: massimo 100 parole nel campo content\n"
             "- citations[]: massimo 3 elementi per sezione\n"
@@ -1004,19 +1071,73 @@ class AnalystAgent:
                 if self._effective_layer(s) == "giurisprudenza"
             ]
 
-        await fetch_full_texts(giuri_sources)
+        # Round DEDICATO e separato per il massimario (digesti dei principi
+        # delle sentenze pilota). Blocco proprio nel prompt — non compete per
+        # gli slot della giurisprudenza (simmetrico a dottrina in Fase 2).
+        mass_sources: list[SearchResult] = []
+        if phase_retriever is not None:
+            try:
+                import asyncio as _asyncio
+                mass_sources = await _asyncio.to_thread(
+                    phase_retriever.retrieve_massimario,
+                    qualificazione_retrieval, 3, settore_giuridico,
+                )
+            except Exception as exc:
+                logger.warning(f"[S3 Seq] retrieval massimario fallito: {exc}")
 
-        # ── Fase 3: Giurisprudenza ────────────────────────────────────
+        # Iniezione sentenze pilota groundabili dell'istituto: il principio
+        # cardine (es. Gubert sul terzo estraneo) con source_id REALE → citabile
+        # senza allucinazione. Confluiscono nel blocco MASSIMARIO (in cima).
+        if istituto:
+            _pilot_ids = [p.source_id for p in istituto.sentenze_pilota if p.source_id]
+            if _pilot_ids:
+                import asyncio as _asyncio
+                _inj = await _asyncio.to_thread(
+                    fetch_sources_by_source_id, _pilot_ids, "massimario",
+                )
+                _existing = {s.source_id for s in giuri_sources + mass_sources}
+                _new = [s for s in _inj if s.source_id not in _existing]
+                if _new:
+                    logger.info(
+                        f"[S3 Seq] iniettati {len(_new)} piloti istituto {istituto.id!r}"
+                    )
+                    mass_sources = _new + mass_sources
+
+        await fetch_full_texts(giuri_sources)
+        await fetch_full_texts(mass_sources)
+
+        # ── Fase 3: Giurisprudenza + Massimario ───────────────────────
         t2 = time.monotonic()
         ctx_giuri = self._format_phase_sources(giuri_sources, corpus="giurisprudenza")
+
+        # Blocco MASSIMARIO opzionale — presente solo se ci sono fonti
+        ctx_mass = ""
+        if mass_sources:
+            mass_texts = _source_texts_for_prompt(mass_sources, "massimario")
+            mass_lines = [
+                "MASSIMARIO — digesti dei principi consolidati (con la citazione "
+                "della sentenza pilota); usa questi source_id a supporto del principio:",
+                "=" * 60,
+            ]
+            for i, (s, t) in enumerate(zip(mass_sources, mass_texts), 1):
+                mass_lines.extend(_format_source(i, s, t))
+            mass_lines.append("=" * 60)
+            ctx_mass = "\n".join(mass_lines) + "\n\n"
+
         phase_context = self._build_phase_context(completed_phases)
         _budget_f3 = _llm_settings.llm_max_tokens_fase3 - 80
         prompt_f3 = (
             f"{phase_context}\n\n"
             f"{ctx_giuri}\n\n"
+            f"{ctx_mass}"
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             "Produci il passo GIURISPRUDENZA analizzando le sentenze nel Packet.\n"
-            "Ogni sentenza citata DEVE avere source_id dalla sezione FONTI PER QUESTA FASE.\n"
+            "Le SENTENZE sono il supporto giurisprudenziale diretto; il MASSIMARIO "
+            "(se presente) fornisce il principio consolidato con la citazione della "
+            "sentenza pilota — citalo a sostegno del principio quando pertinente.\n"
+            "Ogni fonte citata DEVE avere source_id dalle sezioni FONTI PER QUESTA FASE: "
+            "copia la stringa ESATTA indicata su \"source_id ESATTO da copiare\", NON il "
+            "numero \"FONTE #N\" che la precede.\n"
             "VINCOLI:\n"
             "- GIURISPRUDENZA: massimo 120 parole nel campo content\n"
             "- citations[]: massimo 3 elementi\n"
@@ -1036,20 +1157,22 @@ class AnalystAgent:
             logger.warning(f"[S3 Seq Fase3] Ollama errore: {exc}")
 
         sections_f3, conf_f3, _, ok_f3 = self._parse_response(raw_f3 or "")
+        phase3_sources = giuri_sources + mass_sources
         phase3 = PhaseResult(
             phase=3, name="GIURISPRUDENZA",
             sections=sections_f3,
-            sources_used=[s.source_id for s in giuri_sources],
+            sources_used=[s.source_id for s in phase3_sources],
             overall_confidence=conf_f3,
             gaps=[],
             duration_s=time.monotonic() - t2,
             parse_ok=ok_f3,
-            sources_metadata={s.source_id: s.metadata for s in giuri_sources},
+            sources_metadata={s.source_id: s.metadata for s in phase3_sources},
         )
         completed_phases.append(phase3)
         logger.info(
             f"[S3 Seq] Fase 3 GIURISPRUDENZA: {len(sections_f3)} sezioni, "
-            f"fonti={len(giuri_sources)}, ok={ok_f3}, t={phase3.duration_s:.1f}s"
+            f"fonti={len(giuri_sources)} giuri + {len(mass_sources)} massimario, "
+            f"ok={ok_f3}, t={phase3.duration_s:.1f}s"
         )
         yield phase3
 

@@ -13,7 +13,7 @@ import json
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from aiura_legal.agents.analyst import AnalystAgent, PhaseResult
+from aiura_legal.agents.analyst import AnalystAgent, PhaseResult, _format_source
 from aiura_legal.core.retrieval.phase_retriever import PhaseRetriever
 from aiura_legal.core.types import QueryIntent, ResearchPacket, SearchResult
 
@@ -116,6 +116,7 @@ def mock_phase_retriever():
         _make_source("giurisprudenza_thyssen_requery", "giurisprudenza", "ThyssenKrupp requery.")
     ]
     pr.retrieve_dottrina.return_value = []
+    pr.retrieve_massimario.return_value = []
     return pr
 
 
@@ -181,6 +182,29 @@ async def test_analyze_sequential_uses_phase_retriever(analyst, mock_phase_retri
 
 
 @pytest.mark.asyncio
+async def test_fase3_massimario_blocco_separato(analyst, mock_phase_retriever):
+    """Fase 3 recupera il massimario in un round dedicato (retrieve_massimario)
+    e lo aggrega in phase3.sources_used accanto alla giurisprudenza — blocco
+    separato, non in concorrenza con le sentenze."""
+    mock_phase_retriever.retrieve_massimario.return_value = [
+        _make_source("MASS_principio", "massimario", "Principio Gubert (Sez. U. 10561/2014).")
+    ]
+    packet = _make_packet()
+    phases = []
+    async for phase in analyst.analyze_sequential(
+        query="sequestro per equivalente terzo", packet=packet,
+        phase_retriever=mock_phase_retriever,
+    ):
+        phases.append(phase)
+
+    mock_phase_retriever.retrieve_massimario.assert_called_once()
+    phase3 = phases[2]
+    assert "MASS_principio" in phase3.sources_used
+    # convivono giurisprudenza e massimario nelle fonti di fase
+    assert "giurisprudenza_thyssen_requery" in phase3.sources_used
+
+
+@pytest.mark.asyncio
 async def test_analyze_sequential_phase1_fallback_varianti_assenti(analyst, mock_phase_retriever):
     """Se il JSON di Fase 1 non contiene giurisprudenza_retrieval_varianti (caso
     di default usato dal mock_ollama fixture), il fallback è una lista con la
@@ -231,6 +255,7 @@ async def test_analyze_sequential_phase1_estrae_varianti_multiple():
     pr.retrieve_normativa.return_value = []
     pr.retrieve_dottrina.return_value = []
     pr.retrieve_giurisprudenza_multi.return_value = []
+    pr.retrieve_massimario.return_value = []
 
     packet = _make_packet()
     phases = []
@@ -390,9 +415,9 @@ def test_phase_retriever_retrieve_normativa_calls_search_round():
 
 
 def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
-    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden ThyssenKrupp.
-
-    La query criminal ("ThyssenKrupp") attiva la golden source injection.
+    """retrieve_giurisprudenza() esegue 2 round: giurisprudenza + golden
+    ThyssenKrupp. Il massimario NON è incluso qui — è un round dedicato
+    separato (retrieve_massimario), non in concorrenza per gli slot.
     """
     mock_retriever = MagicMock()
     mock_retriever._search_round.return_value = [
@@ -406,7 +431,61 @@ def test_phase_retriever_retrieve_giurisprudenza_calls_search_round():
     assert len(calls) == 2, f"Attesi 2 round (main+golden), eseguiti {len(calls)}"
     assert calls[0].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
     assert calls[1].kwargs.get("chunk_filter") == {"corpus": "giurisprudenza"}
+    # Nessun chunk massimario: la giurisprudenza non lo recupera
     assert all(r.source_layer == "giurisprudenza" for r in results)
+
+
+def test_retrieve_massimario_round_dedicato():
+    """retrieve_massimario() è un round dedicato su corpus=massimario,
+    con i risultati taggati source_layer='massimario'."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [_make_source("MASS_1", "massimario")]
+    pr = PhaseRetriever(mock_retriever)
+
+    results = pr.retrieve_massimario("sequestro per equivalente terzo", top_k=3)
+
+    calls = mock_retriever._search_round.call_args_list
+    assert len(calls) == 1
+    assert calls[0].kwargs.get("chunk_filter") == {"corpus": "massimario"}
+    assert results and all(r.source_layer == "massimario" for r in results)
+
+
+def test_retrieve_massimario_query_vuota():
+    """Query vuota → lista vuota, nessuna chiamata al retriever."""
+    mock_retriever = MagicMock()
+    pr = PhaseRetriever(mock_retriever)
+    assert pr.retrieve_massimario("  ") == []
+    mock_retriever._search_round.assert_not_called()
+
+
+def test_retrieve_giurisprudenza_non_recupera_massimario():
+    """La giurisprudenza non deve mai interrogare il corpus massimario:
+    nessun round con chunk_filter corpus=massimario."""
+    mock_retriever = MagicMock()
+    mock_retriever._search_round.return_value = [_make_source("CASS_1", "giurisprudenza")]
+    pr = PhaseRetriever(mock_retriever)
+
+    pr.retrieve_giurisprudenza("responsabilità medica", top_k=4)
+
+    filters = [c.kwargs.get("chunk_filter") for c in mock_retriever._search_round.call_args_list]
+    assert {"corpus": "massimario"} not in filters
+
+
+def test_format_source_indice_non_ambiguo_con_source_id():
+    """Regressione: il modello ha citato l'indice posizionale "1"/"2" come
+    source_id (vedi test query 'sequestro preventivo per equivalente'),
+    copiandolo da una riga tipo "[1] source_id: ...". L'indice e il
+    source_id devono stare su righe separate, con etichette inequivocabili
+    che scoraggino la confusione."""
+    s = _make_source("urn:nir:stato:legge:2020-01-01;1", "giurisprudenza", "Testo.")
+    lines = "\n".join(_format_source(1, s))
+
+    assert "FONTE #1" in lines
+    assert "NON usare come source_id" in lines
+    assert "source_id ESATTO da copiare" in lines
+    assert "urn:nir:stato:legge:2020-01-01;1" in lines
+    # L'indice numerico non deve comparire incollato al token "source_id"
+    assert "[1] source_id" not in lines
 
 
 def test_phase_retriever_empty_query_returns_empty():
@@ -602,6 +681,9 @@ async def test_prompt_anti_overflow_token_budget(monkeypatch):
     ]
     pr.retrieve_giurisprudenza_multi.return_value = [
         _huge_source(f"giurisprudenza_{i}", "giurisprudenza") for i in range(6)
+    ]
+    pr.retrieve_massimario.return_value = [
+        _huge_source(f"massimario_{i}", "massimario") for i in range(3)
     ]
 
     captured: list[dict] = []

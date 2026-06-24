@@ -119,10 +119,14 @@ Il campo `questione_retrieval` deve essere una stringa breve con i termini tecni
 chiave estratti dalla QUESTIONE — sarà usata come query BM25 per la normativa.
 Il campo `qualificazione_retrieval` combina QUALIFICAZIONE + QUESTIONE per la
 ricerca giurisprudenziale.
-Il campo `giurisprudenza_retrieval_varianti` è OPZIONALE: 1-3 formulazioni
+Il campo `giurisprudenza_retrieval_varianti` è OPZIONALE: massimo 3 formulazioni
 alternative per la ricerca giurisprudenziale, ciascuna max 120 caratteri.
-Devono coprire angolazioni REALMENTE distinte (non sinonimi della stessa frase):
-es. il principio generale, un'eccezione/discriminante che cambia l'esito
-applicativo, oppure terminologia processuale alternativa. Se l'istituto non ha
-profili distinti rilevanti, omettere il campo o lasciarlo con una sola voce
-identica a `qualificazione_retrieval`.
+
+REGOLA DI COSTRUZIONE (obbligatoria se il campo è presente): NON parafrasare
+la domanda originale. Prima identifica mentalmente fino a 3 profili giuridici
+REALMENTE distinti toccati dalla fattispecie (es. un profilo è il principio
+cardine dell'istituto, un altro è una condizione/limite/eccezione che ne
+condiziona l'esito, un altro è un aspetto procedurale) — poi genera UNA
+variante per ciascun profilo, con la terminologia tecnica autonoma di quel
+profilo (non i termini della domanda dell'avvocato). Se non riesci a
+identificare più di un profilo realmente distinto, omettere il campo.

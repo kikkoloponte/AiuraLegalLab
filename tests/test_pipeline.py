@@ -222,6 +222,34 @@ async def test_batch_partial_failure(pipeline, mock_db, tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.asyncio
+async def test_corpus_massimario_accettato(mock_db, tmp_path):
+    """Regressione: corpus='massimario' deve essere accettato e propagato ai
+    chunk. Prima del fix la whitelist era ('studio','dottrina','prassi') e
+    'massimario' veniva silenziosamente declassato a 'studio' (i chunk delle
+    Rassegne del Massimario finivano nel corpus sbagliato, invisibili al round
+    dedicato di Fase 3)."""
+    p = Tier1Pipeline(
+        mock_db, "test-ws", LegalAnonymizer(use_spacy=False), corpus="massimario",
+    )
+    assert p.corpus == "massimario"
+
+    fp = _write_txt(tmp_path, "rassegna.txt", "Principio consolidato in materia di sequestro. " * 30)
+    result = await p.ingest(fp)
+    assert result.status == "ok"
+
+    chunk = await mock_db["chunks"].find_one({"document_id": result.document_id})
+    assert chunk is not None
+    assert chunk["corpus"] == "massimario"
+
+
+@pytest.mark.asyncio
+async def test_corpus_sconosciuto_fallback_studio(mock_db):
+    """Un corpus non riconosciuto resta declassato a 'studio' (comportamento difensivo)."""
+    p = Tier1Pipeline(mock_db, "test-ws", LegalAnonymizer(use_spacy=False), corpus="inesistente")
+    assert p.corpus == "studio"
+
+
+@pytest.mark.asyncio
 async def test_documents_tagged_with_workspace(mock_db, tmp_path):
     """Due pipeline con workspace diversi non si mescolano."""
     p1 = Tier1Pipeline(mock_db, "studio-alpha", LegalAnonymizer(use_spacy=False))

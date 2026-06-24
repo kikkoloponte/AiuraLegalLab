@@ -74,6 +74,56 @@ def _get_db():
     return _client[_settings.mongodb_database]
 
 
+def fetch_sources_by_source_id(
+    source_ids: list[str],
+    source_layer: str = "normativa",
+    db=None,
+) -> list[SearchResult]:
+    """
+    Recupera SearchResult GARANTITI per source_id esatto (lookup diretto in
+    chunks). Usato per iniettare nel packet fonti "must-have" individuate dal
+    registro istituti: la norma cardine di un istituto (Fase 2) e le sentenze
+    pilota groundabili (Fase 3), così non dipendono dal ranking del retrieval.
+
+    Ritorna un SearchResult per ciascun source_id trovato (il primo chunk),
+    con full_text già popolato. Mai eccezioni: in errore ritorna [].
+    """
+    ids = [s for s in dict.fromkeys(source_ids) if s]
+    if not ids:
+        return []
+    try:
+        if db is None:
+            db = _get_db()
+        out: list[SearchResult] = []
+        seen: set[str] = set()
+        for doc in db[_CHUNKS_COLLECTION].find({"source_id": {"$in": ids}}):
+            sid = str(doc.get("source_id", ""))
+            if not sid or sid in seen:
+                continue
+            seen.add(sid)
+            text = str(doc.get("text", ""))
+            meta = {
+                k: doc.get(k)
+                for k in ("corpus", "fonte", "titolo", "titolo_articolo",
+                          "articolo_num", "organo", "numero", "anno", "materia",
+                          "chunk_type", "settore")
+                if doc.get(k) is not None
+            }
+            out.append(SearchResult(
+                doc_id=str(doc.get("_id", sid)),
+                score=999.0,                # garantita: in cima al merge
+                snippet=text[:400],
+                source_id=sid,
+                metadata=meta,
+                source_layer=source_layer,
+                full_text=text,
+            ))
+        return out
+    except Exception as exc:  # noqa: BLE001 — iniezione best-effort, mai bloccante
+        logger.warning(f"[SourceTexts] fetch_sources_by_source_id fallito ({exc})")
+        return []
+
+
 def _corpus_of(r: SearchResult) -> str:
     corpus = str((r.metadata or {}).get("corpus", "")).strip()
     return corpus or r.source_layer

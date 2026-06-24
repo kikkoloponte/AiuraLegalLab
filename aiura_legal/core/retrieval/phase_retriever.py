@@ -29,9 +29,11 @@ from aiura_legal.core.retrieval.hybrid_retriever import (
     _WEIGHTS_GIURISPRUDENZA,
     _WEIGHTS_DOTTRINA,
     _WEIGHTS_DOTTRINA_DOCTRINE,
+    _WEIGHTS_MASSIMARIO,
     _FILTER_NORMATIVA,
     _FILTER_GIURISPRUDENZA,
     _FILTER_DOTTRINA,
+    _FILTER_MASSIMARIO,
 )
 from aiura_legal.core.types import SearchResult
 
@@ -274,6 +276,10 @@ class PhaseRetriever:
 
         for r in results:
             r.source_layer = "giurisprudenza"
+        # NB: il massimario NON è fuso qui. È un corpus distinto recuperato in
+        # un round dedicato (retrieve_massimario) e presentato in un blocco
+        # separato nel prompt di Fase 3 — niente concorrenza per gli slot top_k
+        # delle sentenze reali (simmetrico a normattiva‖dottrina in Fase 2).
         logger.info(f"[PhaseRetriever] giurisprudenza: {len(results)} fonti")
         return results
 
@@ -401,6 +407,64 @@ class PhaseRetriever:
             return results
         except Exception as exc:  # noqa: BLE001
             logger.debug(f"[PhaseRetriever] prassi skip: {exc}")
+            return []
+
+    # ------------------------------------------------------------------
+    # Massimario — Fase 3, blocco dedicato (digesto dei principi)
+    # ------------------------------------------------------------------
+
+    def retrieve_massimario(
+        self,
+        query: str,
+        top_k: int = 3,
+        settore: str | None = None,
+        settore_confidence: float = 0.0,
+    ) -> list[SearchResult]:
+        """
+        Re-query su corpus=massimario (Rassegne annuali del Massimario della
+        Cassazione): digesti ragionati che riportano i principi delle sentenze
+        pilota CON la citazione, anche per anni storici fuori dalla finestra
+        delle sentenze indicizzate.
+
+        Round DEDICATO e SEPARATO dalla giurisprudenza: il massimario ha il
+        proprio budget di chunk e il proprio blocco nel prompt di Fase 3 — non
+        compete per gli slot top_k delle sentenze reali (simmetrico a dottrina
+        in Fase 2). Ritorna lista vuota (non errore) se il corpus è assente.
+        """
+        if not query.strip():
+            return []
+
+        logger.info(f"[PhaseRetriever] massimario re-query: {query[:80]!r} w={_WEIGHTS_MASSIMARIO}")
+        try:
+            chunk_filter = self._effective_filter(
+                base_filter=_FILTER_MASSIMARIO,
+                settore=settore,
+                settore_confidence=settore_confidence,
+                label="massimario",
+            )
+            use_soft = bool(settore and _SETTORE_SOFT_ENABLED and 0.4 <= settore_confidence < 0.7)
+            top_k_retrieve = 10 if not use_soft else 20
+
+            results = self._search_with_fallback(
+                query=query,
+                weights=_WEIGHTS_MASSIMARIO,
+                chunk_filter=chunk_filter,
+                base_filter=_FILTER_MASSIMARIO,
+                top_k_retrieve=top_k_retrieve,
+                top_k_rerank=top_k,
+                label="massimario",
+            )
+
+            if use_soft and settore:
+                results = _apply_soft_penalty(results, settore)
+                results = results[:top_k]
+
+            for r in results:
+                r.source_layer = "massimario"
+            logger.info(f"[PhaseRetriever] massimario: {len(results)} fonti")
+            return results
+        except Exception as exc:  # noqa: BLE001
+            logger.debug(f"[PhaseRetriever] massimario skip: {exc}")
             return []
 
     # ------------------------------------------------------------------
