@@ -20,7 +20,7 @@ async def run_query(qid: str, difficulty: str, module: str, intent: str, query: 
     async with httpx.AsyncClient(timeout=120) as client:
         resp = await client.post(f"{API}/query", json={
             "query": query,
-            "workspace": "normattiva",
+            "workspace": "mio-studio",
             "intent": intent,
             "top_k": 7,
             "clarification_turn": 2,
