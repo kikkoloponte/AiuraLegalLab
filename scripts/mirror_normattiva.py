@@ -199,8 +199,8 @@ def main() -> None:
                         help="Solo mirror, non crea chunk")
     parser.add_argument("--only-chunks", action="store_true",
                         help="Solo chunking (normattiva_docs già popolata)")
-    parser.add_argument("--workspace", default="normattiva",
-                        help="Workspace per i chunk (default: normattiva)")
+    parser.add_argument("--workspace", default="mio-studio",
+                        help="Workspace per i chunk (default: mio-studio)")
     parser.add_argument("--filter-tipo", nargs="+", default=None,
                         metavar="TIPO",
                         help="Filtra per tipo_provvedimento (es. LEGGE)")

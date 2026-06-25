@@ -45,7 +45,7 @@ class NormattivaPipeline:
     fonte=fonte_from_doc(), testo_tipo dal documento sorgente.
 
     Utilizzo tipico:
-        pipeline = NormattivaPipeline(mongo_db=client.db, workspace="normattiva")
+        pipeline = NormattivaPipeline(mongo_db=client.db, workspace="mio-studio")
         result = await pipeline.chunk_collection()
     """
 
