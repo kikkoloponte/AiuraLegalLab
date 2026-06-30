@@ -135,7 +135,7 @@ class LegalOrchestrator:
 
     Costruzione tipica (in FastAPI):
         orch = LegalOrchestrator(retriever, ollama, enable_clarifier=True)
-        result = await orch.run(query="...", workspace="normattiva")
+        result = await orch.run(query="...", workspace="mio-studio")
 
     Se enable_clarifier=False (o Ollama assente): S1 viene saltato.
     """

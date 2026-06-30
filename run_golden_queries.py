@@ -268,7 +268,7 @@ def format_markdown(q: dict, result: dict) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Golden Test Set — esegui le 10 schede")
     parser.add_argument("--api-url",   default="http://127.0.0.1:8765")
-    parser.add_argument("--workspace", default="normattiva")
+    parser.add_argument("--workspace", default="mio-studio")
     parser.add_argument("--scheda",    type=int, default=None,
                         help="Esegui solo la scheda N (1-10)")
     parser.add_argument("--output-dir", default=".",

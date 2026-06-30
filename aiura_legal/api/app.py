@@ -67,6 +67,8 @@ from aiura_legal.core.types import QueryIntent
 from aiura_legal.ingestion.mongodb.client import MongoClient
 from aiura_legal.api.jurisprudence_router import router as jurisprudence_router
 from aiura_legal.api.graph_router import router as graph_router
+from aiura_legal.api.questioni_router import router as questioni_router
+from aiura_legal.api.istituti_router import router as istituti_router
 from aiura_legal.api.settings_router import router as settings_router
 from aiura_legal.api.graph_router import set_graph as _set_graph
 from aiura_legal.ingestion.pipeline import Tier1Pipeline
@@ -342,6 +344,8 @@ app.add_middleware(
 )
 app.include_router(jurisprudence_router)
 app.include_router(graph_router, prefix="/graph", tags=["graph"])
+app.include_router(questioni_router, prefix="/questioni", tags=["questioni"])
+app.include_router(istituti_router, prefix="/istituti", tags=["istituti"])
 app.include_router(settings_router)
 
 

@@ -14,7 +14,7 @@ async def query(qid: str, text: str, intent: str = "norma_lookup") -> dict:
     async with httpx.AsyncClient(timeout=120) as c:
         r = await c.post(f"{API}/query", json={
             "query": text,
-            "workspace": "normattiva",
+            "workspace": "mio-studio",
             "intent": intent,
             "top_k": 7,
             "clarification_turn": 2,

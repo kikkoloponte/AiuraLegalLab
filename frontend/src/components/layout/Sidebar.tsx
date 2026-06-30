@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, MessageSquare, FolderOpen, BookOpen, History, Scale, Moon, Sun, ChevronDown, Check, Network, Settings } from 'lucide-react'
+import { Home, MessageSquare, FolderOpen, BookOpen, History, Scale, Moon, Sun, ChevronDown, Check, Network, Settings, ClipboardCheck, Library } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/context/ThemeContext'
 import { useWorkspace } from '@/context/WorkspaceContext'
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { to: '/documents', icon: FolderOpen,    label: 'Documenti' },
   { to: '/wiki',      icon: BookOpen,      label: 'Wiki legale' },
   { to: '/graph',     icon: Network,       label: 'Grafo legale' },
+  { to: '/questioni', icon: ClipboardCheck, label: 'Questioni da approvare' },
+  { to: '/istituti',  icon: Library,       label: 'Istituti Giuridici' },
 ]
 
 export function Sidebar() {
