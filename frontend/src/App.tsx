@@ -6,6 +6,8 @@ import { Documents } from '@/pages/Documents'
 import { Wiki } from '@/pages/Wiki'
 import { History } from '@/pages/History'
 import { Graph } from '@/pages/Graph'
+import { Questioni } from '@/pages/Questioni'
+import { Istituti } from '@/pages/Istituti'
 import { Settings } from '@/pages/Settings'
 
 export default function App() {
@@ -18,6 +20,8 @@ export default function App() {
         <Route path="wiki" element={<Wiki />} />
         <Route path="history" element={<History />} />
         <Route path="graph" element={<Graph />} />
+        <Route path="questioni" element={<Questioni />} />
+        <Route path="istituti" element={<Istituti />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>

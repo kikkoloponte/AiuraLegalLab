@@ -62,6 +62,10 @@ class MongoClient:
     def pii_vault(self):
         return self.db["pii_vault"]
 
+    @property
+    def istituti_giuridici(self):
+        return self.db["istituti_giuridici"]
+
     async def count_chunks(self, filter_query: dict = None) -> int:
         """Conta i chunk in aiura_legal_lab_db.chunks."""
         return await self.db["chunks"].count_documents(filter_query or {})
