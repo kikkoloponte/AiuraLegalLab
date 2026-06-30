@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Save, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditableList } from '@/components/istituti/EditableList'
+import { ChunkPicker } from '@/components/istituti/ChunkPicker'
 import {
   emptyIstituto,
   useCreateIstituto,
@@ -155,19 +156,16 @@ export function IstitutoForm({ istituto, onClose }: IstitutoFormProps) {
           rows={3}
           className={textareaClass}
         />
-        <input
-          placeholder="source_mongo_id"
-          value={form.definizione_e_natura_giuridica.source_mongo_id ?? ''}
-          onChange={(e) =>
+        <ChunkPicker
+          value={form.definizione_e_natura_giuridica.source_mongo_id}
+          onChange={(id) =>
             setForm({
               ...form,
-              definizione_e_natura_giuridica: {
-                ...form.definizione_e_natura_giuridica,
-                source_mongo_id: e.target.value || null,
-              },
+              definizione_e_natura_giuridica: { ...form.definizione_e_natura_giuridica, source_mongo_id: id },
             })
           }
-          className={`${inputClass} font-mono text-xs`}
+          corpus="dottrina"
+          placeholder='Cerca fonte (es. "natura giuridica confisca"…)'
         />
       </div>
 
@@ -192,11 +190,10 @@ export function IstitutoForm({ istituto, onClose }: IstitutoFormProps) {
               placeholder="Descrizione"
               className={textareaClass}
             />
-            <input
-              placeholder="source_mongo_id"
-              value={item.source_mongo_id ?? ''}
-              onChange={(e) => onUpdate({ ...item, source_mongo_id: e.target.value || null })}
-              className={`${inputClass} font-mono text-xs`}
+            <ChunkPicker
+              value={item.source_mongo_id}
+              onChange={(id) => onUpdate({ ...item, source_mongo_id: id })}
+              placeholder='Cerca chunk di riferimento (es. "periculum", "fumus"…)'
             />
           </div>
         )}
@@ -247,11 +244,11 @@ export function IstitutoForm({ istituto, onClose }: IstitutoFormProps) {
               rows={2}
               className={textareaClass}
             />
-            <input
-              placeholder="source_mongo_id"
-              value={item.source_mongo_id ?? ''}
-              onChange={(e) => onUpdate({ ...item, source_mongo_id: e.target.value || null })}
-              className={`${inputClass} font-mono text-xs`}
+            <ChunkPicker
+              value={item.source_mongo_id}
+              onChange={(id) => onUpdate({ ...item, source_mongo_id: id })}
+              corpus="giurisprudenza"
+              placeholder='Cerca sentenza (es. "Sezioni Unite confisca"…)'
             />
           </div>
         )}
@@ -320,11 +317,11 @@ function RiferimentoRow({
         onChange={(e) => onUpdate({ ...item, riferimento: e.target.value })}
         className={inputClass}
       />
-      <input
-        placeholder="source_mongo_id"
-        value={item.source_mongo_id ?? ''}
-        onChange={(e) => onUpdate({ ...item, source_mongo_id: e.target.value || null })}
-        className={`${inputClass} font-mono text-xs`}
+      <ChunkPicker
+        value={item.source_mongo_id}
+        onChange={(id) => onUpdate({ ...item, source_mongo_id: id })}
+        corpus="normattiva"
+        placeholder='Cerca articolo normativo (es. "321", "confisca"…)'
       />
     </div>
   )

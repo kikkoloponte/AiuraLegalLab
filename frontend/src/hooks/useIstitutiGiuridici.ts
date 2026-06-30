@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/api/client'
 import { useToast } from '@/context/ToastContext'
@@ -145,6 +146,28 @@ export function useUpdateIstituto() {
       qc.invalidateQueries({ queryKey: ['istituti'] })
     },
   })
+}
+
+export interface ChunkSearchResult {
+  id: string
+  label: string
+  preview: string
+}
+
+export type ChunkCorpus = 'normattiva' | 'giurisprudenza' | 'dottrina' | 'studio'
+
+export function useSearchChunks() {
+  return useCallback(async (q: string, corpus?: ChunkCorpus): Promise<ChunkSearchResult[]> => {
+    if (q.length < 2) return []
+    try {
+      const params: Record<string, string> = { q }
+      if (corpus) params.corpus = corpus
+      const { data } = await apiClient.get('/istituti/search-chunks', { params })
+      return data.results
+    } catch {
+      return []
+    }
+  }, [])
 }
 
 export function useDeleteIstituto() {

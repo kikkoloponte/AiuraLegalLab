@@ -10,7 +10,7 @@ indipendenti con optimistic locking per-documento) invece di YAML su disco.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi import status as http_status
 from pydantic import BaseModel
 
@@ -29,6 +29,16 @@ def _get_store() -> IstitutiStore:
     return IstitutiStore(MongoClient.get().istituti_giuridici)
 
 
+class ChunkSearchResult(BaseModel):
+    id: str
+    label: str    # titolo breve per la UI
+    preview: str  # inizio del testo del chunk
+
+
+class ChunkSearchResponse(BaseModel):
+    results: list[ChunkSearchResult]
+
+
 class IstitutiListResponse(BaseModel):
     items: list[IstitutoGiuridico]
 
@@ -36,6 +46,39 @@ class IstitutiListResponse(BaseModel):
 class IstitutoUpdateRequest(BaseModel):
     istituto: IstitutoGiuridicoCreate
     expected_version: int
+
+
+@router.get("/search-chunks", response_model=ChunkSearchResponse)
+async def search_chunks(
+    q: str = Query(..., min_length=2, description="Testo libero da cercare nei chunk"),
+    corpus: str | None = Query(default=None, description="normattiva | giurisprudenza | dottrina | studio"),
+    limit: int = Query(default=10, ge=1, le=50),
+) -> ChunkSearchResponse:
+    """
+    Ricerca full-text nei chunk MongoDB per popolare i campi source_mongo_id
+    della scheda istituto senza dover conoscere l'ObjectId a memoria.
+    Restituisce id, label (titolo/articolo) e preview del testo.
+    """
+    import re
+    from bson import ObjectId
+
+    coll = MongoClient.get().chunks
+    filt: dict = {"text": {"$regex": re.escape(q), "$options": "i"}}
+    if corpus:
+        filt["corpus"] = corpus
+
+    cursor = coll.find(filt, {"text": 1, "titolo": 1, "articolo_num": 1, "titolo_articolo": 1, "corpus": 1}).limit(limit)
+    results: list[ChunkSearchResult] = []
+    async for doc in cursor:
+        titolo = doc.get("titolo") or ""
+        articolo_num = doc.get("articolo_num") or ""
+        titolo_articolo = doc.get("titolo_articolo") or ""
+        corpus_val = doc.get("corpus") or ""
+        label_parts = [p for p in [articolo_num, titolo_articolo or titolo, f"[{corpus_val}]"] if p]
+        label = " — ".join(label_parts) if label_parts else str(doc["_id"])
+        testo = (doc.get("text") or "")[:120].replace("\n", " ")
+        results.append(ChunkSearchResult(id=str(doc["_id"]), label=label, preview=testo))
+    return ChunkSearchResponse(results=results)
 
 
 @router.get("", response_model=IstitutiListResponse)
