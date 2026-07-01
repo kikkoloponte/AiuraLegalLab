@@ -44,10 +44,14 @@ function mapHistorySource(s: HistoryEntry['sources'][number]): Source {
 
   let label = sourceId
   if (type === 'giurisprudenza') {
-    const org = ORGANO_MAP[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
-    const num = meta.numero ? `n.${meta.numero}` : ''
-    const yr  = meta.anno  ? `/${meta.anno}` : ''
-    label = [org, num + yr].filter(Boolean).join(' ') || sourceId
+    if (!meta.organo && !meta.numero && !meta.anno) {
+      label = meta.titolo?.slice(0, 50) || meta.materia || sourceId
+    } else {
+      const org = ORGANO_MAP[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
+      const num = meta.numero ? `n.${meta.numero}` : ''
+      const yr  = meta.anno  ? `/${meta.anno}` : ''
+      label = [org, num + yr].filter(Boolean).join(' ') || sourceId
+    }
   } else if (meta.articolo && meta.titolo) {
     label = `${meta.articolo} — ${meta.titolo}`.slice(0, 60)
   } else if (meta.articolo) {

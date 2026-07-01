@@ -1,0 +1,468 @@
+@prefix : <https://aiuralegallab.it/ontology/legal-kb#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+#################################################################
+# AiUra LegalLab — Ontologia del dominio giuridico (TBox)
+#
+# Proposta di revisione discussa con l'avvocato: estende l'ontologia
+# kelseniana di base (Ordinamento -> Fonte -> Norma -> Principio ->
+# Soggetto -> Rapporto -> Fatto/Atto -> Procedimento -> Decisione ->
+# Giurisprudenza) con il livello documentale, la QuestioneGiuridica
+# come hub di retrieval, il versioning temporale delle norme e il
+# livello applicativo (Pratica/QuesitoUtente).
+#
+# Nessun assioma di gerarchia su istituti concreti: quelli vivono nel
+# registro separato (ontology/istituti.owl.ttl) con ciclo di
+# proposta/approvazione dedicato. Questo file è la TBox del dominio,
+# non il registro degli istituti.
+#################################################################
+
+<https://aiuralegallab.it/ontology/legal-kb> a owl:Ontology ;
+    rdfs:label "AiUra LegalLab — Ontologia del dominio giuridico"@it ;
+    dct:description "TBox per rappresentazione di fonti, norme, soggetti, rapporti, procedimenti, decisioni, giurisprudenza, dottrina e livello applicativo di una KB giuridica."@it .
+
+#################################################################
+# Classi — livello ordinamentale
+#################################################################
+
+:OrdinamentoGiuridico a owl:Class ;
+    rdfs:label "Ordinamento giuridico"@it .
+
+:FonteDelDiritto a owl:Class ;
+    rdfs:label "Fonte del diritto"@it .
+
+#################################################################
+# Classi — livello documentale (NUOVO)
+#################################################################
+
+:Documento a owl:Class ;
+    rdfs:label "Documento"@it ;
+    rdfs:comment "Radice di tutto ciò che è indicizzabile e citabile nella KB."@it .
+
+:DocumentoNormativo a owl:Class ;
+    rdfs:subClassOf :Documento ;
+    rdfs:label "Documento normativo"@it .
+
+:Provvedimento a owl:Class ;
+    rdfs:subClassOf :Documento ;
+    rdfs:label "Provvedimento"@it ;
+    rdfs:comment "Il testo di sentenza/ordinanza/decreto, distinto dall'evento giuridico Decisione."@it .
+
+:Massima a owl:Class ;
+    rdfs:subClassOf :Documento ;
+    rdfs:label "Massima"@it ;
+    rdfs:comment "Estratto redazionale di una Decisione, granularità di indicizzazione propria (corpus=massimario)."@it .
+
+:OperaDottrinale a owl:Class ;
+    rdfs:subClassOf :Documento ;
+    rdfs:label "Opera dottrinale"@it .
+
+:Parere a owl:Class ;
+    rdfs:subClassOf :Documento ;
+    rdfs:label "Parere"@it .
+
+:AttoDiParte a owl:Class ;
+    rdfs:subClassOf :Documento, :AttoGiuridico ;
+    rdfs:label "Atto di parte"@it ;
+    rdfs:comment "Citazione, ricorso, memoria, contratto caricato dal cliente (corpus=studio)."@it .
+
+#################################################################
+# Classi — norme e principi
+#################################################################
+
+:Norma a owl:Class ;
+    rdfs:label "Norma"@it .
+
+:PrincipioGiuridico a owl:Class ;
+    rdfs:label "Principio giuridico"@it .
+
+:Interpretazione a owl:Class ;
+    rdfs:label "Interpretazione"@it ;
+    rdfs:comment "Atto interpretativo esplicito di una Norma: letterale, sistematica, teleologica, analogica."@it .
+
+:QuestioneGiuridica a owl:Class ;
+    rdfs:label "Questione giuridica"@it ;
+    rdfs:comment "Hub di retrieval: la domanda di diritto astratta che collega Norma, Decisione, Dottrina e Principio."@it .
+
+#################################################################
+# Classi — soggetti e rapporti
+#################################################################
+
+:SoggettoGiuridico a owl:Class ;
+    rdfs:label "Soggetto giuridico"@it .
+
+:CategoriaSoggetto a owl:Class ;
+    rdfs:label "Categoria di soggetto"@it ;
+    rdfs:comment "Es. consumatore, datore di lavoro, PA — generalizza Norma->Soggetto senza esplodere su istanze."@it .
+
+:RapportoGiuridico a owl:Class ;
+    rdfs:label "Rapporto giuridico"@it .
+
+:DirittoSoggettivo a owl:Class ;
+    rdfs:label "Diritto soggettivo"@it .
+
+:Obbligo a owl:Class ;
+    rdfs:label "Obbligo"@it .
+
+#################################################################
+# Classi — fatti e atti
+#################################################################
+
+:FattoGiuridico a owl:Class ;
+    rdfs:label "Fatto giuridico"@it .
+
+:AttoGiuridico a owl:Class ;
+    rdfs:subClassOf :FattoGiuridico ;
+    rdfs:label "Atto giuridico"@it .
+
+#################################################################
+# Classi — procedimento, organi, decisioni, giurisprudenza
+#################################################################
+
+:Procedimento a owl:Class ;
+    rdfs:label "Procedimento"@it .
+
+:RuoloProcessuale a owl:Class ;
+    rdfs:label "Ruolo processuale"@it ;
+    rdfs:comment "Es. attore/convenuto, PM/imputato, ricorrente/resistente."@it .
+
+:OrganoGiudicante a owl:Class ;
+    rdfs:label "Organo giudicante"@it .
+
+:Decisione a owl:Class ;
+    rdfs:label "Decisione"@it .
+
+:OrientamentoGiurisprudenziale a owl:Class ;
+    rdfs:label "Orientamento giurisprudenziale"@it ;
+    rdfs:comment "Raggruppamento derivato di Decisione su una stessa QuestioneGiuridica."@it .
+
+#################################################################
+# Classi — livello applicativo (NUOVO)
+#################################################################
+
+:Pratica a owl:Class ;
+    rdfs:label "Pratica"@it ;
+    rdfs:comment "Fascicolo applicativo che raggruppa quesito, parti, fatti e documenti per un caso concreto."@it .
+
+:QuesitoUtente a owl:Class ;
+    rdfs:label "Quesito utente"@it ;
+    rdfs:comment "La domanda posta dall'avvocato al sistema, distinta dalla QuestioneGiuridica astratta a cui viene mappata."@it .
+
+#################################################################
+# Datatype properties — attributi
+#################################################################
+
+:ambito a owl:DatatypeProperty ;
+    rdfs:domain :OrdinamentoGiuridico ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Stato/UE/Internazionale."@it .
+
+:tipoFonte a owl:DatatypeProperty ;
+    rdfs:domain :FonteDelDiritto ;
+    rdfs:range xsd:string ;
+    rdfs:comment "costituzione/legge/regolamento/consuetudine."@it .
+
+:livelloFonte a owl:DatatypeProperty ;
+    rdfs:domain :FonteDelDiritto ;
+    rdfs:range xsd:string ;
+    rdfs:comment "primario/secondario."@it .
+
+:idNorma a owl:DatatypeProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range xsd:string .
+
+:materia a owl:DatatypeProperty ;
+    rdfs:domain :Norma, :QuestioneGiuridica ;
+    rdfs:range xsd:string .
+
+:vigenteDal a owl:DatatypeProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range xsd:date .
+
+:vigenteAl a owl:DatatypeProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range xsd:date .
+
+:statoVigenza a owl:DatatypeProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range xsd:string ;
+    rdfs:comment "vigente/abrogata/sospesa."@it .
+
+:urn a owl:DatatypeProperty ;
+    rdfs:domain :Documento ;
+    rdfs:range xsd:string .
+
+:dataPubblicazione a owl:DatatypeProperty ;
+    rdfs:domain :Documento ;
+    rdfs:range xsd:date .
+
+:corpus a owl:DatatypeProperty ;
+    rdfs:domain :Documento ;
+    rdfs:range xsd:string ;
+    rdfs:comment "normattiva/giurisprudenza/dottrina/studio — coerente con aiura_legal_lab_db.chunks.corpus."@it .
+
+:tipoDocumento a owl:DatatypeProperty ;
+    rdfs:domain :Documento ;
+    rdfs:range xsd:string ;
+    rdfs:comment "norma/sentenza/massima/opera_dottrinale/parere/atto_di_parte."@it .
+
+:tipoSoggetto a owl:DatatypeProperty ;
+    rdfs:domain :SoggettoGiuridico ;
+    rdfs:range xsd:string ;
+    rdfs:comment "persona fisica/persona giuridica/ente."@it .
+
+:naturaRapporto a owl:DatatypeProperty ;
+    rdfs:domain :RapportoGiuridico ;
+    rdfs:range xsd:string ;
+    rdfs:comment "attivo/passivo."@it .
+
+:categoriaDiritto a owl:DatatypeProperty ;
+    rdfs:domain :DirittoSoggettivo ;
+    rdfs:range xsd:string ;
+    rdfs:comment "assoluto/relativo/potestativo."@it .
+
+:tipoObbligo a owl:DatatypeProperty ;
+    rdfs:domain :Obbligo ;
+    rdfs:range xsd:string ;
+    rdfs:comment "dare/fare/non fare."@it .
+
+:tipoFatto a owl:DatatypeProperty ;
+    rdfs:domain :FattoGiuridico ;
+    rdfs:range xsd:string ;
+    rdfs:comment "naturale/umano."@it .
+
+:tipoAtto a owl:DatatypeProperty ;
+    rdfs:domain :AttoGiuridico ;
+    rdfs:range xsd:string ;
+    rdfs:comment "negozio/provvedimento/atto processuale."@it .
+
+:ambitoProcedimento a owl:DatatypeProperty ;
+    rdfs:domain :Procedimento ;
+    rdfs:range xsd:string ;
+    rdfs:comment "civile/penale/amministrativo."@it .
+
+:fase a owl:DatatypeProperty ;
+    rdfs:domain :Procedimento ;
+    rdfs:range xsd:string ;
+    rdfs:comment "introduttiva/istruttoria/decisionale/esecutiva."@it .
+
+:grado a owl:DatatypeProperty ;
+    rdfs:domain :OrganoGiudicante, :Decisione ;
+    rdfs:range xsd:string ;
+    rdfs:comment "primo/appello/cassazione."@it .
+
+:tipoDecisione a owl:DatatypeProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range xsd:string ;
+    rdfs:comment "sentenza/ordinanza/decreto."@it .
+
+:esito a owl:DatatypeProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range xsd:string ;
+    rdfs:comment "accoglimento/rigetto/condanna/assoluzione."@it .
+
+:dataDecisione a owl:DatatypeProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range xsd:date .
+
+:vincolante a owl:DatatypeProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range xsd:boolean .
+
+:forzaPrecedente a owl:DatatypeProperty ;
+    rdfs:comment "Attributo della relazione richiama: vincolante/persuasiva/nomofilattica."@it ;
+    rdfs:range xsd:string .
+
+:statoOrientamento a owl:DatatypeProperty ;
+    rdfs:domain :OrientamentoGiurisprudenziale ;
+    rdfs:range xsd:string ;
+    rdfs:comment "consolidato/contrastante/minoritario."@it .
+
+:formulazione a owl:DatatypeProperty ;
+    rdfs:domain :QuestioneGiuridica ;
+    rdfs:range xsd:string .
+
+:paroleChiave a owl:DatatypeProperty ;
+    rdfs:domain :QuestioneGiuridica ;
+    rdfs:range xsd:string .
+
+#################################################################
+# Object properties — livello ordinamentale e documentale
+#################################################################
+
+:comprende a owl:ObjectProperty ;
+    rdfs:domain :OrdinamentoGiuridico ;
+    rdfs:range :FonteDelDiritto .
+
+:siEsprimeIn a owl:ObjectProperty ;
+    rdfs:domain :FonteDelDiritto ;
+    rdfs:range :DocumentoNormativo .
+
+:contiene a owl:ObjectProperty ;
+    rdfs:domain :DocumentoNormativo ;
+    rdfs:range :Norma .
+
+#################################################################
+# Object properties — norme, vigenza, interpretazione
+#################################################################
+
+:abroga a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :Norma .
+
+:modifica a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :Norma .
+
+:deroga a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :Norma .
+
+:attua a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :Norma ;
+    rdfs:comment "Norma nazionale che attua/recepisce una fonte sovranazionale."@it .
+
+:attuaPrincipio a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :PrincipioGiuridico .
+
+:disciplinaCategoria a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :CategoriaSoggetto .
+
+:pertinenteA a owl:ObjectProperty ;
+    rdfs:domain :Norma ;
+    rdfs:range :QuestioneGiuridica .
+
+:interpreta a owl:ObjectProperty ;
+    rdfs:domain :Interpretazione ;
+    rdfs:range :Norma .
+
+:rispondeA a owl:ObjectProperty ;
+    rdfs:domain :Interpretazione ;
+    rdfs:range :QuestioneGiuridica .
+
+:fondataSu a owl:ObjectProperty ;
+    rdfs:domain :Interpretazione ;
+    rdfs:range :OperaDottrinale .
+
+:orienta a owl:ObjectProperty ;
+    rdfs:domain :PrincipioGiuridico ;
+    rdfs:range :QuestioneGiuridica .
+
+:ancorataA a owl:ObjectProperty ;
+    rdfs:domain :PrincipioGiuridico ;
+    rdfs:range :Documento ;
+    rdfs:comment "Vincolo: ogni principio citato deve avere almeno un documento di ancoraggio."@it .
+
+#################################################################
+# Object properties — soggetti e rapporti
+#################################################################
+
+:partecipaA a owl:ObjectProperty ;
+    rdfs:domain :SoggettoGiuridico ;
+    rdfs:range :RapportoGiuridico .
+
+:appartieneACategoria a owl:ObjectProperty ;
+    rdfs:domain :SoggettoGiuridico ;
+    rdfs:range :CategoriaSoggetto .
+
+:attribuisce a owl:ObjectProperty ;
+    rdfs:domain :RapportoGiuridico ;
+    rdfs:range :DirittoSoggettivo .
+
+:impone a owl:ObjectProperty ;
+    rdfs:domain :RapportoGiuridico ;
+    rdfs:range :Obbligo .
+
+:generaModificaEstingue a owl:ObjectProperty ;
+    rdfs:domain :FattoGiuridico ;
+    rdfs:range :RapportoGiuridico .
+
+#################################################################
+# Object properties — procedimento, ruoli, decisione
+#################################################################
+
+:introduceOIncideSu a owl:ObjectProperty ;
+    rdfs:domain :AttoGiuridico ;
+    rdfs:range :Procedimento .
+
+:assumeRuolo a owl:ObjectProperty ;
+    rdfs:domain :SoggettoGiuridico ;
+    rdfs:range :RuoloProcessuale .
+
+:ruoloIn a owl:ObjectProperty ;
+    rdfs:domain :RuoloProcessuale ;
+    rdfs:range :Procedimento .
+
+:decisoDa a owl:ObjectProperty ;
+    rdfs:domain :Procedimento ;
+    rdfs:range :OrganoGiudicante .
+
+:gradoSuccessivoDi a owl:ObjectProperty ;
+    rdfs:domain :Procedimento ;
+    rdfs:range :Procedimento ;
+    rdfs:comment "Collega i gradi di giudizio dello stesso procedimento (primo grado -> appello -> cassazione)."@it .
+
+:produce a owl:ObjectProperty ;
+    rdfs:domain :Procedimento ;
+    rdfs:range :Decisione .
+
+:applica a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :Norma .
+
+:qualifica a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :FattoGiuridico ;
+    rdfs:comment "La sussunzione: la Decisione qualifica giuridicamente un FattoGiuridico."@it .
+
+:risolve a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :QuestioneGiuridica .
+
+:riguarda a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :SoggettoGiuridico .
+
+:sintetizzataIn a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :Massima .
+
+:richiama a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :Decisione ;
+    rdfs:comment "Sostituisce la classe Precedente: il richiamo è un ruolo relazionale tra Decisioni, con attributo forzaPrecedente."@it .
+
+:confluisceIn a owl:ObjectProperty ;
+    rdfs:domain :Decisione ;
+    rdfs:range :OrientamentoGiurisprudenziale .
+
+#################################################################
+# Object properties — livello applicativo
+#################################################################
+
+:nasceDa a owl:ObjectProperty ;
+    rdfs:domain :Pratica ;
+    rdfs:range :QuesitoUtente .
+
+:mappatoSu a owl:ObjectProperty ;
+    rdfs:domain :QuesitoUtente ;
+    rdfs:range :QuestioneGiuridica .
+
+:praticaContieneFatto a owl:ObjectProperty ;
+    rdfs:domain :Pratica ;
+    rdfs:range :FattoGiuridico .
+
+:praticaCoinvolgeSoggetto a owl:ObjectProperty ;
+    rdfs:domain :Pratica ;
+    rdfs:range :SoggettoGiuridico .
+
+:referenzia a owl:ObjectProperty ;
+    rdfs:domain :Pratica ;
+    rdfs:range :Documento .

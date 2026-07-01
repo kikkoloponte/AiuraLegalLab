@@ -335,6 +335,105 @@ def _invert_ref_map(fwd: dict[str, str]) -> dict[str, str]:
     return {ref: sid for sid, ref in fwd.items()}
 
 
+_ORGANO_LABELS = {
+    "cassazione": "Cass.", "tar": "TAR", "consiglio_stato": "Cons. St.",
+    "corte_cost": "Corte Cost.", "corte_conti": "Corte Conti",
+}
+
+
+def build_source_label(source_id: str, meta: dict | None) -> str:
+    """
+    Etichetta leggibile per una fonte, stessa logica usata dal frontend per il
+    footer "Fonti:" (vedi frontend/src/hooks/useChat.ts mapBackendResponse).
+    Centralizzata qui per poterla riusare lato backend in `humanize_refs`,
+    che sostituisce i token "(F1)" lasciati nel testo prosa con la fonte
+    reale leggibile (vedi humanize_refs).
+    """
+    meta = meta or {}
+    if meta.get("organo") or source_id.startswith("giurisprudenza_"):
+        organo = meta.get("organo", "")
+        numero = meta.get("numero")
+        anno = meta.get("anno")
+        if not organo and not numero and not anno:
+            # Decisione senza organo/numero/anno in metadata (scraper non li
+            # ha estratti per questo doc): "Sent." da solo non è verificabile
+            # dall'avvocato — usa titolo/materia se presenti, altrimenti la
+            # coda del source_id (meglio di un'etichetta del tutto generica).
+            return (
+                meta.get("titolo", "")[:50]
+                or meta.get("materia", "")
+                or (source_id.rsplit("_", 1)[-1] if "_" in source_id else source_id)
+            )
+        organo_label = _ORGANO_LABELS.get(organo, organo) or "Sent."
+        num_yr = (f"n.{numero}" if numero else "") + (f"/{anno}" if anno else "")
+        return " ".join(filter(None, [organo_label, num_yr])).strip() or source_id
+    articolo = meta.get("articolo") or meta.get("articolo_num")
+    titolo = meta.get("titolo")
+    if articolo and titolo:
+        return f"{articolo} — {titolo}"[:60]
+    if articolo:
+        return articolo
+    if titolo:
+        return titolo[:50]
+    if len(source_id) > 40:
+        return source_id.rsplit(":", 1)[-1]
+    return source_id
+
+
+_FREF_RE = re.compile(r"\bF(\d+)\b")
+
+
+def humanize_refs(text: str, ref_map: dict[str, str], sources_metadata: dict[str, dict]) -> str:
+    """
+    Sostituisce i token "F1", "F2"... lasciati dall'LLM nel testo prosa
+    (es. "...accetta un rischio noto (F1)...") con l'etichetta leggibile
+    della fonte reale (es. "...accetta un rischio noto (Cass. n.250/2025)...").
+
+    Senza questa sostituzione l'avvocato vede "(F1)" nel corpo della risposta
+    ma nessuna voce "F1" nell'elenco "Fonti:" finale — il ref_map esiste solo
+    lato sistema per il grounding check del Reviewer (vedi
+    CitationReviewer.verify(ref_map=)), non viene mai mostrato all'utente.
+
+    Sicuro rispetto al Reviewer: il regex di estrazione citazioni
+    (reviewer._CITATION_RE) non matcha mai token "F\\d+", quindi sostituirli
+    nel testo prima o dopo la verifica S5 non altera l'esito del grounding
+    check (che si basa sulle citations[] strutturate, non sul testo prosa).
+    """
+    if not text or not ref_map:
+        return text
+
+    def _repl(m: re.Match) -> str:
+        ref = f"F{m.group(1)}"
+        sid = ref_map.get(ref)
+        if not sid:
+            return m.group(0)
+        return build_source_label(sid, sources_metadata.get(sid))
+
+    return _FREF_RE.sub(_repl, text)
+
+
+def resolve_citation_refs(citations: list[dict], ref_map: dict[str, str]) -> list[dict]:
+    """
+    Risolve i "F1"/"F2"... grezzi in citations[]["source_id"] al source_id
+    reale, stesso ref_map usato da humanize_refs per il testo prosa.
+
+    Senza questa risoluzione il frontend (ResponseCard: sourceMap[c.source_id])
+    non trova mai una corrispondenza per un token "F<n>" — sourceMap è
+    indicizzato per source_id reali — e mostra il chip in fallback "non
+    verificato" con il token grezzo invece della fonte cliccabile.
+    """
+    if not citations or not ref_map:
+        return citations
+    resolved = []
+    for c in citations:
+        if isinstance(c, dict) and isinstance(c.get("source_id"), str):
+            sid = ref_map.get(c["source_id"].upper())
+            if sid:
+                c = {**c, "source_id": sid}
+        resolved.append(c)
+    return resolved
+
+
 def _format_source(ref: str, s: SearchResult, text: Optional[str] = None) -> list[str]:
     """
     `ref` è il riferimento da citare (es. "F1"), assegnato da _assign_refs.
@@ -476,7 +575,7 @@ class AnalystAgent:
         ]
         ref_map_norm, _next = _assign_refs(norm)
         if norm:
-            norm_texts = _source_texts_for_prompt(norm, "normativa")
+            norm_texts = _source_texts_for_prompt(norm, "normattiva")
             lines.append("\n## FONTI NORMATIVE\n")
             for s, t in zip(norm, norm_texts):
                 lines.extend(_format_source(ref_map_norm[s.source_id], s, t))
@@ -626,7 +725,7 @@ class AnalystAgent:
         norm = [s for s in packet.sources if self._effective_layer(s) == "normativa"]
         if not norm:
             return "NESSUNA FONTE NORMATIVA NEL RESEARCH PACKET.", {}
-        texts = _source_texts_for_prompt(norm, "normativa")
+        texts = _source_texts_for_prompt(norm, "normattiva")
         ref_map, _ = _assign_refs(norm)
         lines = ["FONTI NORMATIVE — cita SOLO il riferimento FN mostrato:", "=" * 60]
         for s, t in zip(norm, texts):
@@ -805,7 +904,7 @@ class AnalystAgent:
 
     @staticmethod
     def _format_phase_sources(
-        sources: list[SearchResult], corpus: str = "normativa", start: int = 1,
+        sources: list[SearchResult], corpus: str = "normattiva", start: int = 1,
     ) -> tuple[str, dict[str, str]]:
         """Serializza fonti di fase in formato leggibile per il prompt.
 
@@ -1052,7 +1151,7 @@ class AnalystAgent:
 
         # ── Fase 2: Normativa + Dottrina ──────────────────────────────
         t1 = time.monotonic()
-        ctx_norm, ref_map_norm = self._format_phase_sources(norm_sources, corpus="normativa")
+        ctx_norm, ref_map_norm = self._format_phase_sources(norm_sources, corpus="normattiva")
         framing_summary = self._build_framing_summary(sections_f1, data_f1)
 
         # Sezione dottrina opzionale — presente solo se ci sono fonti.
@@ -1177,7 +1276,15 @@ class AnalystAgent:
 
         # ── Fase 3: Giurisprudenza + Massimario ───────────────────────
         t2 = time.monotonic()
-        ctx_giuri, ref_map_giuri = self._format_phase_sources(giuri_sources, corpus="giurisprudenza")
+        # I ref proseguono da quelli già usati in Fase 2 (ref_map_f2): senza
+        # questo "start=", _format_phase_sources riparte da F1 e collide con
+        # i riferimenti di Fase 2 già mostrati all'avvocato — stesso token
+        # "F1" risolve a fonti diverse in fasi diverse (bug scoperto perché
+        # rompeva la sostituzione "F1"→fonte leggibile in humanize_refs).
+        _next_f3 = max((int(r[1:]) for r in ref_map_f2.values()), default=0) + 1
+        ctx_giuri, ref_map_giuri = self._format_phase_sources(
+            giuri_sources, corpus="giurisprudenza", start=_next_f3,
+        )
 
         # Blocco MASSIMARIO opzionale — presente solo se ci sono fonti.
         # I ref proseguono da quelli già usati per ctx_giuri.

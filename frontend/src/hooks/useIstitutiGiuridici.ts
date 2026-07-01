@@ -46,6 +46,7 @@ export interface IstitutoGiuridicoInput {
   metadata_ui: MetadataUI
   denominazione: string
   codice_riferimento: string
+  raggruppamento: string | null
   quadro_normativo: QuadroNormativo
   definizione_e_natura_giuridica: DefinizioneNaturaGiuridica
   elementi_costitutivi: ElementoCostitutivo[]
@@ -63,6 +64,7 @@ export function emptyIstituto(): IstitutoGiuridicoInput {
     metadata_ui: { progetto: 'AiuraLegalLab', stato_istanza: 'ready_for_ui_crud', fonti_mongodb_coinvolte: [] },
     denominazione: '',
     codice_riferimento: 'CC',
+    raggruppamento: null,
     quadro_normativo: { articoli_principali: [], leggi_complementari: [] },
     definizione_e_natura_giuridica: { testo: null, source_mongo_id: null },
     elementi_costitutivi: [],

@@ -41,6 +41,7 @@ dependencies = [
     "networkx>=3.3",
     "aiofiles>=23.2.1",
     "cryptography>=42.0.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -56,6 +57,12 @@ dev = [
 # Non usato dal path di produzione finché la migrazione non è validata.
 graph-poc = [
     "neo4j>=6.0.0",
+]
+# Pilot di valutazione Headroom (compressione research packet) — vedi
+# docs/superpowers/specs/2026-06-28-headroom-compression-pilot-design.md.
+# Non usato dal path di produzione finché il pilot non valida l'approccio.
+headroom = [
+    "headroom-ai[ml]",
 ]
 
 [tool.setuptools.packages.find]

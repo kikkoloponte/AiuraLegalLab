@@ -30,11 +30,13 @@ eval/results/
 eval/query_results/
 eval/bench_results/
 scripts/build_report.json
+scripts/output/
 # Brainstorming / preview artifacts
 .superpowers/
 .claude/worktrees/
 # Runtime logs
 logs/
+/*.log
 # Word temp files
 docs/~$*
 docs/node_modules/

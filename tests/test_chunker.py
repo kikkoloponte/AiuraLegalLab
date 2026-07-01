@@ -39,6 +39,21 @@ def test_chunk_indices_sequential(chunker):
         assert c.index == i
 
 
+def test_chunk_text_is_normalized(chunker):
+    # Newline interne (artefatto estrazione PDF) non devono comparire nel
+    # testo del chunk prodotto.
+    text = (
+        "Articolo 1. Il presente\ncontratto è stipulato tra\nle parti "
+        "che si impegnano   reciprocamente al rispetto delle clausole "
+        "qui di seguito elencate in modo chiaro e dettagliato ."
+    )
+    chunks = chunker.chunk(text)
+    assert len(chunks) == 1
+    assert "\n" not in chunks[0].text
+    assert "  " not in chunks[0].text
+    assert "elencate in modo chiaro e dettagliato." in chunks[0].text
+
+
 def test_no_chunk_exceeds_max_tokens(chunker):
     text = " ".join(["termine"] * 3000)
     chunks = chunker.chunk(text)

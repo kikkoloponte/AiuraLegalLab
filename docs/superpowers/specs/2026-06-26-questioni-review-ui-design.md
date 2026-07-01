@@ -154,6 +154,8 @@ Tabs: Da revisionare | Approvate | Rifiutate
 - Autenticazione/permessi (lo strumento è oggi mono-utente locale, nessun concetto di auth esistente in `app.py`)
 - Test automatici frontend (nessuna convenzione esistente nel progetto)
 
+**Limitazione nota scoperta durante la verifica**: `QuestioniRegistry.update()` riscrive l'intero file con `yaml.safe_dump`, che non preserva i commenti — modificare anche una sola voce dalla UI elimina i commenti (header esplicativo, note inline tipo `# Art. 1218 c.c.`) dell'intero file, non solo della voce toccata. Accettabile per ora (il registro è piccolo, i commenti sono ricostruibili), ma da risolvere con `ruamel.yaml` (round-trip preserving) se il registro cresce o i commenti diventano operativamente importanti.
+
 ---
 
 ## 9. Migrazione dati esistenti

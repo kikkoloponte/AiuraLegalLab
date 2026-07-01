@@ -1,4 +1,0 @@
-[32m2026-05-31 19:39:25.356[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m255[0m - [1mFetch atto: urn:nir:stato:decreto.del.presidente.della.repubblica:2001-06-08;327[0m
-[32m2026-05-31 19:39:25.356[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m256[0m - [1m  tipo: 'DECRETO DEL PRESIDENTE DELLA REPUBBLICA'  |  titolo: 'DECRETO DEL PRESIDENTE DELLA REPUBBLICA 8 giugno 2001, n. 327'[0m
-[32m2026-05-31 19:40:01.158[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  50 articoli scaricati…[0m
-[32m2026-05-31 19:40:31.836[0m | [32m[1mSUCCESS [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m305[0m - [32m[1m  urn:nir:stato:decreto.del.presidente.della.repubblica:2001-06-08;327: 70 articoli scaricati, 70 scritti/aggiornati[0m

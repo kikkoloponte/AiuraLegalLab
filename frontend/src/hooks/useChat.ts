@@ -32,14 +32,20 @@ function mapBackendResponse(data: Record<string, unknown>): LegalResponse {
     let label = sourceId
     if (type === 'giurisprudenza') {
       // Costruisce "Cass. n.1234/2023" o "TAR n.456/2022" dal metadata
-      const organoMap: Record<string, string> = {
-        cassazione: 'Cass.', tar: 'TAR', consiglio_stato: 'Cons. St.',
-        corte_cost: 'Corte Cost.', corte_conti: 'Corte Conti',
+      if (!meta.organo && !meta.numero && !meta.anno) {
+        // Decisione senza organo/numero/anno in metadata: "Sent." da solo
+        // non è verificabile dall'avvocato — usa titolo/materia se presenti.
+        label = meta.titolo?.slice(0, 50) || meta.materia || sourceId
+      } else {
+        const organoMap: Record<string, string> = {
+          cassazione: 'Cass.', tar: 'TAR', consiglio_stato: 'Cons. St.',
+          corte_cost: 'Corte Cost.', corte_conti: 'Corte Conti',
+        }
+        const organoLabel = organoMap[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
+        const num = meta.numero ? `n.${meta.numero}` : ''
+        const yr  = meta.anno  ? `/${meta.anno}` : ''
+        label = [organoLabel, num + yr].filter(Boolean).join(' ') || sourceId
       }
-      const organoLabel = organoMap[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
-      const num = meta.numero ? `n.${meta.numero}` : ''
-      const yr  = meta.anno  ? `/${meta.anno}` : ''
-      label = [organoLabel, num + yr].filter(Boolean).join(' ') || sourceId
     } else if (meta.articolo && meta.titolo) {
       label = `${meta.articolo} — ${meta.titolo}`.slice(0, 60)
     } else if (meta.articolo) {
@@ -218,14 +224,18 @@ export function useChat(workspace: string) {
 
               let label = sourceId
               if (type === 'giurisprudenza') {
-                const organoMap: Record<string, string> = {
-                  cassazione: 'Cass.', tar: 'TAR', consiglio_stato: 'Cons. St.',
-                  corte_cost: 'Corte Cost.', corte_conti: 'Corte Conti',
+                if (!meta.organo && !meta.numero && !meta.anno) {
+                  label = meta.titolo?.slice(0, 50) || meta.materia || sourceId
+                } else {
+                  const organoMap: Record<string, string> = {
+                    cassazione: 'Cass.', tar: 'TAR', consiglio_stato: 'Cons. St.',
+                    corte_cost: 'Corte Cost.', corte_conti: 'Corte Conti',
+                  }
+                  const o = organoMap[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
+                  const n = meta.numero ? `n.${meta.numero}` : ''
+                  const y = meta.anno   ? `/${meta.anno}`   : ''
+                  label = [o, n + y].filter(Boolean).join(' ') || sourceId
                 }
-                const o = organoMap[meta.organo ?? ''] ?? meta.organo ?? 'Sent.'
-                const n = meta.numero ? `n.${meta.numero}` : ''
-                const y = meta.anno   ? `/${meta.anno}`   : ''
-                label = [o, n + y].filter(Boolean).join(' ') || sourceId
               } else if (meta.articolo && meta.titolo) {
                 label = `${meta.articolo} — ${meta.titolo}`.slice(0, 60)
               } else if (meta.articolo) {

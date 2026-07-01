@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Plus, Scale } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { IstitutoForm } from '@/components/istituti/IstitutoForm'
+import { IstitutiTree } from '@/components/istituti/IstitutiTree'
 import { useIstitutiList, type IstitutoGiuridico } from '@/hooks/useIstitutiGiuridici'
 
 export function Istituti() {
@@ -11,7 +11,7 @@ export function Istituti() {
   const [editing, setEditing] = useState<IstitutoGiuridico | 'new' | null>(null)
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-6 py-5">
+    <div className="flex h-full flex-col px-6 py-5 overflow-hidden">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <Scale className="w-5 h-5 text-primary" />
@@ -26,37 +26,30 @@ export function Istituti() {
         Schede istituto tracciate dalla Knowledge Base — crea, modifica o elimina senza toccare MongoDB a mano.
       </p>
 
-      {editing && (
-        <div className="mb-4">
-          <IstitutoForm
-            istituto={editing === 'new' ? undefined : editing}
-            onClose={() => setEditing(null)}
-          />
+      <div className="flex flex-1 gap-4 min-h-0">
+        <div className="w-72 flex-shrink-0 overflow-y-auto border border-border rounded-lg p-2">
+          {isLoading && <p className="text-sm text-muted-foreground px-2">Caricamento…</p>}
+          {!isLoading && items.length === 0 && (
+            <p className="text-sm text-muted-foreground px-2">Nessun istituto censito.</p>
+          )}
+          {!isLoading && items.length > 0 && (
+            <IstitutiTree
+              items={items}
+              selectedId={editing !== 'new' ? editing?.id : undefined}
+              onSelect={(it) => setEditing(it)}
+            />
+          )}
         </div>
-      )}
 
-      {isLoading && <p className="text-sm text-muted-foreground">Caricamento…</p>}
-
-      {!isLoading && items.length === 0 && !editing && (
-        <p className="text-sm text-muted-foreground">Nessun istituto censito.</p>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {items.map((istituto) => (
-          <button
-            key={istituto.id}
-            onClick={() => setEditing(istituto)}
-            className="text-left bg-card border border-border rounded-lg p-4 hover:border-primary transition-colors"
-          >
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-sm font-medium text-foreground truncate">{istituto.denominazione}</span>
-              <Badge variant="default">{istituto.codice_riferimento}</Badge>
+        <div className="flex-1 overflow-y-auto">
+          {editing ? (
+            <IstitutoForm istituto={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+              Seleziona un istituto dall'albero o creane uno nuovo.
             </div>
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {istituto.definizione_e_natura_giuridica.testo ?? 'Nessuna definizione inserita.'}
-            </p>
-          </button>
-        ))}
+          )}
+        </div>
       </div>
     </div>
   )

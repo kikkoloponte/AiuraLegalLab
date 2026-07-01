@@ -15,9 +15,17 @@ Struttura del grafo (nx.DiGraph):
     APPARTIENE_A article → provvedimento
     INTERPRETA    sentenza → article  (da merge_jurisprudence_graph)
     APPLICATA_IN  article → sentenza  (inverso di INTERPRETA)
+    SINTETIZZA    sentenza → massima  (da add_massima_batch)
+    QUALIFICA     sentenza → article|sentenza  (sussunzione, da add_qualifica)
+    PERTINENTE_A  article → questione   (da QuestioneLoader.write_to_graph)
+    RISOLVE       sentenza → questione  (da QuestioneLoader.write_to_graph)
 
   Nodi sentenza   : ID = hex16
                     attrs: node_type="sentenza", organo, numero, anno, materia
+  Nodi massima    : ID = massima_id
+                    attrs: node_type="massima", corpus="massimario", testo, urn
+  Nodi questione  : ID = id curato (vedi ontology/questioni_curate.yaml)
+                    attrs: node_type="questione", formulazione, materia, parole_chiave
 
 File su disco: {workspace_path}/indices/graph.json (NetworkX node-link JSON)
 """
@@ -295,6 +303,114 @@ class LegalGraphBuilder:
             f"{stats['edges_skipped_no_match']} scartati (nessun match) → {path}"
         )
         return stats
+
+    # ------------------------------------------------------------------
+    # Massima (corpus=massimario) e QUALIFICA (sussunzione)
+    # Vedi docs/superpowers/specs/2026-06-25-ontology-kb-neo4j-migration-design.md
+    # ------------------------------------------------------------------
+
+    def add_massima_batch(self, massime: list[dict], workspace_path: str) -> dict:
+        """
+        Aggiunge nodi Massima + archi SINTETIZZA (sentenza -> massima) al
+        grafo del workspace.
+
+        Args:
+            massime: lista di dict con chiavi:
+                sentenza_id (str, obbligatoria) — id del nodo sentenza già
+                    presente nel grafo (creato da merge_jurisprudence_graph)
+                massima_id  (str, obbligatoria) — id univoco della massima
+                testo       (str, opzionale) — estratto redazionale
+                urn         (str, opzionale)
+            workspace_path: path al workspace.
+
+        Se sentenza_id non esiste ancora nel grafo target, il nodo Massima
+        viene comunque creato (può arrivare prima della sentenza in un batch
+        di ingestione) ma l'arco SINTETIZZA viene saltato e contato in
+        "archi_saltati_sentenza_assente" — va recuperato in un update
+        successivo una volta che merge_jurisprudence_graph ha scritto la
+        sentenza, non è un errore fatale come per QuestioneLoader (qui la
+        sentenza è attesa arrivare da un'altra pipeline in un secondo tempo).
+
+        Returns:
+            Statistiche: nodi_massima, archi_sintetizza, archi_saltati_sentenza_assente.
+        """
+        path = self._graph_path(workspace_path)
+        G = self._load(path) if path.exists() else nx.DiGraph()
+
+        stats = {
+            "nodi_massima": 0,
+            "archi_sintetizza": 0,
+            "archi_saltati_sentenza_assente": 0,
+        }
+
+        for m in massime:
+            massima_id = m.get("massima_id", "")
+            sentenza_id = m.get("sentenza_id", "")
+            if not massima_id:
+                continue
+
+            if not G.has_node(massima_id):
+                stats["nodi_massima"] += 1
+            G.add_node(
+                massima_id,
+                node_type="massima",
+                corpus="massimario",
+                testo=m.get("testo", ""),
+                urn=m.get("urn", ""),
+            )
+
+            if not sentenza_id:
+                continue
+            if not G.has_node(sentenza_id):
+                stats["archi_saltati_sentenza_assente"] += 1
+                continue
+            if not G.has_edge(sentenza_id, massima_id):
+                G.add_edge(sentenza_id, massima_id, edge_type="SINTETIZZA")
+                stats["archi_sintetizza"] += 1
+
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._save(G, path)
+
+        logger.info(f"[GraphBuilder] add_massima_batch: {stats} -> {path}")
+        return stats
+
+    def add_qualifica(self, decisione_id: str, fatto_id: str, workspace_path: str) -> bool:
+        """
+        Aggiunge l'arco QUALIFICA (decisione -> fatto/articolo) per la
+        sussunzione usata in Fase 4 IQRAC (SUSSUNZIONE).
+
+        A differenza di ABROGA/MODIFICA/RINVIA, QUALIFICA non viene estratto
+        da regex sul testo: la sussunzione non ha pattern testuali fissi.
+        In questo sprint l'arco è scritto esplicitamente da un chiamante che
+        ha già risolto entrambi gli id (curation manuale o pipeline LLM-
+        assisted futura) — questo metodo fa solo da scrittura idempotente,
+        non estrazione.
+
+        Returns:
+            True se l'arco è stato aggiunto, False se uno dei due nodi non
+            esiste nel grafo (nessuna eccezione: stesso comportamento
+            "graceful" di _add_edges per i rimandi non risolti).
+        """
+        path = self._graph_path(workspace_path)
+        G = self._load(path) if path.exists() else nx.DiGraph()
+
+        if not G.has_node(decisione_id) or not G.has_node(fatto_id):
+            logger.warning(
+                f"[GraphBuilder] add_qualifica: nodo assente, arco non aggiunto "
+                f"(decisione_id={decisione_id!r} presente={G.has_node(decisione_id)}, "
+                f"fatto_id={fatto_id!r} presente={G.has_node(fatto_id)})"
+            )
+            return False
+
+        if G.has_edge(decisione_id, fatto_id) and G.edges[decisione_id, fatto_id].get("edge_type") == "QUALIFICA":
+            return True  # già presente, idempotente
+
+        G.add_edge(decisione_id, fatto_id, edge_type="QUALIFICA")
+        G.graph["built_at"] = datetime.now(timezone.utc).isoformat()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._save(G, path)
+        return True
 
     # Hint di fonte nella stringa grezza → label "fonte" usata nei nodi article.
     # Ordine di priorità: pattern più specifici (proc. civ./proc. pen.) prima

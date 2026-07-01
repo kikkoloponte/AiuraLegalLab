@@ -60,15 +60,19 @@ _LABEL_BY_NODE_TYPE = {"article": "Articolo", "provvedimento": "Provvedimento", 
 # Si applicano solo al backend "networkx" (file-based): il backend "neo4j"
 # non ha questo concetto di staleness da rebuild, è il motivo della migrazione.
 #
-# Baseline misurata su workspace reale (2026-06-21):
-#   mio-studio:  82.3 MB, 193903 nodi, 262071 archi → load totale ~1.5s
-#   normattiva:   5.9 MB,  11732 nodi,  16218 archi → load totale ~0.1s
+# NOTA: non fissare qui un numero statico di baseline (size/nodi/archi) — un
+# commento del genere è già diventato stale una volta (baseline del 2026-06-21
+# superata del +58% nodi/+154% archi appena 4 giorni dopo, senza che nessuno
+# se ne accorgesse finché non è stato verificato a mano). La fonte di verità
+# è GraphRetriever.get_health() a runtime, non un numero scritto qui:
+#   GraphRetriever(workspace_path).get_health()  # size_mb, node_count, edge_count, stale_reasons
 #
-# Le soglie default sono ~2x la baseline più grande osservata. Se vengono
-# superate stabilmente (es. dopo l'introduzione di un KG enrichment via LLM,
-# che produce molti più archi/entità), è il segnale per migrare da
-# NetworkX-in-RAM-da-JSON a un graph database dedicato (Neo4j/Memgraph),
-# non solo per alzare la soglia.
+# Cutover 2026-06-26: mio-studio è passato al backend "neo4j"
+# (AIURA_GRAPH_BACKEND=neo4j in .env) proprio perché aveva superato queste
+# soglie — vedi docs/superpowers/specs/2026-06-25-ontology-kb-neo4j-migration-design.md.
+# Le soglie restano rilevanti per eventuali workspace futuri ancora su
+# NetworkX: se vengono superate stabilmente, è il segnale per valutare la
+# stessa migrazione, non solo per alzare la soglia.
 # ---------------------------------------------------------------------------
 
 class GraphHealthSettings(BaseSettings):
@@ -149,6 +153,49 @@ class GraphRetriever:
     def get_health(self) -> GraphHealth:
         return self._impl.get_health()
 
+    def match_questione(self, query_text: str, threshold: float = 0.75) -> Optional[str]:
+        """
+        Trova la QuestioneGiuridica più pertinente a query_text (matching
+        lessicale fuzzy su formulazione+parole_chiave, non embedding
+        semantico — vedi nota in _NetworkXBackend.match_questione).
+
+        Ritorna None sotto soglia: il chiamante deve fare fallback al
+        retrieval testuale puro (comportamento attuale), non bloccare.
+        """
+        return self._impl.match_questione(query_text, threshold=threshold)
+
+    def expand_from_questione(
+        self,
+        questione_id: str,
+        valid_on: Optional[date] = None,
+        max_nodes: int = 10,
+    ) -> list[SearchResult]:
+        """Segue PERTINENTE_A/RISOLVE da questione_id (pre-filtro Fase 2/3 IQRAC)."""
+        return self._impl.expand_from_questione(questione_id, valid_on=valid_on, max_nodes=max_nodes)
+
+    def is_abrogated(self, source_id: str, valid_on: date) -> bool:
+        """True se source_id è un articolo non vigente a valid_on. False (graceful) se il nodo non esiste."""
+        return self._impl.is_abrogated(source_id, valid_on)
+
+    def has_anchor(self, principio_id: str) -> bool:
+        """True se principio_id ha almeno un arco ANCORATA_A verso un documento. False se il nodo non esiste."""
+        return self._impl.has_anchor(principio_id)
+
+    def search_nodes(self, query_text: str, node_type: str, limit: int = 10) -> list[dict]:
+        """
+        Ricerca testuale per autocomplete (UI di revisione QuestioneGiuridica
+        — vedi docs/superpowers/specs/2026-06-26-questioni-review-ui-design.md).
+
+        Args:
+            node_type: "article" o "sentenza".
+            query_text: sottostringa case-insensitive su titolo+articolo_num+fonte
+                (article) o organo+numero+anno (sentenza).
+
+        Ritorna [{"id": ..., "label": ...}, ...], lista vuota se grafo non
+        disponibile o nessun match.
+        """
+        return self._impl.search_nodes(query_text, node_type=node_type, limit=limit)
+
 
 # ---------------------------------------------------------------------------
 # Interfaccia comune (duck typing — niente ABC per restare leggero)
@@ -164,6 +211,21 @@ class _BaseBackend:
         raise NotImplementedError
 
     def get_health(self) -> GraphHealth:
+        raise NotImplementedError
+
+    def match_questione(self, query_text: str, threshold: float) -> Optional[str]:
+        raise NotImplementedError
+
+    def expand_from_questione(self, questione_id, valid_on, max_nodes) -> list[SearchResult]:
+        raise NotImplementedError
+
+    def is_abrogated(self, source_id: str, valid_on: date) -> bool:
+        raise NotImplementedError
+
+    def has_anchor(self, principio_id: str) -> bool:
+        raise NotImplementedError
+
+    def search_nodes(self, query_text: str, node_type: str, limit: int) -> list[dict]:
         raise NotImplementedError
 
 
@@ -299,6 +361,152 @@ class _NetworkXBackend(_BaseBackend):
                         conflicts.append((sid, neighbor, edge_data["edge_type"]))
 
         return conflicts
+
+    def match_questione(self, query_text: str, threshold: float = 0.75) -> Optional[str]:
+        """
+        Matching lessicale fuzzy (rapidfuzz.token_set_ratio, scala 0-1) tra
+        query_text e formulazione+parole_chiave di ogni nodo QuestioneGiuridica.
+
+        NOTA: non è similarità semantica via embedding (vedi design doc
+        2026-06-25-ontology-kb-neo4j-migration-design.md) — è un MVP
+        lessicale, sufficiente per un registro piccolo (poche decine di
+        questioni curate manualmente) dove sinonimi/paragrafi non sono
+        ancora un problema. Va sostituito con embedding quando il registro
+        cresce abbastanza da avere formulazioni che si sovrappongono solo
+        semanticamente, non lessicalmente.
+        """
+        if not self.is_available or not query_text:
+            return None
+
+        G = self._load_graph()
+        if G is None:
+            return None
+
+        from rapidfuzz import fuzz
+
+        best_id: Optional[str] = None
+        best_score = 0.0
+        for node_id, attrs in G.nodes(data=True):
+            if attrs.get("node_type") != "questione":
+                continue
+            haystack = f"{attrs.get('formulazione', '')} {' '.join(attrs.get('parole_chiave', []))}"
+            score = fuzz.token_set_ratio(query_text, haystack) / 100.0
+            if score > best_score:
+                best_score = score
+                best_id = node_id
+
+        return best_id if best_score >= threshold else None
+
+    def expand_from_questione(
+        self,
+        questione_id: str,
+        valid_on: Optional[date] = None,
+        max_nodes: int = 10,
+    ) -> list[SearchResult]:
+        """
+        Segue gli archi entranti PERTINENTE_A (article→questione) e RISOLVE
+        (sentenza→questione) — il pre-filtro di retrieval per Fase 2/3 IQRAC.
+
+        A differenza di expand(), qui non c'è BFS multi-hop: la
+        QuestioneGiuridica è un hub diretto, distanza sempre 1.
+        """
+        if not self.is_available:
+            return []
+
+        G = self._load_graph()
+        if G is None or not G.has_node(questione_id):
+            return []
+
+        results: list[SearchResult] = []
+        for source_node, _, edge_data in G.in_edges(questione_id, data=True):
+            if edge_data.get("edge_type") not in ("PERTINENTE_A", "RISOLVE"):
+                continue
+            if len(results) >= max_nodes:
+                break
+
+            node_attrs = G.nodes.get(source_node, {})
+            node_type = node_attrs.get("node_type")
+
+            if node_type == "article" and valid_on is not None and not self._is_valid(node_attrs, valid_on):
+                continue
+
+            if node_type == "sentenza":
+                snippet = (
+                    f"[questione] {node_attrs.get('organo', '')} "
+                    f"n.{node_attrs.get('numero', '')}/{node_attrs.get('anno', '')}"
+                ).strip()
+                metadata = {"corpus": "giurisprudenza", "questione_id": questione_id}
+                source_layer = "giurisprudenza"
+            else:
+                snippet = f"[questione] {node_attrs.get('titolo', '')} {node_attrs.get('articolo_num', '')}".strip()
+                metadata = {
+                    "fonte": node_attrs.get("fonte", ""),
+                    "questione_id": questione_id,
+                    "valid_from": node_attrs.get("valid_from"),
+                    "valid_to": node_attrs.get("valid_to"),
+                }
+                source_layer = "normativa"
+
+            results.append(SearchResult(
+                doc_id=source_node,
+                score=1.0,
+                snippet=snippet,
+                source_id=source_node,
+                retrieval_method="questione_expansion",
+                source_layer=source_layer,
+                metadata=metadata,
+            ))
+
+        return results
+
+    def is_abrogated(self, source_id: str, valid_on: date) -> bool:
+        if not self.is_available:
+            return False
+        G = self._load_graph()
+        if G is None or not G.has_node(source_id):
+            return False
+        attrs = G.nodes[source_id]
+        if attrs.get("node_type") != "article":
+            return False
+        return not self._is_valid(attrs, valid_on)
+
+    def has_anchor(self, principio_id: str) -> bool:
+        if not self.is_available:
+            return False
+        G = self._load_graph()
+        if G is None or not G.has_node(principio_id):
+            return False
+        return any(
+            edge_data.get("edge_type") == "ANCORATA_A"
+            for _, _, edge_data in G.out_edges(principio_id, data=True)
+        )
+
+    def search_nodes(self, query_text: str, node_type: str, limit: int = 10) -> list[dict]:
+        if not self.is_available or not query_text:
+            return []
+        G = self._load_graph()
+        if G is None:
+            return []
+
+        q_lower = query_text.lower()
+        results: list[dict] = []
+        for node_id, attrs in G.nodes(data=True):
+            if len(results) >= limit:
+                break
+            if attrs.get("node_type") != node_type:
+                continue
+            if node_type == "article":
+                haystack = f"{attrs.get('titolo', '')} {attrs.get('articolo_num', '')} {attrs.get('fonte', '')}"
+                label = f"{attrs.get('titolo', '')} {attrs.get('articolo_num', '')}".strip()
+            elif node_type == "sentenza":
+                haystack = f"{attrs.get('organo', '')} {attrs.get('numero', '')} {attrs.get('anno', '')}"
+                label = f"{attrs.get('organo', '')} n.{attrs.get('numero', '')}/{attrs.get('anno', '')}".strip()
+            else:
+                continue
+            if q_lower in haystack.lower():
+                results.append({"id": node_id, "label": label})
+
+        return results
 
     def _load_graph(self) -> Optional[nx.DiGraph]:
         """Carica il grafo in memoria (lazy, una sola volta, thread-safe)."""
@@ -558,6 +766,151 @@ class _Neo4jBackend(_BaseBackend):
             edge_count=edge_count,
             backend="neo4j",
         )
+
+    def match_questione(self, query_text: str, threshold: float = 0.75) -> Optional[str]:
+        driver = self._get_driver()
+        if driver is None or not query_text:
+            return None
+
+        from rapidfuzz import fuzz
+
+        try:
+            with driver.session() as session:
+                records = session.run(
+                    "MATCH (q:QuestioneGiuridica) "
+                    "RETURN q.id AS id, q.formulazione AS formulazione, q.parole_chiave AS parole_chiave"
+                ).data()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] match_questione() fallita: {exc}")
+            return None
+
+        best_id: Optional[str] = None
+        best_score = 0.0
+        for rec in records:
+            haystack = f"{rec.get('formulazione', '')} {' '.join(rec.get('parole_chiave') or [])}"
+            score = fuzz.token_set_ratio(query_text, haystack) / 100.0
+            if score > best_score:
+                best_score = score
+                best_id = rec.get("id")
+
+        return best_id if best_score >= threshold else None
+
+    def expand_from_questione(
+        self,
+        questione_id: str,
+        valid_on: Optional[date] = None,
+        max_nodes: int = 10,
+    ) -> list[SearchResult]:
+        driver = self._get_driver()
+        if driver is None or not questione_id:
+            return []
+
+        query = (
+            "MATCH (q:QuestioneGiuridica {id: $qid}) "
+            "MATCH (n)-[r:PERTINENTE_A|RISOLVE]->(q) "
+            "RETURN n, labels(n) AS labels "
+            "LIMIT $max_nodes"
+        )
+        try:
+            with driver.session() as session:
+                records = session.run(query, qid=questione_id, max_nodes=max_nodes).data()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] expand_from_questione() fallita: {exc}")
+            return []
+
+        results: list[SearchResult] = []
+        for rec in records:
+            n, labels = rec["n"], rec["labels"]
+            node_type = "sentenza" if "Sentenza" in labels else "article"
+
+            if node_type == "article" and valid_on is not None and not self._is_valid(n, valid_on):
+                continue
+
+            node_id = n.get("urn") or n.get("id")
+            if node_type == "sentenza":
+                snippet = f"[questione] {n.get('organo', '')} n.{n.get('numero', '')}/{n.get('anno', '')}".strip()
+                metadata = {"corpus": "giurisprudenza", "questione_id": questione_id}
+                source_layer = "giurisprudenza"
+            else:
+                snippet = f"[questione] {n.get('titolo', '')} {n.get('articolo_num', '')}".strip()
+                metadata = {
+                    "fonte": n.get("fonte", ""), "questione_id": questione_id,
+                    "valid_from": n.get("valid_from"), "valid_to": n.get("valid_to"),
+                }
+                source_layer = "normativa"
+
+            results.append(SearchResult(
+                doc_id=node_id, score=1.0, snippet=snippet, source_id=node_id,
+                retrieval_method="questione_expansion", source_layer=source_layer, metadata=metadata,
+            ))
+
+        return results
+
+    def is_abrogated(self, source_id: str, valid_on: date) -> bool:
+        driver = self._get_driver()
+        if driver is None or not source_id:
+            return False
+        try:
+            with driver.session() as session:
+                rec = session.run(
+                    "MATCH (n) WHERE n.urn = $sid OR n.id = $sid RETURN n, labels(n) AS labels",
+                    sid=source_id,
+                ).single()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] is_abrogated() fallita: {exc}")
+            return False
+        if rec is None or "Articolo" not in rec["labels"]:
+            return False
+        return not self._is_valid(rec["n"], valid_on)
+
+    def has_anchor(self, principio_id: str) -> bool:
+        driver = self._get_driver()
+        if driver is None or not principio_id:
+            return False
+        try:
+            with driver.session() as session:
+                rec = session.run(
+                    "MATCH (p {id: $pid})-[:ANCORATA_A]->() RETURN count(*) AS c",
+                    pid=principio_id,
+                ).single()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] has_anchor() fallita: {exc}")
+            return False
+        return bool(rec and rec["c"] > 0)
+
+    def search_nodes(self, query_text: str, node_type: str, limit: int = 10) -> list[dict]:
+        driver = self._get_driver()
+        if driver is None or not query_text:
+            return []
+
+        if node_type == "article":
+            query = (
+                "MATCH (a:Articolo) "
+                "WHERE toLower(coalesce(a.titolo,'') + ' ' + coalesce(a.articolo_num,'') "
+                "+ ' ' + coalesce(a.fonte,'')) CONTAINS toLower($q) "
+                "RETURN a.urn AS id, (coalesce(a.titolo,'') + ' ' + coalesce(a.articolo_num,'')) AS label "
+                "LIMIT $limit"
+            )
+        elif node_type == "sentenza":
+            query = (
+                "MATCH (s:Sentenza) "
+                "WHERE toLower(coalesce(s.organo,'') + ' ' + coalesce(s.numero,'') "
+                "+ ' ' + coalesce(s.anno,'')) CONTAINS toLower($q) "
+                "RETURN s.id AS id, "
+                "(coalesce(s.organo,'') + ' n.' + coalesce(s.numero,'') + '/' + coalesce(s.anno,'')) AS label "
+                "LIMIT $limit"
+            )
+        else:
+            return []
+
+        try:
+            with driver.session() as session:
+                records = session.run(query, q=query_text, limit=limit).data()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] search_nodes() fallita: {exc}")
+            return []
+
+        return [{"id": rec["id"], "label": rec["label"].strip()} for rec in records]
 
     @staticmethod
     def _is_valid(node_props: dict, valid_on: date) -> bool:

@@ -42,9 +42,19 @@ from aiura_legal.core.types import SearchResult
 # ---------------------------------------------------------------------------
 _SETTORE_FILTER_ENABLED: bool = os.getenv("AIURA_SETTORE_FILTER", "0") == "1"
 _SETTORE_SOFT_ENABLED: bool = os.getenv("AIURA_SETTORE_SOFT", "0") == "1"
+# Pre-filtro via QuestioneGiuridica (ontology/questioni_curate.yaml) — vedi
+# docs/superpowers/specs/2026-06-25-ontology-kb-neo4j-migration-design.md §9.
+# Opt-in come gli altri flag settore: il registro curato è ancora vuoto
+# (tutte le voci approvato=false in attesa di review con l'avvocato), quindi
+# oggi è comunque un no-op — il flag serve a poter abilitarlo deliberatamente
+# quando il primo batch sarà approvato, non a cambiare silenziosamente il
+# comportamento del retrieval quando il registro si popola.
+_QUESTIONE_EXPANSION_ENABLED: bool = os.getenv("AIURA_QUESTIONE_EXPANSION", "0") == "1"
+_QUESTIONE_MATCH_THRESHOLD: float = float(os.getenv("AIURA_QUESTIONE_THRESHOLD", "0.75"))
 
 _SOFT_PENALTY: float = 0.5
 _PRASSI_SCORE_FACTOR: float = 0.05
+_QUESTIONE_SCORE_FACTOR: float = 0.9  # le fonti via questione sono curate, score alto ma non sovrastante il match testuale diretto
 _HARD_FILTER_MIN_RESULTS: int = 3
 
 _WEIGHTS_PRASSI = (0.60, 0.20, 0.15)
@@ -215,6 +225,9 @@ class PhaseRetriever:
 
         for r in results:
             r.source_layer = "normativa"
+
+        results = self._expand_via_questione(query_effective, results, top_k, "normativa")
+
         logger.info(f"[PhaseRetriever] normativa: {len(results)} fonti")
         return results
 
@@ -276,6 +289,9 @@ class PhaseRetriever:
 
         for r in results:
             r.source_layer = "giurisprudenza"
+
+        results = self._expand_via_questione(query_effective, results, top_k, "giurisprudenza")
+
         # NB: il massimario NON è fuso qui. È un corpus distinto recuperato in
         # un round dedicato (retrieve_massimario) e presentato in un blocco
         # separato nel prompt di Fase 3 — niente concorrenza per gli slot top_k
@@ -596,6 +612,52 @@ class PhaseRetriever:
             logger.debug(f"[PhaseRetriever] {label}: filtro soft (penalità post-hoc) settore={settore!r}")
 
         return base_filter
+
+    def _expand_via_questione(
+        self,
+        query: str,
+        results: list[SearchResult],
+        top_k: int,
+        source_layer: str,
+    ) -> list[SearchResult]:
+        """
+        Pre-filtro Fase 2/3: se la query matcha una QuestioneGiuridica curata
+        (ontology/questioni_curate.yaml), fonde le fonti collegate
+        (PERTINENTE_A/RISOLVE) con quelle del retrieval testuale.
+
+        Gated da AIURA_QUESTIONE_EXPANSION (default off, vedi nota sul flag).
+        Fallback zero-regressione: se il flag è off, il grafo non è
+        disponibile, o non c'è match sopra soglia, ritorna results invariato
+        — non blocca né altera il comportamento attuale.
+        """
+        if not _QUESTIONE_EXPANSION_ENABLED:
+            return results
+
+        graph = self._retriever.graph
+        if not graph.is_available:
+            return results
+
+        questione_id = graph.match_questione(query, threshold=_QUESTIONE_MATCH_THRESHOLD)
+        if questione_id is None:
+            return results
+
+        expansion = [
+            r for r in graph.expand_from_questione(questione_id)
+            if r.source_layer == source_layer
+        ]
+        if not expansion:
+            return results
+
+        max_score = max((r.score for r in results), default=1.0)
+        for r in expansion:
+            r.score = r.score * _QUESTIONE_SCORE_FACTOR * max_score
+
+        merged = _merge_unique(results, expansion, max_total=top_k + len(expansion))
+        logger.info(
+            f"[PhaseRetriever] {source_layer}: +{len(expansion)} fonti via "
+            f"questione_expansion (questione={questione_id!r})"
+        )
+        return merged
 
     def _search_with_fallback(
         self,

@@ -13,6 +13,8 @@ from typing import Iterator
 import tiktoken
 from loguru import logger
 
+from aiura_legal.ingestion.text_normalizer import normalize_text
+
 _ENCODING = tiktoken.get_encoding("cl100k_base")
 
 
@@ -57,6 +59,7 @@ class Chunker:
         if not text or not text.strip():
             return
 
+        text = normalize_text(text)
         tokens = self._enc.encode(text)
         total = len(tokens)
 
@@ -119,6 +122,7 @@ class NormattivaChunker:
         """Divide l'articolo in chunk con strategia adattiva."""
         if not text or not text.strip():
             return []
+        text = normalize_text(text)
         token_count = len(self._enc.encode(text))
         if token_count <= 400:
             # articolo breve: un singolo chunk

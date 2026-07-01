@@ -20,7 +20,10 @@ from typing import Optional
 
 from loguru import logger
 
-from aiura_legal.agents.analyst import AnalysisResult, AnalysisSection, AnalystAgent, PhaseResult
+from aiura_legal.agents.analyst import (
+    AnalysisResult, AnalysisSection, AnalystAgent, PhaseResult,
+    humanize_refs, resolve_citation_refs,
+)
 from aiura_legal.agents.clarifier import ClarificationResult, ClarifierAgent
 from aiura_legal.agents.drafter import DraftResult, DrafterAgent
 from aiura_legal.agents.ollama_client import OllamaClient
@@ -499,10 +502,17 @@ class LegalOrchestrator:
             phase_retriever=self._phase_retriever,
             query_type=query_type,
         ):
-            all_sections.extend(phase.sections)
             all_phase_source_ids.update(phase.sources_used)
             all_phase_sources_metadata.update(phase.sources_metadata)
             all_phase_ref_map.update(phase.ref_map)
+            # Sostituisce i token "F1"/"F2"... lasciati dall'LLM nel testo
+            # prosa con la fonte leggibile reale, prima che la fase venga
+            # inviata al frontend — altrimenti l'avvocato vede "(F1)" senza
+            # modo di sapere a quale fonte corrisponda (vedi humanize_refs).
+            for sec in phase.sections:
+                sec.content = humanize_refs(sec.content, all_phase_ref_map, all_phase_sources_metadata)
+                sec.citations = resolve_citation_refs(sec.citations, all_phase_ref_map)
+            all_sections.extend(phase.sections)
             phases_by_number[phase.phase] = phase
             last_phase = phase
             yield {"event": "phase_complete", "phase": phase}
@@ -569,6 +579,11 @@ class LegalOrchestrator:
                         ungrounded_ids=review.ungrounded_citations,
                         query_type=query_type,
                     )
+                    all_phase_ref_map.update(retried_phase4.ref_map)
+                    all_phase_sources_metadata.update(retried_phase4.sources_metadata)
+                    for sec in retried_phase4.sections:
+                        sec.content = humanize_refs(sec.content, all_phase_ref_map, all_phase_sources_metadata)
+                        sec.citations = resolve_citation_refs(sec.citations, all_phase_ref_map)
                     retried_sections = [
                         s for s in all_sections if s.step not in fase4_steps
                     ] + retried_phase4.sections
@@ -593,7 +608,18 @@ class LegalOrchestrator:
                 except Exception as exc:
                     logger.error(f"[Orchestrator Seq] Retry Fase 4 errore: {exc}")
 
-        # Serializza le fonti del Research Packet per il frontend
+        # Serializza le fonti del Research Packet per il frontend.
+        # Dedup per source_id (mantiene il primo, score più alto: il bifasico
+        # S2 normativa+giurisprudenza può restituire la stessa fonte da due
+        # sotto-query diverse) — altrimenti il footer "Fonti:" mostra lo
+        # stesso riferimento due volte.
+        _seen_source_ids: set[str] = set()
+        _deduped_sources = []
+        for s in packet.sources:
+            if s.source_id in _seen_source_ids:
+                continue
+            _seen_source_ids.add(s.source_id)
+            _deduped_sources.append(s)
         serialized_sources = [
             {
                 "rank":             i + 1,
@@ -604,8 +630,27 @@ class LegalOrchestrator:
                 "retrieval_method": s.retrieval_method,
                 "metadata":         s.metadata,
             }
-            for i, s in enumerate(packet.sources)
+            for i, s in enumerate(_deduped_sources)
         ]
+
+        # Aggiunge le fonti recuperate SOLO dal PhaseRetriever (Fase 2/3 —
+        # dottrina, re-query giurisprudenza, massimario), assenti da
+        # packet.sources (il packet S2 bifasico iniziale): senza questo, una
+        # fonte citata e correttamente grounded dal Reviewer (humanize_refs
+        # usa lo stesso union, vedi orchestrator riga ~505) non appare nel
+        # footer "Fonti verificate" del frontend — appare solo come id grezzo
+        # nel testo, senza modo per l'avvocato di verificarla a colpo d'occhio.
+        for sid in sorted(all_phase_source_ids - _seen_source_ids):
+            meta = all_phase_sources_metadata.get(sid, {})
+            serialized_sources.append({
+                "rank":             len(serialized_sources) + 1,
+                "doc_id":           sid,
+                "source_id":        sid,
+                "score":            0.0,
+                "snippet":          "",
+                "retrieval_method": "phase_retriever",
+                "metadata":         meta,
+            })
 
         # BLOCK enforcement: se RE_RETRIEVAL persiste dopo il retry mirato di
         # Fase 4 (o non era nemmeno applicabile — ungrounded da Fase 2/3),

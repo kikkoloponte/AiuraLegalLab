@@ -62,6 +62,7 @@ class IstitutoGiuridicoCreate(BaseModel):
     metadata_ui: MetadataUI = Field(default_factory=MetadataUI)
     denominazione: str
     codice_riferimento: CodiceRiferimento
+    raggruppamento: Optional[str] = None  # es. "Persone e Famiglia", "Successioni" — secondo livello dell'albero UI
     quadro_normativo: QuadroNormativo = Field(default_factory=QuadroNormativo)
     definizione_e_natura_giuridica: DefinizioneNaturaGiuridica = Field(
         default_factory=DefinizioneNaturaGiuridica

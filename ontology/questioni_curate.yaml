@@ -1,0 +1,74 @@
+# Registro QuestioneGiuridica curate — design 2026-06-25-ontology-kb-neo4j-migration-design.md
+#
+# Stesso ciclo del registro istituti: proposta con evidenza osservabile → review
+# con un avvocato → trascrizione. Campo "stato": proposto (default, in attesa
+# di review) | approvato | rifiutato. Solo le voci "approvato" vengono scritte
+# nel grafo da QuestioneLoader.write_to_graph(). Gestibile dalla UI di revisione
+# — vedi docs/superpowers/specs/2026-06-26-questioni-review-ui-design.md.
+#
+# Ogni id in norme_pertinenti/decisioni_pertinenti è stato VERIFICATO esistere
+# come nodo nel grafo reale di mio-studio (workspaces/mio-studio/indices/graph.json,
+# 307.325 nodi) al momento della stesura — vedi nota sotto su URN rinumerati.
+#
+# ATTENZIONE URN: il suffisso numerico dell'URN (es. ~art1218) non sempre
+# corrisponde al campo articolo_num reale del nodo, per via di rinumerazioni
+# storiche del Codice Civile (vedi commit 8831b82 "normalizzazione URN
+# rinumerati"). QuestioneLoader.load_curated() deve risolvere per
+# (fonte, articolo_num) testuale, non assumere che il suffisso URN sia
+# affidabile — verificato qui interrogando direttamente i nodi del grafo:
+#   "Art. 1218" c.c. (inadempimento)        -> urn:...262~art1263
+#   "Art. 2043" c.c. (responsabilità extracontrattuale) -> urn:...262~art2083
+#   "Art. 1453" c.c. (risoluzione per inadempimento)    -> urn:...262~art1498
+#   "Art. 20" L. 241/1990 (silenzio assenso)            -> urn:...241~art20 (suffisso corretto qui)
+#
+# NOTA OPERATIVA: la UI di revisione (QuestioniRegistry.update) riscrive
+# l'intero file con yaml.safe_dump, che NON preserva i commenti — modificare
+# una voce dalla UI elimina i commenti inline (es. "# Art. 1218 c.c." dopo
+# ogni URN qui sotto) sulle altre voci. Questo blocco di commenti di testa
+# resta intatto solo finché nessuno passa dalla UI; vedi backlog per un
+# fix (es. ruamel.yaml round-trip) se diventa un problema pratico.
+
+- id: q_responsabilita_contrattuale_inadempimento
+  formulazione: >
+    Quando l'inadempimento di un'obbligazione fa scattare la responsabilità
+    contrattuale del debitore e quali sono gli oneri probatori?
+  materia: civile
+  parole_chiave: [inadempimento, responsabilità contrattuale, art 1218 c.c., onere della prova]
+  norme_pertinenti:
+    - urn:nir:stato:regio.decreto:1942-03-16;262~art1263   # Art. 1218 c.c.
+  decisioni_pertinenti: []
+  stato: proposto
+
+- id: q_responsabilita_extracontrattuale_2043
+  formulazione: >
+    Quali sono i presupposti del fatto illecito ex art. 2043 c.c. e come si
+    distingue dalla responsabilità contrattuale sul piano dell'onere probatorio?
+  materia: civile
+  parole_chiave: [responsabilità extracontrattuale, fatto illecito, art 2043 c.c., colpa, nesso causale]
+  norme_pertinenti:
+    - urn:nir:stato:regio.decreto:1942-03-16;262~art2083   # Art. 2043 c.c.
+  decisioni_pertinenti: []
+  stato: proposto
+
+- id: q_risoluzione_contratto_inadempimento
+  formulazione: >
+    A quali condizioni l'inadempimento di una parte legittima l'altra a
+    chiedere la risoluzione del contratto ex art. 1453 c.c.?
+  materia: civile
+  parole_chiave: [risoluzione contratto, inadempimento, art 1453 c.c., gravità inadempimento]
+  norme_pertinenti:
+    - urn:nir:stato:regio.decreto:1942-03-16;262~art1498   # Art. 1453 c.c.
+  decisioni_pertinenti: []
+  stato: proposto
+
+- id: q_silenzio_assenso_241_1990
+  formulazione: >
+    Il silenzio della PA sull'istanza del privato equivale ad accoglimento
+    tacito nei procedimenti soggetti all'art. 20 L. 241/1990, e quali sono
+    le eccezioni (atti vincolati, interessi sensibili)?
+  materia: amministrativo
+  parole_chiave: [silenzio-assenso, procedimento amministrativo, art 20 L.241/1990, PA]
+  norme_pertinenti:
+    - urn:nir:stato:legge:1990-08-07;241~art20              # Art. 20 L. 241/1990
+  decisioni_pertinenti: []
+  stato: proposto

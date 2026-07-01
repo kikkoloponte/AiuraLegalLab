@@ -7,8 +7,14 @@ mappando:
                               valid_from, valid_to)
   node_type="provvedimento"→ label :Provvedimento (fonte, titolo)
   node_type="sentenza"     → label :Sentenza (organo, numero, anno, materia)
+  node_type="massima"      → label :Massima (testo, urn, corpus)
+  node_type="questione"    → label :QuestioneGiuridica (formulazione, materia, parole_chiave)
   ogni edge_type           → relazione Cypher omonima (RINVIA, ABROGA, MODIFICA,
-                              CONTRASTA, APPARTIENE_A, INTERPRETA, APPLICATA_IN)
+                              CONTRASTA, APPARTIENE_A, INTERPRETA, APPLICATA_IN,
+                              SINTETIZZA, QUALIFICA, PERTINENTE_A, RISOLVE)
+
+Vedi docs/superpowers/specs/2026-06-25-ontology-kb-neo4j-migration-design.md
+per lo schema completo (§3) e ontology/legal_kb_ontology.ttl per la TBox.
 
 Solo lettura sul lato AiUra: non modifica graph.json né alcun path di produzione.
 Richiede: pip install -e ".[graph-poc]" e il container docker-compose.neo4j.yml attivo.
@@ -63,65 +69,82 @@ def _create_constraints(session) -> None:
     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (a:Articolo) REQUIRE a.urn IS UNIQUE")
     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (p:Provvedimento) REQUIRE p.id IS UNIQUE")
     session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (s:Sentenza) REQUIRE s.id IS UNIQUE")
+    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (m:Massima) REQUIRE m.id IS UNIQUE")
+    session.run("CREATE CONSTRAINT IF NOT EXISTS FOR (q:QuestioneGiuridica) REQUIRE q.id IS UNIQUE")
+
+
+_NODE_TYPE_TO_LABEL = {
+    "article": "Articolo",
+    "provvedimento": "Provvedimento",
+    "sentenza": "Sentenza",
+    "massima": "Massima",
+    "questione": "QuestioneGiuridica",
+}
+
+_MERGE_QUERY_BY_LABEL = {
+    "Articolo": (
+        "UNWIND $rows AS row "
+        "MERGE (a:Articolo {urn: row.id}) "
+        "SET a.fonte=row.fonte, a.titolo=row.titolo, a.articolo_num=row.articolo_num, "
+        "a.valid_from=row.valid_from, a.valid_to=row.valid_to"
+    ),
+    "Provvedimento": (
+        "UNWIND $rows AS row "
+        "MERGE (p:Provvedimento {id: row.id}) "
+        "SET p.fonte=row.fonte, p.titolo=row.titolo"
+    ),
+    "Sentenza": (
+        "UNWIND $rows AS row "
+        "MERGE (s:Sentenza {id: row.id}) "
+        "SET s.organo=row.organo, s.numero=row.numero, s.anno=row.anno, s.materia=row.materia"
+    ),
+    "Massima": (
+        "UNWIND $rows AS row "
+        "MERGE (m:Massima {id: row.id}) "
+        "SET m.testo=row.testo, m.urn=row.urn, m.corpus=row.corpus"
+    ),
+    "QuestioneGiuridica": (
+        "UNWIND $rows AS row "
+        "MERGE (q:QuestioneGiuridica {id: row.id}) "
+        "SET q.formulazione=row.formulazione, q.materia=row.materia, q.parole_chiave=row.parole_chiave"
+    ),
+}
 
 
 def _load_nodes(session, G: nx.DiGraph) -> dict[str, int]:
-    counts = {"Articolo": 0, "Provvedimento": 0, "Sentenza": 0, "skipped": 0}
+    labels = list(_MERGE_QUERY_BY_LABEL.keys())
+    counts = {label: 0 for label in labels}
+    counts["skipped"] = 0
 
-    batch: dict[str, list[dict]] = {"Articolo": [], "Provvedimento": [], "Sentenza": []}
+    batch: dict[str, list[dict]] = {label: [] for label in labels}
 
     def _flush(label: str) -> None:
         if not batch[label]:
             return
-        if label == "Articolo":
-            query = (
-                "UNWIND $rows AS row "
-                "MERGE (a:Articolo {urn: row.id}) "
-                "SET a.fonte=row.fonte, a.titolo=row.titolo, a.articolo_num=row.articolo_num, "
-                "a.valid_from=row.valid_from, a.valid_to=row.valid_to"
-            )
-        elif label == "Provvedimento":
-            query = (
-                "UNWIND $rows AS row "
-                "MERGE (p:Provvedimento {id: row.id}) "
-                "SET p.fonte=row.fonte, p.titolo=row.titolo"
-            )
-        else:
-            query = (
-                "UNWIND $rows AS row "
-                "MERGE (s:Sentenza {id: row.id}) "
-                "SET s.organo=row.organo, s.numero=row.numero, s.anno=row.anno, s.materia=row.materia"
-            )
-        session.run(query, rows=batch[label])
+        session.run(_MERGE_QUERY_BY_LABEL[label], rows=batch[label])
         counts[label] += len(batch[label])
         batch[label] = []
 
     for node_id, attrs in G.nodes(data=True):
-        node_type = attrs.get("node_type")
-        row = {"id": str(node_id), **attrs}
-        if node_type == "article":
-            batch["Articolo"].append(row)
-            if len(batch["Articolo"]) >= _BATCH_SIZE:
-                _flush("Articolo")
-        elif node_type == "provvedimento":
-            batch["Provvedimento"].append(row)
-            if len(batch["Provvedimento"]) >= _BATCH_SIZE:
-                _flush("Provvedimento")
-        elif node_type == "sentenza":
-            batch["Sentenza"].append(row)
-            if len(batch["Sentenza"]) >= _BATCH_SIZE:
-                _flush("Sentenza")
-        else:
+        label = _NODE_TYPE_TO_LABEL.get(attrs.get("node_type"))
+        if not label:
             counts["skipped"] += 1
+            continue
+        batch[label].append({"id": str(node_id), **attrs})
+        if len(batch[label]) >= _BATCH_SIZE:
+            _flush(label)
 
-    for label in ("Articolo", "Provvedimento", "Sentenza"):
+    for label in labels:
         _flush(label)
 
     return counts
 
 
-_LABEL_BY_NODE_TYPE = {"article": "Articolo", "provvedimento": "Provvedimento", "sentenza": "Sentenza"}
-_KEY_PROP_BY_LABEL = {"Articolo": "urn", "Provvedimento": "id", "Sentenza": "id"}
+_LABEL_BY_NODE_TYPE = _NODE_TYPE_TO_LABEL
+_KEY_PROP_BY_LABEL = {
+    "Articolo": "urn", "Provvedimento": "id", "Sentenza": "id",
+    "Massima": "id", "QuestioneGiuridica": "id",
+}
 
 
 def _load_edges(session, G: nx.DiGraph) -> dict[str, int]:

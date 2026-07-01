@@ -108,6 +108,18 @@ export function IstitutoForm({ istituto, onClose }: IstitutoFormProps) {
 
       <div className="space-y-1">
         <label className="text-[11px] text-muted-foreground uppercase tracking-wide">
+          Raggruppamento (es. Persone e Famiglia, Successioni)
+        </label>
+        <input
+          value={form.raggruppamento ?? ''}
+          onChange={(e) => setForm({ ...form, raggruppamento: e.target.value || null })}
+          placeholder="Non categorizzato"
+          className={inputClass}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-[11px] text-muted-foreground uppercase tracking-wide">
           Fonti MongoDB coinvolte (id separati da virgola)
         </label>
         <input value={fontiText} onChange={(e) => setFontiText(e.target.value)} className={inputClass} />

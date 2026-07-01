@@ -1,0 +1,51 @@
+# Immagine per il pilot di valutazione Headroom (scripts/pilot_headroom.py).
+# Vedi: docs/superpowers/specs/2026-06-28-headroom-compression-pilot-design.md
+#
+# headroom-ai richiede una toolchain Rust per il build da sorgente: su Windows
+# il link MSVC fallisce in questo progetto, ma il wheel precompilato per Linux
+# si installa senza problemi — da qui l'immagine Linux per eseguire il pilot.
+#
+# Build:
+#   docker build -f Dockerfile.pilot_headroom -t aiura-pilot-headroom .
+#
+# Run (Mongo/LMStudio/Ollama sull'host Windows, .env NON copiato nell'immagine):
+#   docker run --rm \
+#     -e MONGODB_URI=mongodb://host.docker.internal:27017 \
+#     -e MONGODB_DATABASE=aiura_legal_lab_db \
+#     --env-file .env \
+#     -v "%cd%/scripts/output:/app/scripts/output" \
+#     aiura-pilot-headroom --sample-size 5
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Dipendenze di sistema per spacy/pdfminer/altre librerie native del progetto.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml ./
+COPY aiura_legal ./aiura_legal
+COPY eval ./eval
+COPY scripts ./scripts
+COPY tests/script_json ./tests/script_json
+
+# Estensione "headroom": dipendenza opzionale, wheel precompilato su Linux.
+# "dev" non è necessario per il pilot (niente pytest/mypy nell'immagine).
+RUN pip install --no-cache-dir -e ".[headroom]"
+
+# headroom-ai dichiara "transformers>=4.30.0" (lower bound permissivo): pip
+# risolve la 5.x più recente, ma il modello custom "kompress_v2" non viene
+# riconosciuto da AutoModel/AutoTokenizer su transformers 5.x (verificato:
+# "Could not import module 'AutoTokenizer'" + nessun risparmio token anche
+# su testo fortemente ridondante). Pin a una 4.x per testare la compatibilità.
+RUN pip install --no-cache-dir "transformers>=4.30.0,<5.0.0"
+
+# Connettività di default verso servizi sull'host Windows (Mongo, LMStudio/Ollama).
+# Sovrascrivibile con --env-file .env / -e al run.
+ENV MONGODB_URI=mongodb://host.docker.internal:27017 \
+    MONGODB_DATABASE=aiura_legal_lab_db
+
+ENTRYPOINT ["python", "scripts/pilot_headroom.py"]
+CMD ["--sample-size", "50"]

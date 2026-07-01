@@ -2,7 +2,7 @@
 ContextBudgetManager — assembla il prompt RAG rispettando n_ctx=8192.
 
 Budget per corpus (token di testo fonte nel prompt):
-  normativa          3 full text × 400 tok + 3 sintesi × 60 tok  ≈ 1380 tok
+  normattiva         3 full text × 400 tok + 3 sintesi × 60 tok  ≈ 1380 tok
   giurisprudenza     3 full text × 500 tok + 2 sintesi × 60 tok  ≈ 1620 tok
   dottrina           1 full text × 200 tok + 2 sintesi × 60 tok  ≈  320 tok
   prassi             0 full text          + 2 sintesi × 60 tok  ≈  120 tok
@@ -73,7 +73,7 @@ class ContextBudgetManager:
     """
 
     BUDGETS: dict[str, dict[str, int]] = {
-        "normativa": {
+        "normattiva": {
             "full_text_slots":  3,
             "summary_slots":    3,
             "full_text_tokens": 400,
@@ -193,7 +193,7 @@ class ContextBudgetManager:
         """
         sections: list[str] = []
 
-        norm_text = self.format_chunks(list(normativa_chunks), "normativa")
+        norm_text = self.format_chunks(list(normativa_chunks), "normattiva")
         if norm_text:
             sections.append(f"--- NORMATIVA ---\n{norm_text}")
 

@@ -257,12 +257,25 @@ class CitationReviewer:
             checks["claim_relevance"] = "PASS"
 
         # 2. Vigenza temporale
+        # Fonte primaria: metadata.valid_to del Research Packet (popolato da
+        # MongoDB all'ingestione). Se assente (fonte arrivata via
+        # questione_expansion o metadata incompleti), fallback sul grafo
+        # (GraphRetriever.is_abrogated) prima di assumere "vigente" per
+        # default — non vogliamo che un buco nei metadata mascheri una
+        # norma abrogata. Le due fonti usano formati data indipendenti
+        # (metadata: stringa libera; grafo: nodo article.valid_to "YYYYMMDD"
+        # via _is_valid) — nessun confronto incrociato tra i due formati.
         if reference_date:
             expired = []
             for src in research_packet.sources:
-                if src.source_id.upper() in {c.upper() for c in cited}:
-                    valid_to = src.metadata.get("valid_to", "")
-                    if valid_to and valid_to < str(reference_date):
+                if src.source_id.upper() not in {c.upper() for c in cited}:
+                    continue
+                valid_to = src.metadata.get("valid_to", "")
+                if valid_to:
+                    if valid_to < str(reference_date):
+                        expired.append(src.source_id)
+                elif self._graph and self._graph.is_available:
+                    if self._graph.is_abrogated(src.source_id, reference_date):
                         expired.append(src.source_id)
             if expired:
                 checks["temporal_validity"] = "WARN"
@@ -289,9 +302,20 @@ class CitationReviewer:
         # - chunk legacy: doc_id = hex16 (e.g. "e65a598d71052357")
         # - sub-chunk Fase 1: doc_id = hex16_motivazione_NNN → estrae hex16
         # In entrambi i casi, la risposta cita solo l'hex16 base della sentenza.
+        #
+        # Esteso con le fonti del PhaseRetriever (Fase 2/3, _phase_ids_all/
+        # packet_doc_ids) — non solo research_packet.sources (S2 iniziale):
+        # senza questa estensione, una sentenza recuperata SOLO in Fase 3 (es.
+        # da retrieve_giurisprudenza_multi) e citata con il suo hex16 nudo nel
+        # testo (es. quando humanize_refs non trova un'etichetta leggibile e
+        # lascia il source_id grezzo, vedi analyst.build_source_label) viene
+        # marcata ungrounded per falso positivo — pur essendo correttamente
+        # grounded per il check #1 (che usa packet_ids, già esteso sopra).
         packet_hex_ids: set[str] = set()
-        for s in research_packet.sources:
-            m = _CHUNK_PREFIX_RE.match(s.doc_id)
+        for sid in {s.doc_id for s in research_packet.sources} | packet_doc_ids | _phase_ids_all:
+            if not sid:
+                continue
+            m = _CHUNK_PREFIX_RE.match(sid.lower())
             if m:
                 packet_hex_ids.add(m.group(1))
 

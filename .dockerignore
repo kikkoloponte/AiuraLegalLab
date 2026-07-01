@@ -1,0 +1,22 @@
+# Riduce il build context per Dockerfile.pilot_headroom (COPY è selettivo,
+# ma il contesto inviato al daemon Docker include tutto se non escluso qui).
+.git/
+.venv/
+venv/
+node_modules/
+frontend/
+workspaces/
+qdrant_storage/
+ontology/
+docs/
+download/
+logs/
+*.log
+.env
+.env.*
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+scripts/output/

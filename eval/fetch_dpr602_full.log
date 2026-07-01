@@ -1,8 +1,0 @@
-[32m2026-05-31 19:39:30.451[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m255[0m - [1mFetch atto: urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;602[0m
-[32m2026-05-31 19:39:30.451[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m256[0m - [1m  tipo: 'DECRETO DEL PRESIDENTE DELLA REPUBBLICA'  |  titolo: 'DECRETO DEL PRESIDENTE DELLA REPUBBLICA 29 settembre 1973, n. 602'[0m
-[32m2026-05-31 19:40:25.329[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  50 articoli scaricati…[0m
-[32m2026-05-31 19:41:27.049[0m | [1mINFO    [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m297[0m - [1m  100 articoli scaricati…[0m
-[32m2026-05-31 19:41:31.900[0m | [32m[1mSUCCESS [0m | [36m__main__[0m:[36m_fetch_by_urn[0m:[36m305[0m - [32m[1m  urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;602: 105 articoli scaricati, 105 scritti/aggiornati[0m
-  [WARN] pos 37: Server error '500 Internal Server Error' for url 'https://www.normattiva.it/atto/caricaArticolo?art.versione=4&art.idGruppo=2&art.flagTipoArticolo=0&art.codiceRedazionale=073U0602&art.idArticolo=28&art.idSottoArticolo=2&art.idSottoArticolo1=10&art.dataPubblicazioneGazzetta=1973-10-16+00%3A00%3A00.0&art.progressivo=0&riferimenti=false&qId=&art.imUpdate=false'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
-  [INFO] 1 errori AJAX-500 consecutivi — switch a N2Ls fallback dalla posizione 37

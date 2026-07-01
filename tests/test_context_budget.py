@@ -50,7 +50,7 @@ def _make_result(
 
 
 # ---------------------------------------------------------------------------
-# Test 1: format_chunks — top-3 full text (normativa), gli altri sommario
+# Test 1: format_chunks — top-3 full text (normattiva), gli altri sommario
 # ---------------------------------------------------------------------------
 
 def test_format_chunks_normativa_top3_full_rest_summary():
@@ -62,7 +62,7 @@ def test_format_chunks_normativa_top3_full_rest_summary():
         for i in range(1, 6)
     ]
 
-    result = mgr.format_chunks(chunks, "normativa")
+    result = mgr.format_chunks(chunks, "normattiva")
 
     # I chunk 1-3 devono avere il testo completo (non "(sintesi)")
     assert "[1] norm_1\n" in result
@@ -92,7 +92,7 @@ def test_format_chunks_sommario_none_fallback():
         _make_chunk(long_text, source_id="n4", sommario=None),  # slot sintesi, fallback testo
     ]
 
-    result = mgr.format_chunks(chunks, "normativa")
+    result = mgr.format_chunks(chunks, "normattiva")
 
     # n4 è oltre i 3 full-text slot → sintesi con fallback sul testo
     assert "[4] n4 (sintesi)" in result
@@ -111,7 +111,7 @@ def test_budget_texts_search_result_full_text():
         _make_result("d2", full_text="", snippet="Solo snippet disponibile."),
     ]
 
-    texts = mgr.budget_texts(results, "normativa")
+    texts = mgr.budget_texts(results, "normattiva")
 
     assert "Testo pieno dell'articolo." in texts[0]
     # Senza full_text il fallback è lo snippet
@@ -124,7 +124,7 @@ def test_budget_texts_search_result_truncates_to_budget():
     long_full = "parola " * 2000  # >> 400 token
     results = [_make_result("d1", full_text=long_full)]
 
-    texts = mgr.budget_texts(results, "normativa")
+    texts = mgr.budget_texts(results, "normattiva")
 
     assert _count_tokens(texts[0]) <= 400
 
@@ -238,6 +238,22 @@ def test_format_research_packet_empty_sections_omitted():
 # ---------------------------------------------------------------------------
 # Test 6: corpus sconosciuto — graceful fallback
 # ---------------------------------------------------------------------------
+
+def test_budget_normattiva_resolves_dedicated_budget_not_default():
+    """Regression: BUDGETS deve avere la chiave 'normattiva' (due 't',
+    coerente con il campo corpus dei chunk reali), non 'normativa'.
+    Una chiave errata fa silenziosamente cadere _budget sul fallback
+    _DEFAULT_BUDGET, riducendo il contesto normativo nel prompt RAG.
+    """
+    mgr = ContextBudgetManager()
+
+    budget = mgr._budget("normattiva")
+
+    assert budget == ContextBudgetManager.BUDGETS["normattiva"]
+    assert budget != ContextBudgetManager._DEFAULT_BUDGET
+    assert budget["full_text_slots"] == 3
+    assert budget["full_text_tokens"] == 400
+
 
 def test_format_chunks_unknown_corpus_graceful():
     mgr = ContextBudgetManager()
