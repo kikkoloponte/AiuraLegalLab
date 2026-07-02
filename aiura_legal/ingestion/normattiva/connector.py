@@ -7,6 +7,7 @@ NormattivaWebFetcher       → scarica articoli via AJAX dal sito web (per i cod
 """
 from __future__ import annotations
 
+import html
 import re
 import time
 from typing import Iterator, Optional
@@ -430,7 +431,7 @@ class NormattivaWebFetcher:
         Cerca il primo onclick su caricaArticolo senza 'imUpdate=true'.
         """
         for m in re.finditer(r"caricaArticolo\?([^'\"]+)", page_html):
-            qs = m.group(1)
+            qs = html.unescape(m.group(1))
             if "imUpdate=true" not in qs:
                 params = {}
                 for part in qs.rstrip("&").split("&"):
@@ -455,7 +456,7 @@ class NormattivaWebFetcher:
         chain: list[dict] = []
 
         for m in re.finditer(r"caricaArticolo\?([^'\"]+)", page_html):
-            qs = m.group(1)
+            qs = html.unescape(m.group(1))
             if "imUpdate=true" in qs:
                 continue
             params = {}
@@ -689,10 +690,18 @@ class NormattivaWebFetcher:
 
         consecutive_miss = 0
         position         = 0
+        last_num_seen    = 0
 
         for idx, suffix in enumerate(suffixes):
             if idx + 1 < start_position:
                 continue
+
+            expected_art_id = 0
+            if sidebar_params:
+                try:
+                    expected_art_id = int(sidebar_params[idx].get("art.idArticolo", "") or 0)
+                except ValueError:
+                    expected_art_id = 0
 
             url = f"{_WEB}/uri-res/N2Ls?{act_urn}~{suffix}"
 
@@ -730,6 +739,30 @@ class NormattivaWebFetcher:
                 continue
 
             position += 1
+
+            # Validazione difensiva: se il numero articolo estratto (testo o
+            # metadati) crolla bruscamente rispetto all'atteso (suffix richiesto
+            # / posizione nella catena), la pagina restituita quasi certamente
+            # NON è quella richiesta (es. il server ha fatto fallback silenzioso
+            # su Art. 1). Logga un warning invece di scrivere dati corrotti in
+            # silenzio — non blocca lo streaming per non perdere l'intero fetch,
+            # ma rende il problema visibile nei log.
+            m_num = re.search(r"\d+", article_meta.get("articolo_num", ""))
+            parsed_num = int(m_num.group(0)) if m_num else 0
+            if expected_art_id and parsed_num and parsed_num != expected_art_id:
+                print(
+                    f"  [WARN] n2ls {suffix}: articolo_num estratto ({parsed_num}) "
+                    f"non corrisponde all'idArticolo atteso ({expected_art_id}) — "
+                    f"possibile fallback silenzioso del sito su un altro articolo"
+                )
+            elif last_num_seen and parsed_num and parsed_num < last_num_seen:
+                print(
+                    f"  [WARN] n2ls {suffix}: articolo_num ({parsed_num}) minore "
+                    f"del precedente ({last_num_seen}) — possibile dato corrotto"
+                )
+            if parsed_num:
+                last_num_seen = parsed_num
+
             yield position, article_meta, text
             time.sleep(self._delay)
 
