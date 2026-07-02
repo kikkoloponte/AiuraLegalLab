@@ -30,7 +30,14 @@ import re
 
 from bson import ObjectId
 
-_ART_NUM_RE = re.compile(r"(?:Art(?:icolo)?\.?\s*)?(\d+)\s*-?\s*([a-z]*)", re.IGNORECASE)
+_ORDINALI = (
+    "bis|ter|quater|quinquies|sexies|septies|octies|novies|decies|"
+    "undecies|duodecies|terdecies|quaterdecies|quinquiesdecies"
+)
+_ART_NUM_RE = re.compile(
+    rf"(?:Art(?:icolo)?\.?\s*)?(\d+)(?:[\s-]*({_ORDINALI})\b)?",
+    re.IGNORECASE,
+)
 
 
 def normalize_articolo_num(raw: str) -> str:
@@ -46,7 +53,7 @@ def normalize_articolo_num(raw: str) -> str:
     m = _ART_NUM_RE.search(raw or "")
     if not m:
         return ""
-    numero, suffisso = m.group(1), m.group(2)
+    numero, suffisso = m.group(1), m.group(2) or ""
     return f"{numero}{suffisso}".lower()
 
 
