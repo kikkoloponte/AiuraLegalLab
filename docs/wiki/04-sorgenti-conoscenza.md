@@ -10,9 +10,9 @@ aiura_legal_lab_db
 ├── normattiva_docs     166.822 doc   ← normativa italiana (LegalAgentLab, read-only)
 ├── jurisprudence       316.889 doc   ← sentenze pubbliche (Cassazione, TAR, CdS, CC, CdC)
 ├── documents             ~30 doc    ← documenti studio + dottrina (post-ingestione)
-├── chunks             ~295.000 doc  ← chunk indicizzati (normattiva + dottrina)
+├── chunks             ~295.000 doc  ← chunk indicizzati (normattiva + dottrina + TFUE)
 │   corpus breakdown:
-│     normattiva:    557.368 (indice BM25/Qdrant)
+│     normattiva:    557.368 (indice BM25/Qdrant) — include fonte="trattato_ue" (TFUE)
 │     dottrina:      ~20.000 (fascicoli DPC 2017-2019)
 │     giurisprudenza: 0      (build con build_jurisprudence_indexes.py)
 ├── wiki_pages                0 doc   ← risposte archiviate (si popola dopo query)
@@ -70,6 +70,71 @@ python scripts/fetch_normattiva.py
 
 # Oppure ri-esegui la migrazione dopo un aggiornamento di legal_lab
 python scripts/migrate_to_aiura_legal_lab_db.py
+```
+
+---
+
+## 1bis. TFUE (Trattato sul Funzionamento dell'Unione Europea)
+
+### Origine
+
+Testo consolidato ufficiale IT da [EUR-Lex](https://eur-lex.europa.eu) —
+CELEX `02016E/TXT` (versione post-Lisbona, Gazzetta Ufficiale UE C 202/2016).
+Licenza: Creative Commons Attribution 4.0 (Decisione Commissione 2011/833/UE)
+— riuso commerciale e non commerciale consentito con attribuzione della fonte.
+
+**EUR-Lex blocca il fetch automatico** (AWS WAF bot-challenge, HTTP 202 senza
+contenuto sia su `eur-lex.europa.eu` che sull'endpoint content-negotiation
+del Publications Office). Lo script **non fa scraping**: legge un file HTML
+scaricato manualmente dal browser.
+
+### Download manuale
+
+```
+https://eur-lex.europa.eu/legal-content/IT/TXT/HTML/?uri=CELEX:02016E/TXT-20240901
+→ salvare come download/tfue/tfue_consolidato_it.html
+```
+
+### Parsing e chunking
+
+`aiura_legal/ingestion/eu_treaties/parser.py` estrae il testo visibile
+dall'HTML e ricostruisce la gerarchia Parte/Titolo/Capo/Sezione/Articolo via
+riconoscimento di intestazioni testuali (`PARTE TERZA`, `TITOLO VII`,
+`CAPO 1`, `Sezione 1`, `Articolo 101`). Si ferma al primo
+Protocollo/Allegato/Dichiarazione (fuori scope, riusano la numerazione
+articoli da 1).
+
+Ogni articolo è chunked con `NormattivaChunker` (stesso chunker adattivo
+degli articoli normattiva — riuso diretto, nessun chunker dedicato: gli
+articoli TFUE hanno lunghezza paragonabile agli articoli dei codici
+italiani).
+
+### Corpus e metadata
+
+I chunk usano **`corpus="normattiva"`** (è normativa, solo di livello
+sovranazionale — riusa i pesi/filtri BM25-heavy di Fase 2 di
+`PhaseRetriever` senza modifiche), distinti da:
+
+```json
+{
+  "corpus": "normattiva",
+  "fonte": "trattato_ue",
+  "source": "eurlex_tfue",
+  "source_id": "urn:eu:tfue:art101",
+  "articolo_num": "Art. 101 TFUE",
+  "titolo": "TFUE — PARTE TERZA — TITOLO VII — CAPO 1 — Sezione 1",
+  "settore": ["unione_europea"]
+}
+```
+
+### Comandi
+
+```powershell
+# Dry-run — conta articoli senza scrivere su MongoDB
+python scripts/ingest_tfue.py --file download/tfue/tfue_consolidato_it.html --dry-run
+
+# Ingestione completa
+python scripts/ingest_tfue.py --file download/tfue/tfue_consolidato_it.html --workspace mio-studio
 ```
 
 ---
