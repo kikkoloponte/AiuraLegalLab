@@ -629,14 +629,59 @@ istituti:
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art322
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art323
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art578bis
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art383  # art. 322-ter c.p. (URN storico)
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art240  # art. 240 c.p.
     norme_riferimento:
       - Art. 321 c.p.p. (Oggetto del sequestro preventivo)
       - Art. 322 c.p.p. (Riesame del decreto di sequestro preventivo)
       - Art. 323 c.p.p. (Perdita di efficacia del sequestro preventivo)
       - Art. 578-bis c.p.p. (Decisione sulla confisca in casi particolari in caso di estinzione del reato per amnistia o prescrizione)
+      - art. 322-ter c.p. (confisca per equivalente)
+      - art. 240 c.p. (confisca)
     termini_chiave:
       - sequestro preventivo e confisca per equivalente
-    disambigua_da: {}
+      - confisca per equivalente
+      - profitto del reato
+      - sequestro finalizzato alla confisca
+    disambigua_da:
+      confisca_antimafia_equivalente:
+        - "art. 321 c.p.p."
+        - "profitto del reato"
+        - "reato tributario"
+        - "procedimento penale"
+    sentenze_pilota:
+      - organo: Cass. SS.UU. penali
+        numero: '10561'
+        anno: '2014'
+        nome: Gubert
+        principio: >-
+          Verso il terzo estraneo al reato il sequestro per equivalente non è
+          ammesso: è consentita solo la confisca diretta del profitto del reato
+          che si trovi nella sua disponibilità. Il per-equivalente colpisce i
+          soli beni del reo, e quando il sequestro diretto del profitto è
+          impossibile ex actis.
+        source_id: aiura_upload_j4o38mif
+
+  - id: confisca_antimafia_equivalente
+    label: Confisca per equivalente nelle misure di prevenzione
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art25  # art. 25 d.lgs. 159/2011
+    norme_riferimento:
+      - art. 25 d.lgs. 159/2011
+      - art. 20 d.lgs. 159/2011
+    termini_chiave:
+      - misura di prevenzione
+      - confisca di prevenzione
+      - proposto
+      - pericolosità sociale
+      - terzi in buona fede
+    disambigua_da:
+      sequestro_preventivo_e_confisca_per_equivalente_cpp:
+        - "codice antimafia"
+        - "misura di prevenzione"
+        - "proposto"
+        - "pericolosità"
     sentenze_pilota: []
 
   - id: soggetti_del_procedimento_penale_giudice_pubblico_ministero_cpp
