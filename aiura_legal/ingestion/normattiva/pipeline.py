@@ -172,14 +172,15 @@ class NormattivaPipeline:
                 "text": c.text,
                 "token_count": c.token_count,
             }
-            # _id deterministico da identità stabile (fonte+articolo_num+
-            # valid_from+chunk_index), NON dall'URN posizionale del fetcher
-            # (source_id) — vedi chunk_id.py per il motivo. Garantisce che
-            # lo stesso articolo produca sempre lo stesso _id tra rebuild
-            # successivi, anche se il fetcher assegna URN diversi.
+            # _id deterministico da identità stabile (titolo dell'atto +
+            # articolo_num + valid_from + chunk_index), NON dall'URN
+            # posizionale del fetcher (source_id) né da "fonte" (tassonomia
+            # grossolana condivisa da migliaia di atti diversi) — vedi
+            # chunk_id.py per il motivo. Garantisce che lo stesso articolo
+            # produca sempre lo stesso _id tra rebuild successivi.
             record["_id"] = compute_deterministic_chunk_id(
                 workspace=chunk_base["workspace"],
-                fonte=chunk_base["fonte"],
+                titolo=chunk_base["titolo"],
                 articolo_num=chunk_base["articolo_num"],
                 valid_from=chunk_base.get("valid_from"),
                 chunk_index=c.index,

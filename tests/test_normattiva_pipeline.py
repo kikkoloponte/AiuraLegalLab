@@ -53,7 +53,12 @@ def _normattiva_doc(
     tipo: str = "LEGGE",
     testo_tipo: str = "normativo",
     text: str = "Articolo sintetico di prova. " * 20,
+    titolo: str | None = None,
 ) -> dict:
+    # titolo di default derivato dall'urn (non una stringa fissa condivisa):
+    # l'_id deterministico usa titolo+articolo_num come chiave (vedi
+    # chunk_id.py) — più documenti di test con lo stesso titolo fisso e lo
+    # stesso articolo_num collidono silenziosamente sullo stesso _id.
     return {
         "_id": ObjectId(),
         "urn": urn,
@@ -61,7 +66,7 @@ def _normattiva_doc(
         "tipo_provvedimento": tipo,
         "text": text,
         "testo_tipo": testo_tipo,
-        "titolo": "Titolo sintetico",
+        "titolo": titolo if titolo is not None else f"Titolo sintetico {urn}",
         "articolo_num": "Art. 1",
         "data_inizio_vigenza": "20240101",
     }
@@ -360,10 +365,11 @@ class TestIdDeterministicoTraRebuild:
             chunker=Chunker(max_tokens=256, overlap=32),
         )
         testo = "Art. 79. Domicilio dei coniugi, del minore e dell'interdetto." * 5
+        titolo = "REGIO DECRETO 16 marzo 1942, n. 262"  # stesso atto in entrambe le esecuzioni
 
         # Prima esecuzione: l'articolo "Art. 79" ha URN ~art79 (posizione 79)
         adapter1 = NormattivaDocAdapter.from_mongo_doc(
-            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art79", text=testo)
+            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art79", text=testo, titolo=titolo)
         )
         buffer1: list[dict] = []
         await pipeline._process_doc(adapter1, buffer1)
@@ -373,7 +379,7 @@ class TestIdDeterministicoTraRebuild:
         # (es. ~art80 invece di ~art79) — scenario che ha causato la
         # corruzione osservata in produzione.
         adapter2 = NormattivaDocAdapter.from_mongo_doc(
-            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art80", text=testo)
+            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art80", text=testo, titolo=titolo)
         )
         buffer2: list[dict] = []
         await pipeline._process_doc(adapter2, buffer2)

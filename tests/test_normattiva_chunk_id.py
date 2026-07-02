@@ -35,11 +35,11 @@ class TestNormalizeArticoloNum:
 class TestComputeDeterministicChunkId:
     def test_stesso_input_stesso_id(self):
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79.", valid_from="20000101", chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79.", valid_from="20000101", chunk_index=0,
         )
         assert id1 == id2
@@ -47,56 +47,56 @@ class TestComputeDeterministicChunkId:
     def test_formati_diversi_stesso_articolo_stesso_id(self):
         """'Art. 79' e 'Art. 79.' devono normalizzare allo stesso id."""
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79.", valid_from=None, chunk_index=0,
         )
         assert id1 == id2
 
     def test_articoli_diversi_id_diversi(self):
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 45", valid_from=None, chunk_index=0,
         )
         assert id1 != id2
 
     def test_chunk_index_diverso_id_diverso(self):
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=1,
         )
         assert id1 != id2
 
     def test_workspace_diverso_id_diverso(self):
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="altro-studio", fonte="codice_civile",
+            workspace="altro-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         assert id1 != id2
 
-    def test_fonte_diversa_id_diverso(self):
-        """Stesso numero articolo ma codice diverso (es. art. 79 c.c. vs c.p.p.) non collide."""
+    def test_titolo_diverso_id_diverso(self):
+        """Stesso numero articolo ma atto diverso (es. art. 79 c.c. vs c.p.p.) non collide."""
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_procedura_penale",
+            workspace="mio-studio", titolo="DECRETO DEL PRESIDENTE DELLA REPUBBLICA 22 settembre 1988, n. 447",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         assert id1 != id2
@@ -104,18 +104,18 @@ class TestComputeDeterministicChunkId:
     def test_valid_from_diverso_id_diverso(self):
         """Due versioni storiche dello stesso articolo non collidono."""
         id1 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from="19420101", chunk_index=0,
         )
         id2 = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from="20240101", chunk_index=0,
         )
         assert id1 != id2
 
     def test_ritorna_objectid_valido(self):
         result = compute_deterministic_chunk_id(
-            workspace="mio-studio", fonte="codice_civile",
+            workspace="mio-studio", titolo="REGIO DECRETO 16 marzo 1942, n. 262",
             articolo_num="Art. 79", valid_from=None, chunk_index=0,
         )
         assert isinstance(result, ObjectId)

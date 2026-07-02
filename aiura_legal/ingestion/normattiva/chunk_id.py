@@ -12,15 +12,25 @@ disallinea il conteggio), facendo sì che un _id già referenziato altrove
 (es. istituti_giuridici.source_mongo_id) si ritrovi silenziosamente a
 puntare a un articolo diverso dopo un rebuild.
 
-Fix: calcolare l'_id da un identificatore STABILE — fonte + numero articolo
-normalizzato + eventuale data di inizio vigenza (per distinguere versioni
-storiche dello stesso articolo) + chunk_index — invece che lasciarlo
-assegnare da Mongo o derivarlo dall'URN posizionale. ObjectId accetta
-qualsiasi valore binario a 12 byte: non serve la struttura timestamp+
-contatore di Mongo, un hash troncato è un ObjectId valido a tutti gli
-effetti (compatibile con ObjectId(str(id)) in tutto il codice esistente).
+Fix: calcolare l'_id da un identificatore STABILE — titolo dell'atto
+(non "fonte") + numero articolo normalizzato + eventuale data di inizio
+vigenza (per distinguere versioni storiche dello stesso articolo) +
+chunk_index — invece che lasciarlo assegnare da Mongo o derivarlo dall'URN
+posizionale. ObjectId accetta qualsiasi valore binario a 12 byte: non serve
+la struttura timestamp+contatore di Mongo, un hash troncato è un ObjectId
+valido a tutti gli effetti (compatibile con ObjectId(str(id)) in tutto il
+codice esistente).
 
-Stesso (fonte, articolo_num, valid_from, chunk_index) → sempre lo stesso
+ATTENZIONE: "fonte" (fonte_from_doc) è una TASSONOMIA grossolana
+("legge", "dlgs", "dpr", ...), condivisa da migliaia di atti diversi — MAI
+usarla come parte della chiave, altrimenti "Art. 1 della Legge X" e
+"Art. 1 della Legge Y" collidono sullo stesso _id (bug reale, scoperto
+rieseguendo chunk_collection() su tutto il corpus: 448102 chunk generati,
+solo 355495 sopravvissuti in Mongo — ~92k persi per sovrascrittura
+silenziosa). "titolo" (es. "LEGGE 9 gennaio 2004, n. 4") identifica invece
+l'atto specifico ed è stabile quanto fonte, quindi è la scelta corretta.
+
+Stesso (titolo, articolo_num, valid_from, chunk_index) → sempre lo stesso
 _id, indipendentemente da quante volte si rifà lo scraping/chunking.
 """
 from __future__ import annotations
@@ -57,10 +67,16 @@ def normalize_articolo_num(raw: str) -> str:
     return f"{numero}{suffisso}".lower()
 
 
+def _normalize_titolo(raw: str) -> str:
+    """Collassa spazi e case per tollerare variazioni minime di formattazione
+    tra scraping diversi dello stesso atto (es. spazi doppi)."""
+    return " ".join((raw or "").split()).lower()
+
+
 def compute_deterministic_chunk_id(
     *,
     workspace: str,
-    fonte: str,
+    titolo: str,
     articolo_num: str,
     valid_from: str | None,
     chunk_index: int,
@@ -68,13 +84,16 @@ def compute_deterministic_chunk_id(
     """
     Deriva un ObjectId deterministico dall'identità stabile del chunk.
 
-    fonte/articolo_num/valid_from/chunk_index devono essere gli stessi campi
-    già presenti nel chunk record (to_chunk_base + chunk_index) — nessun
-    campo nuovo da propagare a monte.
+    titolo deve essere l'identificativo specifico dell'atto (es. "LEGGE 9
+    gennaio 2004, n. 4", "REGIO DECRETO 16 marzo 1942, n. 262"), NON "fonte"
+    (tassonomia grossolana condivisa da migliaia di atti diversi — vedi
+    warning nel docstring del modulo). articolo_num/valid_from/chunk_index
+    sono gli stessi campi già presenti nel chunk record (to_chunk_base +
+    chunk_index) — nessun campo nuovo da propagare a monte.
     """
     key = "|".join([
         workspace,
-        fonte or "",
+        _normalize_titolo(titolo),
         normalize_articolo_num(articolo_num),
         valid_from or "",
         str(chunk_index),

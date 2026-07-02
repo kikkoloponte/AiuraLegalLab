@@ -19,7 +19,7 @@ istituti:
     label: Appropriazione indebita (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art646
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art889
     norme_riferimento:
       - Art. 646 c.p. (Appropriazione indebita)
     termini_chiave:
@@ -31,10 +31,10 @@ istituti:
     label: Archiviazione (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art408
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art409
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art410
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art411
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art493
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art494
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art495
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art497
     norme_riferimento:
       - Art. 408 c.p.p. (Richiesta di archiviazione per infondatezza della notizia di reato)
       - Art. 409 c.p.p. (Provvedimenti del giudice sulla richiesta di archiviazione)
@@ -49,7 +49,7 @@ istituti:
     label: Atti persecutori (stalking) (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art612bis
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art820
     norme_riferimento:
       - Art. 612-bis c.p. (Atti persecutori)
     termini_chiave:
@@ -61,10 +61,10 @@ istituti:
     label: Cause di giustificazione (scriminanti) (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art50
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art51
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art52
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art54
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art60
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art61
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art62
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art64
     norme_riferimento:
       - Art. 50 c.p. (Consenso dell'avente diritto)
       - Art. 51 c.p. (Esercizio di un diritto o adempimento di un dovere)
@@ -79,10 +79,10 @@ istituti:
     label: Circostanze del reato (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art59
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art61
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art62
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art63
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art71
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art73
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art75
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art77
     norme_riferimento:
       - Art. 59 c.p. (Circostanze non conosciute o erroneamente supposte)
       - Art. 61 c.p. (Circostanze aggravanti comuni)
@@ -97,10 +97,10 @@ istituti:
     label: Concorso di persone nel reato (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art110
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art115
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art116
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art117
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art125
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art130
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art131
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art132
     norme_riferimento:
       - Art. 110 c.p. (Pena per coloro che concorrono nel reato)
       - Art. 115 c.p. (Accordo per commettere un reato. Istigazione)
@@ -115,9 +115,9 @@ istituti:
     label: Concorso di reati e reato continuato (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art71
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art81
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art84
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art86
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art96
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art99
     norme_riferimento:
       - Art. 71 c.p. (Condanna per più reati con unica sentenza o decreto)
       - Art. 81 c.p. (Concorso formale. Reato continuato)
@@ -131,8 +131,8 @@ istituti:
     label: Corruzione (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art318
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art319
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art374
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art375
     norme_riferimento:
       - Art. 318 c.p. (Corruzione per l'esercizio della funzione)
       - Art. 319 c.p. (Corruzione per un atto contrario ai doveri d'ufficio)
@@ -145,8 +145,8 @@ istituti:
     label: Custodia cautelare in carcere e arresti domiciliari (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art284
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art285
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art340
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art341
     norme_riferimento:
       - Art. 284 c.p.p. (Arresti domiciliari)
       - Art. 285 c.p.p. (Custodia cautelare in carcere)
@@ -177,10 +177,10 @@ istituti:
     label: Difensore e difesa (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art96
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art97
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art98
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art103
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art117
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art118
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art119
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art124
     norme_riferimento:
       - Art. 96 c.p.p. (Difensore di fiducia)
       - Art. 97 c.p.p. (Difensore di ufficio)
@@ -195,7 +195,7 @@ istituti:
     label: Diffamazione (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art595
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art770
     norme_riferimento:
       - Art. 595 c.p. (Diffamazione)
     termini_chiave:
@@ -207,8 +207,8 @@ istituti:
     label: Elemento soggettivo del reato (dolo, colpa, preterintenzione) (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art42
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art43
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art52
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art53
     norme_riferimento:
       - Art. 42 c.p. (Responsabilità per dolo o per colpa o per delitto preterintenzionale)
       - Art. 43 c.p. (Elemento psicologico del reato)
@@ -221,7 +221,7 @@ istituti:
     label: Estorsione (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art629
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art857
     norme_riferimento:
       - Art. 629 c.p. (Estorsione)
     termini_chiave:
@@ -233,8 +233,8 @@ istituti:
     label: Falso in atto pubblico (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art476
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art479
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art590
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art593
     norme_riferimento:
       - Art. 476 c.p. (Falsità materiale commessa dal pubblico ufficiale in atti pubblici)
       - Art. 479 c.p. (Falsità ideologica commessa dal pubblico ufficiale in atti pubblici)
@@ -247,8 +247,8 @@ istituti:
     label: Furto (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art624
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art625
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art849
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art851
     norme_riferimento:
       - Art. 624 c.p. (Furto)
       - Art. 625 c.p. (Circostanze aggravanti)
@@ -261,10 +261,10 @@ istituti:
     label: 'Impugnazioni: appello e ricorso per cassazione (CPP)'
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art593
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art597
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art602
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art606
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art712
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art717
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art725
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art729
     norme_riferimento:
       - Art. 593 c.p.p. (Casi di appello)
       - Art. 597 c.p.p. (Cognizione del giudice di appello)
@@ -279,10 +279,10 @@ istituti:
     label: Imputabilità (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art85
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art88
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art97
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art98
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art100
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art103
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art112
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art113
     norme_riferimento:
       - Art. 85 c.p. (Capacità d'intendere e di volere)
       - Art. 88 c.p. (Vizio totale di mente)
@@ -297,10 +297,10 @@ istituti:
     label: Indagini preliminari (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art326
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art327
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art330
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art335
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art387
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art388
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art392
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art398
     norme_riferimento:
       - Art. 326 c.p.p. (Finalità delle indagini preliminari)
       - Art. 327 c.p.p. (Direzione delle indagini preliminari)
@@ -315,9 +315,9 @@ istituti:
     label: Inosservanza dei provvedimenti dell'autorità e disturbo/molestia alle persone (CP)
     settore: penale
     norme_urn:
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art898
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art907
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art908
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art898
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art907
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art908
     norme_riferimento:
       - Art. 650 c.p. (Inosservanza dei provvedimenti dell'Autorità)
       - Art. 659 c.p. (Disturbo delle occupazioni o del riposo delle persone)
@@ -331,9 +331,9 @@ istituti:
     label: Intercettazioni di conversazioni o comunicazioni (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art266
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art266bis
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art267
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art312
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art313
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art314
     norme_riferimento:
       - Art. 266 c.p.p. (Limiti di ammissibilità)
       - Art. 266-bis c.p.p. (Intercettazioni di comunicazioni informatiche o telematiche)
@@ -347,8 +347,8 @@ istituti:
     label: Lesioni personali (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art582
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art583
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art742
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art743
     norme_riferimento:
       - Art. 582 c.p. (Lesione personale)
       - Art. 583 c.p. (Circostanze aggravanti — lesione grave e gravissima)
@@ -361,7 +361,7 @@ istituti:
     label: Maltrattamenti contro familiari e conviventi (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art572
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art728
     norme_riferimento:
       - Art. 572 c.p. (Maltrattamenti contro familiari e conviventi)
     termini_chiave:
@@ -373,9 +373,9 @@ istituti:
     label: 'Misure cautelari personali: presupposti generali (CPP)'
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art273
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art274
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art275
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art324
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art325
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art326
     norme_riferimento:
       - Art. 273 c.p.p. (Condizioni generali di applicabilità delle misure)
       - Art. 274 c.p.p. (Esigenze cautelari)
@@ -389,10 +389,10 @@ istituti:
     label: Misure di sicurezza (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art199
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art200
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art202
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art203
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art223
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art224
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art226
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art227
     norme_riferimento:
       - 'Art. 199 c.p. (Sottoposizione a misure di sicurezza: disposizione espressa di legge)'
       - Art. 200 c.p. (Applicabilità delle misure di sicurezza rispetto al tempo, al territorio e alle persone)
@@ -407,9 +407,9 @@ istituti:
     label: Omicidio (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art575
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art576
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art577
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art734
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art735
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art736
     norme_riferimento:
       - Art. 575 c.p. (Omicidio)
       - Art. 576 c.p. (Circostanze aggravanti. Ergastolo)
@@ -423,8 +423,8 @@ istituti:
     label: Peculato e concussione (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art314
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art317
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art366
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art372
     norme_riferimento:
       - Art. 314 c.p. (Peculato)
       - Art. 317 c.p. (Concussione)
@@ -437,11 +437,11 @@ istituti:
     label: Pene (tipi e applicazione) (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art17
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art19
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art20
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art22
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art21
       - urn:nir:stato:regio.decreto:1930-10-19;1398~art23
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art24
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art27
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art28
     norme_riferimento:
       - 'Art. 17 c.p. (Pene principali: specie)'
       - 'Art. 19 c.p. (Pene accessorie: specie)'
@@ -457,8 +457,8 @@ istituti:
     label: Percosse e minaccia (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art581
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art612
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art741
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art819
     norme_riferimento:
       - Art. 581 c.p. (Percosse)
       - Art. 612 c.p. (Minaccia)
@@ -471,10 +471,10 @@ istituti:
     label: Persona sottoposta alle indagini e imputato (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art60
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art61
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art64
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art66
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art74
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art75
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art78
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art80
     norme_riferimento:
       - Art. 60 c.p.p. (Assunzione della qualità di imputato)
       - Art. 61 c.p.p. (Estensione dei diritti e delle garanzie dell'imputato)
@@ -489,7 +489,7 @@ istituti:
     label: Possesso ingiustificato di chiavi alterate o di grimaldelli (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art707
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art959
     norme_riferimento:
       - Art. 707 c.p. (Possesso ingiustificato di chiavi alterate o di grimaldelli)
     termini_chiave:
@@ -501,10 +501,10 @@ istituti:
     label: Prescrizione del reato (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art157
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art158
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art159
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art160
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art175
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art176
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art177
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art178
     norme_riferimento:
       - Art. 157 c.p. (Prescrizione. Tempo necessario a prescrivere)
       - Art. 158 c.p. (Decorrenza del termine della prescrizione)
@@ -520,7 +520,7 @@ istituti:
     settore: penale
     norme_urn:
       - urn:nir:stato:regio.decreto:1930-10-19;1398~art4
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art5
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art2
       - urn:nir:stato:regio.decreto:1930-10-19;1398~art6
     norme_riferimento:
       - 'Art. 1 c.p. (Reati e pene: disposizione espressa di legge)'
@@ -535,10 +535,10 @@ istituti:
     label: 'Prove: principi generali (CPP)'
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art187
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art190
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art191
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art192
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art221
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art224
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art226
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art227
     norme_riferimento:
       - Art. 187 c.p.p. (Oggetto della prova)
       - Art. 190 c.p.p. (Diritto alla prova)
@@ -553,7 +553,7 @@ istituti:
     label: Rapina (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art628
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art855
     norme_riferimento:
       - Art. 628 c.p. (Rapina)
     termini_chiave:
@@ -565,9 +565,9 @@ istituti:
     label: 'Reato: elemento oggettivo (condotta e nesso causale) (CP)'
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art40
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art41
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art55
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art50
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art51
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art55
     norme_riferimento:
       - Art. 40 c.p. (Rapporto di causalità)
       - Art. 41 c.p. (Concorso di cause)
@@ -581,8 +581,8 @@ istituti:
     label: Recidiva (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art99
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art101
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art114
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art116
     norme_riferimento:
       - Art. 99 c.p. (Recidiva)
       - Art. 101 c.p. (Reati della stessa indole)
@@ -595,7 +595,7 @@ istituti:
     label: Riciclaggio (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art648bis
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art892
     norme_riferimento:
       - Art. 648-bis c.p. (Riciclaggio)
     termini_chiave:
@@ -625,10 +625,10 @@ istituti:
     label: Sequestro preventivo e confisca per equivalente (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art322
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art323
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art578bis
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art380
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art382
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art384
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art696
       - urn:nir:stato:regio.decreto:1930-10-19;1398~art383  # art. 322-ter c.p. (URN storico)
       - urn:nir:stato:regio.decreto:1930-10-19;1398~art240  # art. 240 c.p.
     norme_riferimento:
@@ -688,10 +688,10 @@ istituti:
     label: Soggetti del procedimento penale (giudice, pubblico ministero) (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art1
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art4
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art50
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art51
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art2
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art5
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art61
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art62
     norme_riferimento:
       - Art. 1 c.p.p. (Giurisdizione penale)
       - Art. 4 c.p.p. (Regole per la determinazione della competenza)
@@ -706,9 +706,9 @@ istituti:
     label: Sospensione condizionale della pena (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art163
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art164
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art165
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art184
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art185
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art186
     norme_riferimento:
       - Art. 163 c.p. (Sospensione condizionale della pena)
       - Art. 164 c.p. (Limiti entro i quali è ammessa la sospensione condizionale della pena)
@@ -722,7 +722,7 @@ istituti:
     label: Tentativo (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art56
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art66
     norme_riferimento:
       - Art. 56 c.p. (Delitto tentato)
     termini_chiave:
@@ -734,10 +734,10 @@ istituti:
     label: Testimonianza (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art194
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art197
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art199
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art200
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art229
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art232
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art235
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art236
     norme_riferimento:
       - Art. 194 c.p.p. (Oggetto e limiti della testimonianza)
       - Art. 197 c.p.p. (Incompatibilità con l'ufficio di testimone)
@@ -752,7 +752,7 @@ istituti:
     label: Truffa (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art640
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art877
     norme_riferimento:
       - Art. 640 c.p. (Truffa)
     termini_chiave:
@@ -764,10 +764,10 @@ istituti:
     label: Udienza preliminare (CPP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art416
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art421
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art424
-      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art425
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art504
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art514
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art518
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art519
     norme_riferimento:
       - Art. 416 c.p.p. (Presentazione della richiesta del pubblico ministero)
       - Art. 421 c.p.p. (Discussione)
@@ -782,8 +782,8 @@ istituti:
     label: Violenza sessuale (CP)
     settore: penale
     norme_urn:
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art609bis
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art609octies
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art806
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art812
     norme_riferimento:
       - Art. 609-bis c.p. (Violenza sessuale)
       - Art. 609-octies c.p. (Violenza sessuale di gruppo)
@@ -799,14 +799,14 @@ istituti:
     label: Accettazione dell'eredità (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art470
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art474
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art475
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art476
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art480
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art484
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art490
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art491
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art559
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art563
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art564
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art565
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art569
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art573
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art579
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art580
     norme_riferimento:
       - Art. 470 c.c. (Accettazione pura e semplice e accettazione col beneficio d'inventario)
       - Art. 474 c.c. (Modi di accettazione)
@@ -824,7 +824,12 @@ istituti:
   - id: adempimento_cc
     label: Adempimento (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1284
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1285
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1286
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1292
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1301
     norme_riferimento:
       - Art. 1180 c.c. (Adempimento del terzo)
       - Art. 1181 c.c. (Adempimento parziale)
@@ -840,12 +845,12 @@ istituti:
     label: Adozione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art291
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art294
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art296
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art297
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art300
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art305
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art338
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art341
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art343
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art344
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art347
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art352
     norme_riferimento:
       - Art. 291 c.c. (Condizioni dell'adozione)
       - Art. 294 c.c. (Pluralità di adottati o di adottanti)
@@ -862,14 +867,14 @@ istituti:
     label: Amministrazione di sostegno (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art404
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art405
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art406
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art407
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art409
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art411
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art412
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art413
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art491
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art492
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art493
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art494
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art496
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art498
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art499
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art500
     norme_riferimento:
       - Art. 404 c.c. (Amministrazione di sostegno)
       - Art. 405 c.c. (contenuto del decreto di nomina)
@@ -888,12 +893,12 @@ istituti:
     label: Apertura della successione e delazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art456
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art457
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art458
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art459
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art460
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art462
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art544
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art545
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art546
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art547
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art548
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art550
     norme_riferimento:
       - Art. 456 c.c. (Apertura della successione)
       - Art. 457 c.c. (Delazione dell'eredità)
@@ -909,7 +914,11 @@ istituti:
   - id: appalto_cc
     label: Appalto (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1772
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1781
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1784
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1786
     norme_riferimento:
       - Art. 1655 c.c. (Nozione)
       - Art. 1664 c.c. (Onerosità o difficoltà dell'esecuzione)
@@ -923,7 +932,9 @@ istituti:
   - id: arricchimento_senza_causa_cc
     label: Arricchimento senza causa (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2164
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2165
     norme_riferimento:
       - Art. 2041 c.c. (Azione generale di arricchimento)
       - Art. 2042 c.c. (Carattere sussidiario dell'azione)
@@ -936,14 +947,14 @@ istituti:
     label: Assenza e morte presunta (CC)
     settore: civile
     norme_urn:
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art83
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art84
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art90
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art91
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art92
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art97
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art65
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art67
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art83
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art84
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art90
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art91
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art92
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art97
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art99
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art101
     norme_riferimento:
       - Art. 49 c.c. (Dichiarazione di assenza)
       - Art. 50 c.c. (Immissione nel possesso temporaneo dei beni)
@@ -996,10 +1007,10 @@ istituti:
     label: Azioni possessorie (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1168
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1170
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1171
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1172
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1272
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1274
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1275
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1276
     norme_riferimento:
       - Art. 1168 c.c. (Azione di reintegrazione)
       - Art. 1170 c.c. (Azione di manutenzione)
@@ -1014,13 +1025,13 @@ istituti:
     label: Beni (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art810
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art812
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art817
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art820
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art822
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art823
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art826
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art906
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art908
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art913
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art916
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art918
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art919
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art922
     norme_riferimento:
       - Art. 810 c.c. (Nozione)
       - Art. 812 c.c. (Distinzione dei beni)
@@ -1039,8 +1050,8 @@ istituti:
     settore: civile
     norme_urn:
       - urn:nir:stato:regio.decreto:1942-03-16;262~art34
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art35
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art36
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art4
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art5
     norme_riferimento:
       - Art. 1 c.c. (Capacità giuridica)
       - Art. 2 c.c. (Maggiore età. Capacità di agire)
@@ -1053,7 +1064,12 @@ istituti:
   - id: cessione_del_credito_cc
     label: Cessione del credito (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1364
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1367
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1368
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1370
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1371
     norme_riferimento:
       - Art. 1260 c.c. (Cedibilità dei crediti)
       - Art. 1263 c.c. (Accessori del credito)
@@ -1069,11 +1085,11 @@ istituti:
     label: Collazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art737
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art742
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art746
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art750
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art751
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art826
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art831
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art835
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art839
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art840
     norme_riferimento:
       - Art. 737 c.c. (Soggetti tenuti alla collazione)
       - Art. 742 c.c. (Spese non soggette a collazione)
@@ -1088,7 +1104,13 @@ istituti:
   - id: comodato_e_mutuo_cc
     label: Comodato e mutuo (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1926
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1927
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1932
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1936
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1937
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1938
     norme_riferimento:
       - Art. 1803 c.c. (Nozione del comodato)
       - Art. 1804 c.c. (Obbligazioni del comodatario)
@@ -1123,11 +1145,11 @@ istituti:
     label: Comunione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1100
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1101
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1102
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1105
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1111
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1197
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1198
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1199
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1202
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1208
     norme_riferimento:
       - Art. 1100 c.c. (Norme regolatrici)
       - Art. 1101 c.c. (Quote dei partecipanti)
@@ -1143,13 +1165,13 @@ istituti:
     label: Comunione legale tra coniugi (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art159
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art177
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art180
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art186
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art190
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art191
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art194
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art202
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art221
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art224
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art230
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art234
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art235
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art238
     norme_riferimento:
       - Art. 159 c.c. (Del regime patrimoniale legale tra i coniugi)
       - Art. 177 c.c. (Oggetto della comunione)
@@ -1183,11 +1205,11 @@ istituti:
     label: Condominio negli edifici (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1117
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1118
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1119
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1123
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1129
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1214
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1218
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1219
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1225
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1231
     norme_riferimento:
       - Art. 1117 c.c. (Parti comuni dell'edificio)
       - Art. 1118 c.c. (Diritti dei partecipanti sulle parti comuni)
@@ -1254,7 +1276,12 @@ istituti:
   - id: contratto_in_generale_cc
     label: Contratto in generale (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1425
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1426
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1429
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1430
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1441
     norme_riferimento:
       - Art. 1321 c.c. (Nozione)
       - Art. 1322 c.c. (Autonomia contrattuale)
@@ -1308,13 +1335,13 @@ istituti:
     label: Divisione ereditaria (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art713
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art715
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art718
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art720
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art727
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art728
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art732
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art802
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art804
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art807
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art809
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art816
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art817
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art821
     norme_riferimento:
       - Art. 713 c.c. (Facoltà di domandare la divisione)
       - Art. 715 c.c. (Casi d'impedimento alla divisione)
@@ -1332,12 +1359,12 @@ istituti:
     label: Donazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art769
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art774
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art781
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art782
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art783
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art788
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art865
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art870
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art877
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art878
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art879
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art884
     norme_riferimento:
       - Art. 769 c.c. (Definizione)
       - Art. 774 c.c. (Capacità di donare)
@@ -1354,11 +1381,11 @@ istituti:
     label: Eredità giacente (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art528
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art529
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art530
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art531
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art532
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art617
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art618
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art619
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art620
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art621
     norme_riferimento:
       - Art. 528 c.c. (Nomina del curatore)
       - Art. 529 c.c. (Obblighi del curatore)
@@ -1376,7 +1403,7 @@ istituti:
     norme_urn:
       - urn:nir:stato:regio.decreto:1940-10-28;1443~art615
       - urn:nir:stato:regio.decreto:1940-10-28;1443~art624
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1940-10-28;1443~art689
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art689
     norme_riferimento:
       - Art. 474 c.p.c. (Titolo esecutivo)
       - Art. 483 c.p.c. (Cumulo dei mezzi di espropriazione)
@@ -1390,6 +1417,8 @@ istituti:
     label: Fatti illeciti (responsabilità extracontrattuale) (CC)
     settore: civile
     norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2166
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2171
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2174
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2178
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2182
@@ -1407,7 +1436,12 @@ istituti:
   - id: fideiussione_cc
     label: Fideiussione (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2059
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2062
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2067
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2072
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2078
     norme_riferimento:
       - Art. 1936 c.c. (Nozione)
       - Art. 1939 c.c. (Validità della fideiussione)
@@ -1423,13 +1457,13 @@ istituti:
     label: Filiazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art231
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art232
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art236
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art240
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art250
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art253
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art254
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art277
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art278
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art282
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art286
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art297
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art300
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art301
     norme_riferimento:
       - Art. 231 c.c. (Paternità del marito)
       - Art. 232 c.c. (Presunzione di concepimento durante il matrimonio)
@@ -1446,7 +1480,11 @@ istituti:
   - id: gestione_di_affari_altrui_cc
     label: Gestione di affari altrui (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2151
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2153
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2154
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2155
     norme_riferimento:
       - Art. 2028 c.c. (Obbligo di continuare la gestione)
       - Art. 2030 c.c. (Obbligazioni del gestore)
@@ -1512,7 +1550,12 @@ istituti:
   - id: inadempimento_e_mora_cc
     label: Inadempimento e mora (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1322
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1323
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1327
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1329
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1333
     norme_riferimento:
       - Art. 1218 c.c. (Responsabilità del debitore)
       - Art. 1219 c.c. (Costituzione in mora)
@@ -1528,10 +1571,10 @@ istituti:
     label: Indegnità a succedere (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art463
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art464
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art465
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art466
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art551
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art553
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art554
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art555
     norme_riferimento:
       - Art. 463 c.c. (Casi d'indegnità)
       - Art. 464 c.c. (Restituzione dei frutti)
@@ -1546,15 +1589,15 @@ istituti:
     label: Interdizione e inabilitazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art414
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art416
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art417
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art418
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art421
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art424
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art427
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art428
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art429
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art501
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art503
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art504
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art505
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art508
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art511
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art514
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art515
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art516
     norme_riferimento:
       - Art. 414 c.c. (Persone che possono essere interdette)
       - Art. 416 c.c. (Interdizione e inabilitazione nell'ultimo anno di minore età)
@@ -1573,7 +1616,14 @@ istituti:
   - id: invalidita_del_contratto_cc
     label: Invalidità del contratto (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1522
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1525
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1526
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1529
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1531
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1543
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1546
     norme_riferimento:
       - Art. 1418 c.c. (Cause di nullità del contratto)
       - Art. 1421 c.c. (Legittimazione all'azione di nullità)
@@ -1669,15 +1719,15 @@ istituti:
     label: Legittima (diritti dei legittimari) (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art536
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art537
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art540
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art542
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art549
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art554
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art555
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art557
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art564
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art625
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art626
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art629
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art631
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art638
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art643
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art644
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art646
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art653
     norme_riferimento:
       - Art. 536 c.c. (Legittimari)
       - Art. 537 c.c. (Riserva a favore dei figli)
@@ -1696,7 +1746,12 @@ istituti:
   - id: locazione_cc
     label: Locazione (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1688
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1690
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1692
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1702
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1704
     norme_riferimento:
       - Art. 1571 c.c. (Nozione)
       - Art. 1573 c.c. (Durata della locazione)
@@ -1711,7 +1766,12 @@ istituti:
   - id: mandato_cc
     label: Mandato (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1821
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1822
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1823
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1827
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1831
     norme_riferimento:
       - Art. 1703 c.c. (Nozione)
       - Art. 1704 c.c. (Mandato con rappresentanza)
@@ -1727,14 +1787,14 @@ istituti:
     label: Matrimonio (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art79
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art82
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art84
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art86
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art87
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art93
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art117
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art122
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art113
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art116
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art118
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art120
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art121
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art127
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art151
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art156
     norme_riferimento:
       - Art. 79 c.c. (Effetti della promessa di matrimonio)
       - Art. 82 c.c. (Matrimonio celebrato davanti a ministri del culto cattolico)
@@ -1752,7 +1812,12 @@ istituti:
   - id: modi_di_estinzione_delle_obbligazioni_cc
     label: Modi di estinzione delle obbligazioni (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1334
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1340
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1345
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1357
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1360
     norme_riferimento:
       - Art. 1230 c.c. (Novazione oggettiva)
       - Art. 1236 c.c. (Dichiarazione di remissione del debito)
@@ -1767,7 +1832,11 @@ istituti:
   - id: obbligazioni_in_generale_cc
     label: Obbligazioni in generale (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1277
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1278
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1279
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1280
     norme_riferimento:
       - Art. 1173 c.c. (Fonti delle obbligazioni)
       - Art. 1174 c.c. (Carattere patrimoniale della prestazione)
@@ -1782,13 +1851,13 @@ istituti:
     label: Obblighi alimentari (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art433
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art438
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art441
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art442
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art445
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art447
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art448
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art520
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art525
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art528
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art529
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art532
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art534
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art535
     norme_riferimento:
       - Art. 433 c.c. (Persone obbligate)
       - Art. 438 c.c. (Misura degli alimenti)
@@ -1819,7 +1888,11 @@ istituti:
   - id: pagamento_dell_indebito_cc
     label: Pagamento dell'indebito (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2156
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2157
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2159
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2160
     norme_riferimento:
       - Art. 2033 c.c. (Indebito oggettivo)
       - Art. 2034 c.c. (Obbligazioni naturali)
@@ -1834,11 +1907,11 @@ istituti:
     label: Parentela e affinità (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art74
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art75
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art76
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art77
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art78
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art108
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art109
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art110
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art111
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art112
     norme_riferimento:
       - Art. 74 c.c. (Parentela)
       - Art. 75 c.c. (Linee della parentela)
@@ -1886,9 +1959,9 @@ istituti:
     label: Petizione di eredità (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art533
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art534
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art535
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art622
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art623
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art624
     norme_riferimento:
       - Art. 533 c.c. (Nozione)
       - Art. 534 c.c. (Diritti dei terzi)
@@ -1902,11 +1975,11 @@ istituti:
     label: Possesso (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1140
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1141
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1147
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1148
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1153
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1243
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1244
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1250
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1251
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1256
     norme_riferimento:
       - Art. 1140 c.c. (Possesso)
       - Art. 1141 c.c. (Mutamento della detenzione in possesso)
@@ -1925,8 +1998,8 @@ istituti:
       - urn:nir:stato:regio.decreto:1942-03-16;262~art3247
       - urn:nir:stato:regio.decreto:1942-03-16;262~art3248
       - urn:nir:stato:regio.decreto:1942-03-16;262~art3256
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3258
       - urn:nir:stato:regio.decreto:1942-03-16;262~art3259
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art3260
     norme_riferimento:
       - Art. 2934 c.c. (Estinzione dei diritti)
       - Art. 2935 c.c. (Decorrenza della prescrizione)
@@ -1942,10 +2015,10 @@ istituti:
     label: Privilegi (CC)
     settore: civile
     norme_urn:
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2969
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2970
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2971
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2972
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3052
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3053
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3054
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3055
     norme_riferimento:
       - Art. 2745 c.c. (Fondamento del privilegio)
       - Art. 2746 c.c. (Distinzione dei privilegi)
@@ -1960,8 +2033,8 @@ istituti:
     label: Procedimenti cautelari (CPC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1940-10-28;1443~art669bis
-      - urn:nir:stato:regio.decreto:1940-10-28;1443~art669sexies
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art827
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art831
       - urn:nir:stato:regio.decreto:1940-10-28;1443~art871
     norme_riferimento:
       - Art. 669-bis c.p.c. (Forma della domanda)
@@ -2008,11 +2081,11 @@ istituti:
     label: Proprietà (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art832
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art833
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art834
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art840
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art841
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art928
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art929
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art930
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art936
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art937
     norme_riferimento:
       - Art. 832 c.c. (Contenuto del diritto)
       - Art. 833 c.c. (Atti d'emulazione)
@@ -2045,7 +2118,12 @@ istituti:
   - id: rappresentanza_cc
     label: Rappresentanza (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1491
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1492
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1498
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1499
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1502
     norme_riferimento:
       - Art. 1387 c.c. (Fonti della rappresentanza)
       - Art. 1388 c.c. (Contratto concluso dal rappresentante)
@@ -2061,9 +2139,9 @@ istituti:
     label: Rappresentazione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art467
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art468
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art469
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art556
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art557
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art558
     norme_riferimento:
       - Art. 467 c.c. (Nozione)
       - Art. 468 c.c. (Soggetti)
@@ -2076,7 +2154,12 @@ istituti:
   - id: rescissione_cc
     label: Rescissione (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1551
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1552
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1553
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1555
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1556
     norme_riferimento:
       - Art. 1447 c.c. (Contratto concluso in stato di pericolo)
       - Art. 1448 c.c. (Azione generale di rescissione per lesione)
@@ -2092,13 +2175,13 @@ istituti:
     label: Responsabilità genitoriale (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art315bis
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art316
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art330
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art333
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art337bis
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art337ter
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art337quater
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art390
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art391
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art407
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art410
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art416
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art417
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art418
     norme_riferimento:
       - Art. 315-bis c.c. (Diritti e doveri del figlio)
       - Art. 316 c.c. (Responsabilità genitoriale)
@@ -2116,9 +2199,9 @@ istituti:
     label: Responsabilità patrimoniale (CC)
     settore: civile
     norme_urn:
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2964
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2965
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2968
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3047
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3048
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3051
     norme_riferimento:
       - Art. 2740 c.c. (Responsabilità patrimoniale)
       - Art. 2741 c.c. (Concorso dei creditori e cause di prelazione)
@@ -2162,13 +2245,13 @@ istituti:
     label: Rinuncia all'eredità (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art519
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art520
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art521
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art522
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art524
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art525
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art527
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art608
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art609
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art610
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art611
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art613
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art614
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art616
     norme_riferimento:
       - Art. 519 c.c. (Dichiarazione di rinunzia)
       - Art. 520 c.c. (Rinunzia condizionata, a termine o parziale)
@@ -2185,7 +2268,13 @@ istituti:
   - id: risoluzione_per_inadempimento_cc
     label: Risoluzione per inadempimento (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1557
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1558
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1560
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1562
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1564
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1571
     norme_riferimento:
       - Art. 1453 c.c. (Risolubilità del contratto per inadempimento)
       - Art. 1454 c.c. (Diffida ad adempiere)
@@ -2202,7 +2291,7 @@ istituti:
     label: Scioglimento del matrimonio (divorzio) (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art149
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art186
     norme_riferimento:
       - Art. 149 c.c. (Scioglimento del matrimonio)
     termini_chiave:
@@ -2230,13 +2319,13 @@ istituti:
     label: Separazione personale dei coniugi (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art150
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art151
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art154
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art155
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art156
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art157
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art158
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art187
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art188
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art191
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art192
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art198
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art200
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art201
     norme_riferimento:
       - Art. 150 c.c. (Separazione personale)
       - Art. 151 c.c. (Separazione giudiziale)
@@ -2254,11 +2343,11 @@ istituti:
     label: Servitù prediali (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1027
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1028
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1031
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1051
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1052
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1124
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1125
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1128
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1148
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1149
     norme_riferimento:
       - Art. 1027 c.c. (Contenuto del diritto)
       - Art. 1028 c.c. (Nozione dell'utilità)
@@ -2277,7 +2366,7 @@ istituti:
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2681
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2682
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2684
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2604
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2687
     norme_riferimento:
       - Art. 2462 c.c. (Responsabilità)
       - Art. 2463 c.c. (Costituzione)
@@ -2292,9 +2381,9 @@ istituti:
     label: Società cooperative (CC)
     settore: civile
     norme_urn:
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2704
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2705
-      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2706
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2787
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2788
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2789
       - urn:nir:stato:regio.decreto:1942-03-16;262~art2791
     norme_riferimento:
       - Art. 2511 c.c. (Società cooperative)
@@ -2402,13 +2491,13 @@ istituti:
     label: Successione legittima (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art565
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art566
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art581
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art582
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art583
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art585
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art586
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art654
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art655
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art670
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art671
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art672
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art674
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art675
     norme_riferimento:
       - Art. 565 c.c. (Categorie dei successibili)
       - Art. 566 c.c. (Successione dei figli)
@@ -2444,14 +2533,14 @@ istituti:
     label: Testamento (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art587
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art588
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art589
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art591
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art601
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art602
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art603
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art606
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art676
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art677
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art678
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art680
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art690
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art691
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art692
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art695
     norme_riferimento:
       - Art. 587 c.c. (Testamento)
       - Art. 588 c.c. (Disposizioni a titolo universale e a titolo particolare)
@@ -2486,12 +2575,12 @@ istituti:
     label: Tutela e curatela dei minori (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art343
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art344
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art346
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art357
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art390
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art392
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art430
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art431
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art433
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art444
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art477
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art479
     norme_riferimento:
       - Art. 343 c.c. (Apertura della tutela)
       - Art. 344 c.c. (Funzioni del giudice tutelare)
@@ -2536,10 +2625,10 @@ istituti:
     label: Usucapione (CC)
     settore: civile
     norme_urn:
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1158
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1203
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1163
-      - urn:nir:stato:regio.decreto:1942-03-16;262~art1167
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1261
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1262
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1267
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1271
     norme_riferimento:
       - Art. 1158 c.c. (Usucapione dei beni immobili e dei diritti reali immobiliari)
       - Art. 1159 c.c. (Usucapione decennale)
@@ -2573,7 +2662,12 @@ istituti:
   - id: vendita_cc
     label: Vendita (CC)
     settore: civile
-    norme_urn: []
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1579
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1585
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1587
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1592
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1596
     norme_riferimento:
       - Art. 1470 c.c. (Nozione)
       - Art. 1476 c.c. (Obbligazioni principali del venditore)
