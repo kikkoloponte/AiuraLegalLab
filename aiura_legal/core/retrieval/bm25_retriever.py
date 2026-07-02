@@ -132,6 +132,13 @@ class _BM25Sub:
                 "corpus":     doc.metadata.get("corpus", "studio"),
                 "fonte":      doc.metadata.get("fonte", "altro"),
                 "testo_tipo": doc.metadata.get("testo_tipo", "normativo"),
+                # "settore" (list[str], vedi settore_from_doc) mancava qui:
+                # il filtro chunk_filter={"settore": "penale"} risultava
+                # SEMPRE senza match (None == "penale" è sempre False),
+                # azzerando ogni score e facendo scattare il fallback
+                # "nessun filtro" ad ogni chiamata — bug gemello a quello
+                # del confronto lista/stringa in search().
+                "settore":    doc.metadata.get("settore", []),
             }
         self.dirty = True
         self._rebuild_filter_arrays()
@@ -231,8 +238,22 @@ class _BM25Sub:
                 scores[self.testo_tipo_arr != meta_filter["testo_tipo"]] = 0.0
             other = {k: v for k, v in meta_filter.items() if k not in ("fonte", "testo_tipo")}
             if other and self.chunk_meta:
+                def _field_matches(meta: dict, k: str, v) -> bool:
+                    # "settore" (e altri campi multi-valore) sono salvati come
+                    # list[str] (vedi settore_from_doc) — un confronto di
+                    # uguaglianza contro il valore singolo richiesto (es.
+                    # "penale") è SEMPRE False anche quando il chunk è
+                    # effettivamente di quel settore, annullando ogni score
+                    # e facendo scattare il fallback "nessun filtro" ad ogni
+                    # chiamata (bug scoperto testando il filtro settore dopo
+                    # aver corretto settore_confidence in analyst.py).
+                    field_val = meta.get(k)
+                    if isinstance(field_val, list):
+                        return v in field_val
+                    return field_val == v
+
                 mask = np.array([
-                    all(self.chunk_meta.get(did, {}).get(k) == v for k, v in other.items())
+                    all(_field_matches(self.chunk_meta.get(did, {}), k, v) for k, v in other.items())
                     for did in self.doc_ids
                 ], dtype=bool)
                 scores[~mask] = 0.0
