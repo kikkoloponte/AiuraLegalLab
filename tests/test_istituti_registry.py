@@ -24,54 +24,26 @@ from aiura_legal.core.istituti.registry import (
 # ---------------------------------------------------------------------------
 
 class TestSeedReale:
+    """
+    Il seed reale oggi contiene SOLO le voci generate da
+    scripts/sync_istituti_registry.py (istituti_giuridici via CRUD UI) — le
+    voci curate a mano (con sentenze_pilota verificate come Gubert/
+    ThyssenKrupp e disambigua_da) sono state rimosse su richiesta esplicita.
+    Questi test verificano solo invarianti strutturali generiche, non più
+    contenuti specifici che non esistono più nel file.
+    """
     def test_seed_si_carica(self):
         reg = get_registry()
         assert len(reg.all()) >= 3
-
-    def test_urn_penale_mappa_istituto_penale(self):
-        """art. 321 c.p.p. → sequestro penale (NON antimafia)."""
-        reg = get_registry()
-        ist = reg.by_urn(
-            "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321"
-        )
-        assert ist is not None
-        assert ist.id == "sequestro_preventivo_confisca_equivalente_penale"
-
-    def test_urn_antimafia_mappa_istituto_distinto(self):
-        """art. 25 d.lgs. 159/2011 → confisca antimafia, ISTITUTO DIVERSO dal penale.
-        È la disambiguazione che oggi manca e fa confondere il retrieval."""
-        reg = get_registry()
-        ist = reg.by_urn("urn:nir:stato:decreto.legislativo:2011-09-06;159~art25")
-        assert ist is not None
-        assert ist.id == "confisca_antimafia_equivalente"
-        # I due istituti del per-equivalente devono essere distinti
-        penale = reg.by_urn(
-            "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321"
-        )
-        assert ist.id != penale.id
 
     def test_urn_sconosciuto_ritorna_none(self):
         reg = get_registry()
         assert reg.by_urn("urn:nir:stato:legge:9999-01-01;1~art1") is None
 
-    def test_pilota_thyssenkrupp_presente(self):
-        reg = get_registry()
-        piloti = reg.piloti("dolo_eventuale_colpa_cosciente")
-        assert any(p.nome == "ThyssenKrupp" and p.numero == "38343" for p in piloti)
-
-    def test_pilota_gubert_presente_con_principio(self):
-        reg = get_registry()
-        piloti = reg.piloti("sequestro_preventivo_confisca_equivalente_penale")
-        gubert = next((p for p in piloti if p.nome == "Gubert"), None)
-        assert gubert is not None
-        assert gubert.numero == "10561" and gubert.anno == "2014"
-        assert "terzo" in gubert.principio.lower()
-
-    def test_vocabolario_chiuso(self):
+    def test_vocabolario_non_vuoto(self):
         reg = get_registry()
         vocab = reg.vocabolario()
-        ids = {v[0] for v in vocab}
-        assert "sequestro_preventivo_confisca_equivalente_penale" in ids
+        assert vocab
         assert all(isinstance(v[1], str) and v[1] for v in vocab)  # label non vuote
 
 
@@ -80,16 +52,13 @@ class TestSeedReale:
 # ---------------------------------------------------------------------------
 
 class TestMatchQuery:
-    def test_match_sequestro_equivalente(self):
+    def test_match_testimonianza(self):
         reg = get_registry()
-        res = reg.match_query("sequestro preventivo per equivalente nei confronti del terzo estraneo")
+        res = reg.match_query(
+            "testimonianza facolta di astensione dei prossimi congiunti segreto professionale"
+        )
         assert res, "deve matchare almeno un istituto"
-        assert res[0][0].id == "sequestro_preventivo_confisca_equivalente_penale"
-
-    def test_match_dolo_eventuale(self):
-        reg = get_registry()
-        res = reg.match_query("confine tra dolo eventuale e colpa cosciente")
-        assert res[0][0].id == "dolo_eventuale_colpa_cosciente"
+        assert res[0][0].id == "testimonianza_cpp"
 
     def test_no_match_ritorna_vuoto(self):
         reg = get_registry()
