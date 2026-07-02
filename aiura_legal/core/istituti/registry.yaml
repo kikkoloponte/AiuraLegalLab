@@ -3,687 +3,3161 @@
 # Regola: un URN entra in norme_urn solo se confermato in aiura_legal_lab_db.chunks
 # (corpus=normattiva). Riferimenti non confermati restano in norme_riferimento.
 # Piloti: solo con dati reali; source_id solo se chunk groundabile confermato.
+#
+# Sezione "sync_istituti_giuridici_ui": voci generate/fuse automaticamente da
+# scripts/sync_istituti_registry.py a partire dalla collection MongoDB
+# istituti_giuridici (CRUD UI). Le voci curate a mano più vecchie mantengono
+# sentenze_pilota/disambigua_da; le nuove nascono con questi campi vuoti finché
+# non verificati manualmente — non fabbricare mai un source_id.
 # ===========================================================================
 
 istituti:
   # =======================================================================
   # PENALE
   # =======================================================================
-  - id: sequestro_preventivo_confisca_equivalente_penale
-    label: "Sequestro preventivo e confisca per equivalente (penale)"
+  - id: appropriazione_indebita_cp
+    label: Appropriazione indebita (CP)
     settore: penale
     norme_urn:
-      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321"  # art. 321 c.p.p.
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art383"                            # art. 322-ter c.p. (URN storico)
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art240"                            # art. 240 c.p.
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art646
     norme_riferimento:
-      - "art. 321 c.p.p. (sequestro preventivo)"
-      - "art. 322-ter c.p. (confisca per equivalente)"
-      - "art. 240 c.p. (confisca)"
+      - Art. 646 c.p. (Appropriazione indebita)
     termini_chiave:
-      - "sequestro preventivo"
-      - "confisca per equivalente"
-      - "profitto del reato"
-      - "sequestro finalizzato alla confisca"
-    disambigua_da:
-      confisca_antimafia_equivalente:
-        - "art. 321 c.p.p."
-        - "profitto del reato"
-        - "reato tributario"
-        - "procedimento penale"
-    sentenze_pilota:
-      - organo: "Cass. SS.UU. penali"
-        numero: "10561"
-        anno: "2014"
-        nome: "Gubert"
-        principio: >-
-          Verso il terzo estraneo al reato il sequestro per equivalente non è
-          ammesso: è consentita solo la confisca diretta del profitto del reato
-          che si trovi nella sua disponibilità. Il per-equivalente colpisce i
-          soli beni del reo, e quando il sequestro diretto del profitto è
-          impossibile ex actis.
-        source_id: "aiura_upload_j4o38mif"
-
-  - id: confisca_antimafia_equivalente
-    label: "Confisca per equivalente nelle misure di prevenzione"
-    settore: penale
-    norme_urn:
-      - "urn:nir:stato:decreto.legislativo:2011-09-06;159~art25"   # art. 25 d.lgs. 159/2011
-    norme_riferimento:
-      - "art. 25 d.lgs. 159/2011"
-      - "art. 20 d.lgs. 159/2011"
-    termini_chiave:
-      - "misura di prevenzione"
-      - "confisca di prevenzione"
-      - "proposto"
-      - "pericolosità sociale"
-      - "terzi in buona fede"
-    disambigua_da:
-      sequestro_preventivo_confisca_equivalente_penale:
-        - "codice antimafia"
-        - "misura di prevenzione"
-        - "proposto"
-        - "pericolosità"
-    sentenze_pilota: []
-
-  - id: dolo_eventuale_colpa_cosciente
-    label: "Confine tra dolo eventuale e colpa cosciente"
-    settore: penale
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art43"   # art. 43 c.p.
-    norme_riferimento:
-      - "art. 43 c.p."
-    termini_chiave:
-      - "dolo eventuale"
-      - "colpa cosciente"
-      - "accettazione del rischio"
-      - "elemento soggettivo"
-    disambigua_da: {}
-    sentenze_pilota:
-      - organo: "Cass. SS.UU. penali"
-        numero: "38343"
-        anno: "2014"
-        nome: "ThyssenKrupp"
-        principio: >-
-          Il dolo eventuale richiede l'accettazione dell'evento come possibile
-          conseguenza della condotta; la colpa cosciente sussiste quando l'agente,
-          pur rappresentandosi l'evento, agisce nella ragionevole fiducia di
-          poterlo evitare.
-        source_id: ""
-
-  - id: tentativo_delitto
-    label: "Tentativo del delitto"
-    settore: penale
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art56"   # art. 56 c.p.
-    norme_riferimento:
-      - "art. 56 c.p."
-    termini_chiave:
-      - "tentativo"
-      - "atti idonei"
-      - "atti diretti in modo non equivoco"
-      - "desistenza volontaria"
-      - "recesso attivo"
+      - appropriazione indebita
     disambigua_da: {}
     sentenze_pilota: []
 
-  - id: concorso_persone_reato
-    label: "Concorso di persone nel reato"
+  - id: archiviazione_cpp
+    label: Archiviazione (CPP)
     settore: penale
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art110"   # art. 110 c.p.
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art408
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art409
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art410
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art411
     norme_riferimento:
-      - "artt. 110-119 c.p."
+      - Art. 408 c.p.p. (Richiesta di archiviazione per infondatezza della notizia di reato)
+      - Art. 409 c.p.p. (Provvedimenti del giudice sulla richiesta di archiviazione)
+      - Art. 410 c.p.p. (Opposizione alla richiesta di archiviazione)
+      - Art. 411 c.p.p. (Altri casi di archiviazione)
     termini_chiave:
-      - "concorso di persone"
-      - "contributo causale"
-      - "concorso morale"
-      - "concorso materiale"
-      - "partecipazione criminosa"
+      - archiviazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: atti_persecutori_stalking_cp
+    label: Atti persecutori (stalking) (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art612bis
+    norme_riferimento:
+      - Art. 612-bis c.p. (Atti persecutori)
+    termini_chiave:
+      - atti persecutori (stalking)
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: cause_giustificazione
-    label: "Cause di giustificazione (legittima difesa, stato di necessità, esercizio di un diritto)"
+    label: Cause di giustificazione (legittima difesa, stato di necessità, esercizio di un diritto)
     settore: penale
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art52"   # art. 52 c.p. (legittima difesa)
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art54"   # art. 54 c.p. (stato di necessità)
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art51"   # art. 51 c.p. (esercizio diritto)
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art50"   # art. 50 c.p. (consenso)
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art52
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art54
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art51
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art50
     norme_riferimento:
-      - "art. 50 c.p."
-      - "art. 51 c.p."
-      - "art. 52 c.p."
-      - "art. 54 c.p."
+      - art. 50 c.p.
+      - art. 51 c.p.
+      - art. 52 c.p.
+      - art. 54 c.p.
+      - Art. 50 c.p. (Consenso dell'avente diritto)
+      - Art. 51 c.p. (Esercizio di un diritto o adempimento di un dovere)
+      - Art. 52 c.p. (Difesa legittima)
+      - Art. 54 c.p. (Stato di necessità)
     termini_chiave:
-      - "legittima difesa"
-      - "stato di necessità"
-      - "esercizio di un diritto"
-      - "consenso dell'avente diritto"
-      - "scriminante"
+      - legittima difesa
+      - stato di necessità
+      - esercizio di un diritto
+      - consenso dell'avente diritto
+      - scriminante
+      - cause di giustificazione (scriminanti)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: circostanze_del_reato_cp
+    label: Circostanze del reato (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art59
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art61
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art62
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art63
+    norme_riferimento:
+      - Art. 59 c.p. (Circostanze non conosciute o erroneamente supposte)
+      - Art. 61 c.p. (Circostanze aggravanti comuni)
+      - Art. 62 c.p. (Circostanze attenuanti comuni)
+      - Art. 63 c.p. (Applicazione degli aumenti o delle diminuzioni di pena)
+    termini_chiave:
+      - circostanze del reato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concorso_di_reati_e_reato_continuato_cp
+    label: Concorso di reati e reato continuato (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art71
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art81
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art84
+    norme_riferimento:
+      - Art. 71 c.p. (Condanna per più reati con unica sentenza o decreto)
+      - Art. 81 c.p. (Concorso formale. Reato continuato)
+      - Art. 84 c.p. (Reato complesso)
+    termini_chiave:
+      - concorso di reati e reato continuato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concorso_persone_reato
+    label: Concorso di persone nel reato
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art110
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art115
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art116
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art117
+    norme_riferimento:
+      - artt. 110-119 c.p.
+      - Art. 110 c.p. (Pena per coloro che concorrono nel reato)
+      - Art. 115 c.p. (Accordo per commettere un reato. Istigazione)
+      - Art. 116 c.p. (Reato diverso da quello voluto da taluno dei concorrenti)
+      - Art. 117 c.p. (Mutamento del titolo del reato per taluno dei concorrenti)
+    termini_chiave:
+      - concorso di persone
+      - contributo causale
+      - concorso morale
+      - concorso materiale
+      - partecipazione criminosa
+      - concorso di persone nel reato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: confisca_antimafia_equivalente
+    label: Confisca per equivalente nelle misure di prevenzione
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art25
+    norme_riferimento:
+      - art. 25 d.lgs. 159/2011
+      - art. 20 d.lgs. 159/2011
+    termini_chiave:
+      - misura di prevenzione
+      - confisca di prevenzione
+      - proposto
+      - pericolosità sociale
+      - terzi in buona fede
+    disambigua_da:
+      sequestro_preventivo_confisca_equivalente_penale:
+        - codice antimafia
+        - misura di prevenzione
+        - proposto
+        - pericolosità
+    sentenze_pilota: []
+
+  - id: corruzione_cp
+    label: Corruzione (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art318
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art319
+    norme_riferimento:
+      - Art. 318 c.p. (Corruzione per l'esercizio della funzione)
+      - Art. 319 c.p. (Corruzione per un atto contrario ai doveri d'ufficio)
+    termini_chiave:
+      - corruzione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: custodia_cautelare_in_carcere_e_arresti_domiciliari_cpp
+    label: Custodia cautelare in carcere e arresti domiciliari (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art284
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art285
+    norme_riferimento:
+      - Art. 284 c.p.p. (Arresti domiciliari)
+      - Art. 285 c.p.p. (Custodia cautelare in carcere)
+    termini_chiave:
+      - custodia cautelare in carcere e arresti domiciliari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: dibattimento_cpp
+    label: Dibattimento (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art590
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art599
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art605
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art634
+    norme_riferimento:
+      - Art. 484 c.p.p. (Costituzione delle parti)
+      - Art. 493 c.p.p. (Richieste di prova)
+      - Art. 498 c.p.p. (Esame diretto e controesame dei testimoni)
+      - Art. 524 c.p.p. (Chiusura del dibattimento)
+    termini_chiave:
+      - dibattimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: difensore_e_difesa_cpp
+    label: Difensore e difesa (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art96
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art97
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art98
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art103
+    norme_riferimento:
+      - Art. 96 c.p.p. (Difensore di fiducia)
+      - Art. 97 c.p.p. (Difensore di ufficio)
+      - Art. 98 c.p.p. (Patrocinio dei non abbienti)
+      - Art. 103 c.p.p. (Garanzie di libertà del difensore)
+    termini_chiave:
+      - difensore e difesa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: diffamazione_cp
+    label: Diffamazione (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art595
+    norme_riferimento:
+      - Art. 595 c.p. (Diffamazione)
+    termini_chiave:
+      - diffamazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: dolo_eventuale_colpa_cosciente
+    label: Confine tra dolo eventuale e colpa cosciente
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art43
+    norme_riferimento:
+      - art. 43 c.p.
+    termini_chiave:
+      - dolo eventuale
+      - colpa cosciente
+      - accettazione del rischio
+      - elemento soggettivo
+    disambigua_da: {}
+    sentenze_pilota:
+      - organo: Cass. SS.UU. penali
+        numero: '38343'
+        anno: '2014'
+        nome: ThyssenKrupp
+        principio: Il dolo eventuale richiede l'accettazione dell'evento come possibile conseguenza della condotta; la colpa cosciente sussiste quando l'agente, pur rappresentandosi l'evento, agisce nella ragionevole fiducia di poterlo evitare.
+
+  - id: elemento_soggettivo_del_reato_dolo_colpa_preterintenzione_cp
+    label: Elemento soggettivo del reato (dolo, colpa, preterintenzione) (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art42
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art43
+    norme_riferimento:
+      - Art. 42 c.p. (Responsabilità per dolo o per colpa o per delitto preterintenzionale)
+      - Art. 43 c.p. (Elemento psicologico del reato)
+    termini_chiave:
+      - elemento soggettivo del reato (dolo, colpa, preterintenzione)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: estorsione_cp
+    label: Estorsione (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art629
+    norme_riferimento:
+      - Art. 629 c.p. (Estorsione)
+    termini_chiave:
+      - estorsione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: falso_in_atto_pubblico_cp
+    label: Falso in atto pubblico (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art476
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art479
+    norme_riferimento:
+      - Art. 476 c.p. (Falsità materiale commessa dal pubblico ufficiale in atti pubblici)
+      - Art. 479 c.p. (Falsità ideologica commessa dal pubblico ufficiale in atti pubblici)
+    termini_chiave:
+      - falso in atto pubblico
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: furto_cp
+    label: Furto (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art624
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art625
+    norme_riferimento:
+      - Art. 624 c.p. (Furto)
+      - Art. 625 c.p. (Circostanze aggravanti)
+    termini_chiave:
+      - furto
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: impugnazioni_appello_e_ricorso_per_cassazione_cpp
+    label: 'Impugnazioni: appello e ricorso per cassazione (CPP)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art593
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art597
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art602
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art606
+    norme_riferimento:
+      - Art. 593 c.p.p. (Casi di appello)
+      - Art. 597 c.p.p. (Cognizione del giudice di appello)
+      - Art. 602 c.p.p. (Dibattimento di appello)
+      - Art. 606 c.p.p. (Casi di ricorso)
+    termini_chiave:
+      - 'impugnazioni: appello e ricorso per cassazione'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: imputabilita_cp
+    label: Imputabilità (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art85
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art88
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art97
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art98
+    norme_riferimento:
+      - Art. 85 c.p. (Capacità d'intendere e di volere)
+      - Art. 88 c.p. (Vizio totale di mente)
+      - Art. 97 c.p. (Minore degli anni quattordici)
+      - Art. 98 c.p. (Minore degli anni diciotto)
+    termini_chiave:
+      - imputabilità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: indagini_preliminari_cpp
+    label: Indagini preliminari (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art326
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art327
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art330
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art335
+    norme_riferimento:
+      - Art. 326 c.p.p. (Finalità delle indagini preliminari)
+      - Art. 327 c.p.p. (Direzione delle indagini preliminari)
+      - Art. 330 c.p.p. (Acquisizione delle notizie di reato)
+      - Art. 335 c.p.p. (Registro delle notizie di reato)
+    termini_chiave:
+      - indagini preliminari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: inosservanza_dei_provvedimenti_dell_autorita_e_disturbo_molestia_alle_persone_cp
+    label: Inosservanza dei provvedimenti dell'autorità e disturbo/molestia alle persone (CP)
+    settore: penale
+    norme_urn:
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art898
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art907
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art908
+    norme_riferimento:
+      - Art. 650 c.p. (Inosservanza dei provvedimenti dell'Autorità)
+      - Art. 659 c.p. (Disturbo delle occupazioni o del riposo delle persone)
+      - Art. 660 c.p. (Molestia o disturbo alle persone)
+    termini_chiave:
+      - inosservanza dei provvedimenti dell'autorità e disturbo/molestia alle persone
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: intercettazioni_di_conversazioni_o_comunicazioni_cpp
+    label: Intercettazioni di conversazioni o comunicazioni (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art266
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art266bis
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art267
+    norme_riferimento:
+      - Art. 266 c.p.p. (Limiti di ammissibilità)
+      - Art. 266-bis c.p.p. (Intercettazioni di comunicazioni informatiche o telematiche)
+      - Art. 267 c.p.p. (Presupposti e forme del provvedimento)
+    termini_chiave:
+      - intercettazioni di conversazioni o comunicazioni
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: lesioni_personali_cp
+    label: Lesioni personali (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art582
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art583
+    norme_riferimento:
+      - Art. 582 c.p. (Lesione personale)
+      - Art. 583 c.p. (Circostanze aggravanti — lesione grave e gravissima)
+    termini_chiave:
+      - lesioni personali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: maltrattamenti_contro_familiari_e_conviventi_cp
+    label: Maltrattamenti contro familiari e conviventi (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art572
+    norme_riferimento:
+      - Art. 572 c.p. (Maltrattamenti contro familiari e conviventi)
+    termini_chiave:
+      - maltrattamenti contro familiari e conviventi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: misure_cautelari_personali_presupposti_generali_cpp
+    label: 'Misure cautelari personali: presupposti generali (CPP)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art273
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art274
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art275
+    norme_riferimento:
+      - Art. 273 c.p.p. (Condizioni generali di applicabilità delle misure)
+      - Art. 274 c.p.p. (Esigenze cautelari)
+      - Art. 275 c.p.p. (Criteri di scelta delle misure)
+    termini_chiave:
+      - 'misure cautelari personali: presupposti generali'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: misure_di_sicurezza_cp
+    label: Misure di sicurezza (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art199
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art200
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art202
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art203
+    norme_riferimento:
+      - 'Art. 199 c.p. (Sottoposizione a misure di sicurezza: disposizione espressa di legge)'
+      - Art. 200 c.p. (Applicabilità delle misure di sicurezza rispetto al tempo, al territorio e alle persone)
+      - Art. 202 c.p. (Applicabilità delle misure di sicurezza)
+      - Art. 203 c.p. (Pericolosità sociale)
+    termini_chiave:
+      - misure di sicurezza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: omicidio_cp
+    label: Omicidio (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art575
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art576
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art577
+    norme_riferimento:
+      - Art. 575 c.p. (Omicidio)
+      - Art. 576 c.p. (Circostanze aggravanti. Ergastolo)
+      - Art. 577 c.p. (Altre circostanze aggravanti. Ergastolo)
+    termini_chiave:
+      - omicidio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: peculato_e_concussione_cp
+    label: Peculato e concussione (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art314
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art317
+    norme_riferimento:
+      - Art. 314 c.p. (Peculato)
+      - Art. 317 c.p. (Concussione)
+    termini_chiave:
+      - peculato e concussione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: pene_tipi_e_applicazione_cp
+    label: Pene (tipi e applicazione) (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art17
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art19
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art20
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art22
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art23
+    norme_riferimento:
+      - 'Art. 17 c.p. (Pene principali: specie)'
+      - 'Art. 19 c.p. (Pene accessorie: specie)'
+      - Art. 20 c.p. (Pene principali e accessorie)
+      - Art. 22 c.p. (Ergastolo)
+      - Art. 23 c.p. (Reclusione)
+    termini_chiave:
+      - pene (tipi e applicazione)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: percosse_e_minaccia_cp
+    label: Percosse e minaccia (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art581
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art612
+    norme_riferimento:
+      - Art. 581 c.p. (Percosse)
+      - Art. 612 c.p. (Minaccia)
+    termini_chiave:
+      - percosse e minaccia
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: persona_sottoposta_alle_indagini_e_imputato_cpp
+    label: Persona sottoposta alle indagini e imputato (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art60
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art61
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art64
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art66
+    norme_riferimento:
+      - Art. 60 c.p.p. (Assunzione della qualità di imputato)
+      - Art. 61 c.p.p. (Estensione dei diritti e delle garanzie dell'imputato)
+      - Art. 64 c.p.p. (Regole generali per l'interrogatorio)
+      - Art. 66 c.p.p. (Verifica dell'identità personale dell'imputato)
+    termini_chiave:
+      - persona sottoposta alle indagini e imputato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: possesso_ingiustificato_di_chiavi_alterate_o_di_grimaldelli_cp
+    label: Possesso ingiustificato di chiavi alterate o di grimaldelli (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art707
+    norme_riferimento:
+      - Art. 707 c.p. (Possesso ingiustificato di chiavi alterate o di grimaldelli)
+    termini_chiave:
+      - possesso ingiustificato di chiavi alterate o di grimaldelli
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: prescrizione_reato
-    label: "Prescrizione del reato"
+    label: Prescrizione del reato
     settore: penale
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1930-10-19;1398~art157"   # art. 157 c.p.
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art157
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art158
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art159
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art160
     norme_riferimento:
-      - "artt. 157-161 c.p."
+      - artt. 157-161 c.p.
+      - Art. 157 c.p. (Prescrizione. Tempo necessario a prescrivere)
+      - Art. 158 c.p. (Decorrenza del termine della prescrizione)
+      - Art. 159 c.p. (Sospensione del corso della prescrizione)
+      - Art. 160 c.p. (Interruzione del corso della prescrizione)
     termini_chiave:
-      - "prescrizione del reato"
-      - "termine di prescrizione"
-      - "sospensione della prescrizione"
-      - "interruzione della prescrizione"
+      - prescrizione del reato
+      - termine di prescrizione
+      - sospensione della prescrizione
+      - interruzione della prescrizione
     disambigua_da:
       prescrizione_civile:
-        - "reato"
-        - "pena"
-        - "atti interruttivi penali"
+        - reato
+        - pena
+        - atti interruttivi penali
+    sentenze_pilota: []
+
+  - id: principio_di_legalita_e_successione_di_leggi_penali_cp
+    label: Principio di legalità e successione di leggi penali (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art4
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art5
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art6
+    norme_riferimento:
+      - 'Art. 1 c.p. (Reati e pene: disposizione espressa di legge)'
+      - Art. 2 c.p. (Successione di leggi penali)
+      - Art. 3 c.p. (Obbligatorietà della legge penale)
+    termini_chiave:
+      - principio di legalità e successione di leggi penali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: prove_principi_generali_cpp
+    label: 'Prove: principi generali (CPP)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art187
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art190
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art191
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art192
+    norme_riferimento:
+      - Art. 187 c.p.p. (Oggetto della prova)
+      - Art. 190 c.p.p. (Diritto alla prova)
+      - Art. 191 c.p.p. (Prove illegittimamente acquisite)
+      - Art. 192 c.p.p. (Valutazione della prova)
+    termini_chiave:
+      - 'prove: principi generali'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rapina_cp
+    label: Rapina (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art628
+    norme_riferimento:
+      - Art. 628 c.p. (Rapina)
+    termini_chiave:
+      - rapina
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: reato_elemento_oggettivo_condotta_e_nesso_causale_cp
+    label: 'Reato: elemento oggettivo (condotta e nesso causale) (CP)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art40
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art41
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1930-10-19;1398~art55
+    norme_riferimento:
+      - Art. 40 c.p. (Rapporto di causalità)
+      - Art. 41 c.p. (Concorso di cause)
+      - Art. 45 c.p. (Caso fortuito o forza maggiore)
+    termini_chiave:
+      - 'reato: elemento oggettivo (condotta e nesso causale)'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: recidiva_cp
+    label: Recidiva (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art99
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art101
+    norme_riferimento:
+      - Art. 99 c.p. (Recidiva)
+      - Art. 101 c.p. (Reati della stessa indole)
+    termini_chiave:
+      - recidiva
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: riciclaggio_cp
+    label: Riciclaggio (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art648bis
+    norme_riferimento:
+      - Art. 648-bis c.p. (Riciclaggio)
+    termini_chiave:
+      - riciclaggio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: riti_alternativi_giudizio_abbreviato_e_patteggiamento_cpp
+    label: 'Riti alternativi: giudizio abbreviato e patteggiamento (CPP)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art533
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art538
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art539
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art540
+    norme_riferimento:
+      - Art. 438 c.p.p. (Presupposti del giudizio abbreviato)
+      - Art. 442 c.p.p. (Decisione)
+      - Art. 443 c.p.p. (Limiti all'appello)
+      - Art. 444 c.p.p. (Applicazione della pena su richiesta)
+    termini_chiave:
+      - 'riti alternativi: giudizio abbreviato e patteggiamento'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sequestro_preventivo_confisca_equivalente_penale
+    label: Sequestro preventivo e confisca per equivalente (penale)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art321
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art383
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art240
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art322
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art323
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art578bis
+    norme_riferimento:
+      - art. 321 c.p.p. (sequestro preventivo)
+      - art. 322-ter c.p. (confisca per equivalente)
+      - art. 240 c.p. (confisca)
+      - Art. 321 c.p.p. (Oggetto del sequestro preventivo)
+      - Art. 322 c.p.p. (Riesame del decreto di sequestro preventivo)
+      - Art. 323 c.p.p. (Perdita di efficacia del sequestro preventivo)
+      - Art. 578-bis c.p.p. (Decisione sulla confisca in casi particolari in caso di estinzione del reato per amnistia o prescrizione)
+    termini_chiave:
+      - sequestro preventivo
+      - confisca per equivalente
+      - profitto del reato
+      - sequestro finalizzato alla confisca
+      - sequestro preventivo e confisca per equivalente
+    disambigua_da:
+      confisca_antimafia_equivalente:
+        - art. 321 c.p.p.
+        - profitto del reato
+        - reato tributario
+        - procedimento penale
+    sentenze_pilota:
+      - organo: Cass. SS.UU. penali
+        numero: '10561'
+        anno: '2014'
+        nome: Gubert
+        principio: 'Verso il terzo estraneo al reato il sequestro per equivalente non è ammesso: è consentita solo la confisca diretta del profitto del reato che si trovi nella sua disponibilità. Il per-equivalente colpisce i soli beni del reo, e quando il sequestro diretto del profitto è impossibile ex actis.'
+        source_id: aiura_upload_j4o38mif
+
+  - id: soggetti_del_procedimento_penale_giudice_pubblico_ministero_cpp
+    label: Soggetti del procedimento penale (giudice, pubblico ministero) (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art1
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art4
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art50
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art51
+    norme_riferimento:
+      - Art. 1 c.p.p. (Giurisdizione penale)
+      - Art. 4 c.p.p. (Regole per la determinazione della competenza)
+      - Art. 50 c.p.p. (Azione penale)
+      - Art. 51 c.p.p. (Uffici del pubblico ministero)
+    termini_chiave:
+      - soggetti del procedimento penale (giudice, pubblico ministero)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sospensione_condizionale_della_pena_cp
+    label: Sospensione condizionale della pena (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art163
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art164
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art165
+    norme_riferimento:
+      - Art. 163 c.p. (Sospensione condizionale della pena)
+      - Art. 164 c.p. (Limiti entro i quali è ammessa la sospensione condizionale della pena)
+      - Art. 165 c.p. (Obblighi del condannato)
+    termini_chiave:
+      - sospensione condizionale della pena
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: tentativo_cp
+    label: Tentativo (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art56
+    norme_riferimento:
+      - Art. 56 c.p. (Delitto tentato)
+    termini_chiave:
+      - tentativo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: tentativo_delitto
+    label: Tentativo del delitto
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art56
+    norme_riferimento:
+      - art. 56 c.p.
+    termini_chiave:
+      - tentativo
+      - atti idonei
+      - atti diretti in modo non equivoco
+      - desistenza volontaria
+      - recesso attivo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: testimonianza_cpp
+    label: Testimonianza (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art194
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art197
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art199
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art200
+    norme_riferimento:
+      - Art. 194 c.p.p. (Oggetto e limiti della testimonianza)
+      - Art. 197 c.p.p. (Incompatibilità con l'ufficio di testimone)
+      - Art. 199 c.p.p. (Facoltà di astensione dei prossimi congiunti)
+      - Art. 200 c.p.p. (Segreto professionale)
+    termini_chiave:
+      - testimonianza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: truffa_cp
+    label: Truffa (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art640
+    norme_riferimento:
+      - Art. 640 c.p. (Truffa)
+    termini_chiave:
+      - truffa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: udienza_preliminare_cpp
+    label: Udienza preliminare (CPP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art416
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art421
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art424
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art425
+    norme_riferimento:
+      - Art. 416 c.p.p. (Presentazione della richiesta del pubblico ministero)
+      - Art. 421 c.p.p. (Discussione)
+      - Art. 424 c.p.p. (Provvedimenti del giudice)
+      - Art. 425 c.p.p. (Sentenza di non luogo a procedere)
+    termini_chiave:
+      - udienza preliminare
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: violenza_sessuale_cp
+    label: Violenza sessuale (CP)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art609bis
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art609octies
+    norme_riferimento:
+      - Art. 609-bis c.p. (Violenza sessuale)
+      - Art. 609-octies c.p. (Violenza sessuale di gruppo)
+    termini_chiave:
+      - violenza sessuale
+    disambigua_da: {}
     sentenze_pilota: []
 
   # =======================================================================
   # CIVILE
   # =======================================================================
-  - id: contratto_formazione_validita
-    label: "Contratto: formazione, validità ed efficacia"
+  - id: accettazione_dell_eredita_cc
+    label: Accettazione dell'eredità (CC)
     settore: civile
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1321"   # art. 1321 c.c.
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art470
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art474
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art475
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art476
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art480
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art484
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art490
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art491
     norme_riferimento:
-      - "artt. 1321-1469 c.c."
+      - Art. 470 c.c. (Accettazione pura e semplice e accettazione col beneficio d'inventario)
+      - Art. 474 c.c. (Modi di accettazione)
+      - Art. 475 c.c. (Accettazione espressa)
+      - Art. 476 c.c. (Accettazione tacita)
+      - Art. 480 c.c. (Prescrizione)
+      - Art. 484 c.c. (Accettazione col beneficio d'inventario)
+      - Art. 490 c.c. (Effetti del beneficio d'inventario)
+      - Art. 491 c.c. (Responsabilità dell'erede nell'amministrazione)
     termini_chiave:
-      - "contratto"
-      - "accordo delle parti"
-      - "causa"
-      - "oggetto"
-      - "forma"
-      - "autonomia contrattuale"
+      - accettazione dell'eredità
     disambigua_da: {}
     sentenze_pilota: []
 
-  - id: nullita_annullabilita_resoluzione_rescissione
-    label: "Invalidità e scioglimento del contratto (nullità, annullabilità, risoluzione, rescissione)"
+  - id: adempimento_cc
+    label: Adempimento (CC)
     settore: civile
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1418"   # art. 1418 c.c.
+    norme_urn: []
     norme_riferimento:
-      - "artt. 1418-1459 c.c."
+      - Art. 1180 c.c. (Adempimento del terzo)
+      - Art. 1181 c.c. (Adempimento parziale)
+      - Art. 1182 c.c. (Luogo dell'adempimento)
+      - Art. 1188 c.c. (Destinatario del pagamento)
+      - Art. 1197 c.c. (Prestazione in luogo dell'adempimento)
     termini_chiave:
-      - "nullità"
-      - "annullabilità"
-      - "risoluzione"
-      - "rescissione"
-      - "vizio del consenso"
-      - "inadempimento"
+      - adempimento
     disambigua_da: {}
     sentenze_pilota: []
 
-  - id: responsabilita_contrattuale
-    label: "Responsabilità contrattuale"
+  - id: adozione_cc
+    label: Adozione (CC)
     settore: civile
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1218"   # art. 1218 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1223"   # art. 1223 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1228"   # art. 1228 c.c.
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art291
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art294
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art296
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art297
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art300
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art305
     norme_riferimento:
-      - "art. 1218 c.c."
-      - "art. 1223 c.c."
-      - "art. 1228 c.c."
+      - Art. 291 c.c. (Condizioni dell'adozione)
+      - Art. 294 c.c. (Pluralità di adottati o di adottanti)
+      - Art. 296 c.c. (Consenso per l'adozione)
+      - Art. 297 c.c. (Assenso del coniuge o dei genitori)
+      - Art. 300 c.c. (Diritti e doveri dell'adottato)
+      - Art. 305 c.c. (Revoca dell'adozione)
     termini_chiave:
-      - "responsabilità contrattuale"
-      - "inadempimento"
-      - "esatto adempimento"
-      - "risarcimento del danno"
-      - "impossibilità della prestazione"
-    disambigua_da:
-      responsabilita_extracontrattuale:
-        - "vincolo contrattuale"
-        - "obbligazione preesistente"
-        - "inadempimento"
-    sentenze_pilota: []
-
-  - id: responsabilita_extracontrattuale
-    label: "Responsabilità extracontrattuale"
-    settore: civile
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2043"   # art. 2043 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2051"   # art. 2051 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2059"   # art. 2059 c.c.
-    norme_riferimento:
-      - "art. 2043 c.c."
-      - "art. 2051 c.c."
-      - "art. 2059 c.c."
-    termini_chiave:
-      - "illecito aquiliano"
-      - "danno ingiusto"
-      - "nesso causale"
-      - "custodia"
-      - "danno non patrimoniale"
-    disambigua_da:
-      responsabilita_contrattuale:
-        - "fatto illecito"
-        - "danno ingiusto"
-        - "assenza di rapporto contrattuale"
-    sentenze_pilota: []
-
-  - id: proprieta_possesso_usucapione
-    label: "Proprietà, possesso e usucapione"
-    settore: civile
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art832"    # art. 832 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1140"   # art. 1140 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1158"   # art. 1158 c.c.
-    norme_riferimento:
-      - "artt. 832 ss. c.c."
-      - "artt. 1140 ss. c.c."
-      - "artt. 1158 ss. c.c."
-    termini_chiave:
-      - "proprietà"
-      - "possesso"
-      - "detenzione"
-      - "usucapione"
-      - "interversione del possesso"
+      - adozione
     disambigua_da: {}
     sentenze_pilota: []
 
-  - id: diritti_reali_godimento
-    label: "Diritti reali di godimento (usufrutto, uso, abitazione, servitù, superficie, enfiteusi)"
+  - id: amministrazione_di_sostegno_cc
+    label: Amministrazione di sostegno (CC)
     settore: civile
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art1027"   # art. 1027 c.c. (servitù)
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art404
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art405
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art406
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art407
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art409
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art411
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art412
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art413
     norme_riferimento:
-      - "artt. 978 ss. c.c."
-      - "artt. 1021 ss. c.c."
-      - "artt. 1027 ss. c.c."
-      - "artt. 952 ss. c.c."
-      - "artt. 957 ss. c.c."
+      - Art. 404 c.c. (Amministrazione di sostegno)
+      - Art. 405 c.c. (contenuto del decreto di nomina)
+      - Art. 406 c.c. (Soggetti legittimati al ricorso)
+      - Art. 407 c.c. (Procedimento)
+      - Art. 409 c.c. (Effetti dell'amministrazione di sostegno)
+      - Art. 411 c.c. (Norme applicabili all'amministrazione di sostegno)
+      - Art. 412 c.c. (Atti compiuti in violazione di norme di legge o disposizioni del giudice)
+      - Art. 413 c.c. (Revoca dell'amministrazione di sostegno)
     termini_chiave:
-      - "usufrutto"
-      - "servitù"
-      - "uso"
-      - "abitazione"
-      - "superficie"
-      - "enfiteusi"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: successioni_testamento_legittima
-    label: "Successioni, testamento e quota di legittima"
-    settore: civile
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art456"   # art. 456 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art536"   # art. 536 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art587"   # art. 587 c.c.
-    norme_riferimento:
-      - "artt. 456 ss. c.c."
-      - "artt. 536 ss. c.c."
-      - "artt. 587 ss. c.c."
-    termini_chiave:
-      - "successione"
-      - "testamento"
-      - "legittimari"
-      - "quota di legittima"
-      - "riduzione"
-      - "collazione"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: famiglia_filiazione
-    label: "Famiglia, matrimonio, unione civile e filiazione"
-    settore: civile
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art143"   # art. 143 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art315"   # art. 315 c.c.
-      - "urn:nir:stato:legge:2016-05-20;76~art1"              # l. 76/2016 (unioni civili)
-    norme_riferimento:
-      - "artt. 79 ss. c.c."
-      - "artt. 143 ss. c.c."
-      - "artt. 315 ss. c.c."
-      - "l. 76/2016"
-    termini_chiave:
-      - "matrimonio"
-      - "separazione"
-      - "divorzio"
-      - "filiazione"
-      - "responsabilità genitoriale"
-      - "unione civile"
+      - amministrazione di sostegno
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: amministrazione_sostegno_interdizione_inabilitazione
-    label: "Protezione delle persone fragili (amministrazione di sostegno, interdizione, inabilitazione)"
+    label: Protezione delle persone fragili (amministrazione di sostegno, interdizione, inabilitazione)
     settore: civile
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art404"   # art. 404 c.c.
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art414"   # art. 414 c.c.
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art404
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art414
     norme_riferimento:
-      - "artt. 404 ss. c.c."
-      - "artt. 414 ss. c.c."
+      - artt. 404 ss. c.c.
+      - artt. 414 ss. c.c.
     termini_chiave:
-      - "amministrazione di sostegno"
-      - "interdizione"
-      - "inabilitazione"
-      - "beneficiario"
-      - "incapacità"
+      - amministrazione di sostegno
+      - interdizione
+      - inabilitazione
+      - beneficiario
+      - incapacità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: apertura_della_successione_e_delazione_cc
+    label: Apertura della successione e delazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art456
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art457
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art458
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art459
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art460
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art462
+    norme_riferimento:
+      - Art. 456 c.c. (Apertura della successione)
+      - Art. 457 c.c. (Delazione dell'eredità)
+      - Art. 458 c.c. (Divieto di patti successori)
+      - Art. 459 c.c. (Acquisto dell'eredità)
+      - Art. 460 c.c. (Poteri del chiamato prima dell'accettazione)
+      - Art. 462 c.c. (Capacità delle persone fisiche di succedere)
+    termini_chiave:
+      - apertura della successione e delazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: appalto_cc
+    label: Appalto (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1655 c.c. (Nozione)
+      - Art. 1664 c.c. (Onerosità o difficoltà dell'esecuzione)
+      - Art. 1667 c.c. (Difformità e vizi dell'opera)
+      - Art. 1669 c.c. (Rovina e difetti di cose immobili)
+    termini_chiave:
+      - appalto
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: arricchimento_senza_causa_cc
+    label: Arricchimento senza causa (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 2041 c.c. (Azione generale di arricchimento)
+      - Art. 2042 c.c. (Carattere sussidiario dell'azione)
+    termini_chiave:
+      - arricchimento senza causa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: assenza_e_morte_presunta_cc
+    label: Assenza e morte presunta (CC)
+    settore: civile
+    norme_urn:
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art83
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art84
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art90
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art91
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art92
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art97
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art65
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art67
+    norme_riferimento:
+      - Art. 49 c.c. (Dichiarazione di assenza)
+      - Art. 50 c.c. (Immissione nel possesso temporaneo dei beni)
+      - Art. 56 c.c. (Ritorno dell'assente o prova della sua esistenza)
+      - Art. 57 c.c. (Prova della morte dell'assente)
+      - Art. 58 c.c. (Dichiarazione di morte presunta dell'assente)
+      - Art. 63 c.c. (Effetti della dichiarazione di morte presunta dell'assente)
+      - Art. 65 c.c. (Nuovo matrimonio del coniuge)
+      - Art. 67 c.c. (Dichiarazione di esistenza o accertamento della morte)
+    termini_chiave:
+      - assenza e morte presunta
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: associazione_in_partecipazione_cc
+    label: Associazione in partecipazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2842
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2844
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2845
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2846
+    norme_riferimento:
+      - Art. 2549 c.c. (Nozione)
+      - Art. 2551 c.c. (Diritti ed obbligazioni dei terzi)
+      - Art. 2552 c.c. (Diritti dell'associante e dell'associato)
+      - Art. 2553 c.c. (Divisione degli utili e delle perdite)
+    termini_chiave:
+      - associazione in partecipazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: atti_processuali_e_nullita_cpc
+    label: Atti processuali e nullità (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art131
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art169
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art173
+    norme_riferimento:
+      - Art. 121 c.p.c. (Libertà di forme)
+      - Art. 156 c.p.c. (Rilevanza della nullità)
+      - Art. 160 c.p.c. (Nullità della notificazione)
+    termini_chiave:
+      - atti processuali e nullità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: azioni_possessorie_cc
+    label: Azioni possessorie (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1168
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1170
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1171
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1172
+    norme_riferimento:
+      - Art. 1168 c.c. (Azione di reintegrazione)
+      - Art. 1170 c.c. (Azione di manutenzione)
+      - Art. 1171 c.c. (Denunzia di nuova opera)
+      - Art. 1172 c.c. (Denunzia di danno temuto)
+    termini_chiave:
+      - azioni possessorie
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: beni_cc
+    label: Beni (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art810
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art812
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art817
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art820
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art822
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art823
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art826
+    norme_riferimento:
+      - Art. 810 c.c. (Nozione)
+      - Art. 812 c.c. (Distinzione dei beni)
+      - Art. 817 c.c. (Pertinenze)
+      - Art. 820 c.c. (Frutti naturali e frutti civili)
+      - Art. 822 c.c. (Demanio pubblico)
+      - Art. 823 c.c. (Condizione giuridica del demanio pubblico)
+      - Art. 826 c.c. (Patrimonio dello Stato, delle provincie e dei comuni)
+    termini_chiave:
+      - beni
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: capacita_giuridica_e_capacita_di_agire_cc
+    label: Capacità giuridica e capacità di agire (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art34
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art35
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art36
+    norme_riferimento:
+      - Art. 1 c.c. (Capacità giuridica)
+      - Art. 2 c.c. (Maggiore età. Capacità di agire)
+      - Art. 3 c.c. (abrogato dalla L. 8 marzo 1975, n. 39)
+    termini_chiave:
+      - capacità giuridica e capacità di agire
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: cessione_del_credito_cc
+    label: Cessione del credito (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1260 c.c. (Cedibilità dei crediti)
+      - Art. 1263 c.c. (Accessori del credito)
+      - Art. 1264 c.c. (Efficacia della cessione riguardo al debitore ceduto)
+      - Art. 1266 c.c. (Obbligo di garanzia del cedente)
+      - Art. 1267 c.c. (Garanzia della solvenza del debitore)
+    termini_chiave:
+      - cessione del credito
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: collazione_cc
+    label: Collazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art737
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art742
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art746
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art750
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art751
+    norme_riferimento:
+      - Art. 737 c.c. (Soggetti tenuti alla collazione)
+      - Art. 742 c.c. (Spese non soggette a collazione)
+      - Art. 746 c.c. (Collazione d'immobili)
+      - Art. 750 c.c. (Collazione di mobili)
+      - Art. 751 c.c. (Collazione del danaro)
+    termini_chiave:
+      - collazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comodato_e_mutuo_cc
+    label: Comodato e mutuo (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1803 c.c. (Nozione del comodato)
+      - Art. 1804 c.c. (Obbligazioni del comodatario)
+      - Art. 1809 c.c. (Restituzione)
+      - Art. 1813 c.c. (Nozione del mutuo)
+      - Art. 1814 c.c. (Trasferimento della proprietà)
+      - Art. 1815 c.c. (Interessi)
+    termini_chiave:
+      - comodato e mutuo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comparizione_delle_parti_e_trattazione_della_causa_cpc
+    label: Comparizione delle parti e trattazione della causa (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art176
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art180
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art181
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art200
+    norme_riferimento:
+      - Art. 163 c.p.c. (Contenuto della citazione)
+      - Art. 166 c.p.c. (Costituzione del convenuto)
+      - Art. 167 c.p.c. (Comparsa di risposta)
+      - Art. 183 c.p.c. (Prima comparizione delle parti e trattazione della causa)
+    termini_chiave:
+      - comparizione delle parti e trattazione della causa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comunione_cc
+    label: Comunione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1100
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1101
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1102
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1105
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1111
+    norme_riferimento:
+      - Art. 1100 c.c. (Norme regolatrici)
+      - Art. 1101 c.c. (Quote dei partecipanti)
+      - Art. 1102 c.c. (Uso della cosa comune)
+      - Art. 1105 c.c. (Amministrazione)
+      - Art. 1111 c.c. (Scioglimento della comunione)
+    termini_chiave:
+      - comunione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comunione_legale_tra_coniugi_cc
+    label: Comunione legale tra coniugi (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art159
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art177
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art180
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art186
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art190
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art191
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art194
+    norme_riferimento:
+      - Art. 159 c.c. (Del regime patrimoniale legale tra i coniugi)
+      - Art. 177 c.c. (Oggetto della comunione)
+      - Art. 180 c.c. (Amministrazione dei beni della comunione)
+      - Art. 186 c.c. (Obblighi gravanti sui beni della comunione)
+      - Art. 190 c.c. (Responsabilità sussidiaria dei beni personali)
+      - Art. 191 c.c. (Scioglimento della comunione)
+      - Art. 194 c.c. (Divisione dei beni della comunione)
+    termini_chiave:
+      - comunione legale tra coniugi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concorrenza_sleale_cc
+    label: Concorrenza sleale (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2891
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2893
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2894
+    norme_riferimento:
+      - Art. 2598 c.c. (Atti di concorrenza sleale)
+      - Art. 2600 c.c. (Risarcimento del danno)
+      - Art. 2601 c.c. (Azione delle associazioni professionali)
+    termini_chiave:
+      - concorrenza sleale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: condominio_negli_edifici_cc
+    label: Condominio negli edifici (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1117
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1118
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1119
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1123
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1129
+    norme_riferimento:
+      - Art. 1117 c.c. (Parti comuni dell'edificio)
+      - Art. 1118 c.c. (Diritti dei partecipanti sulle parti comuni)
+      - Art. 1119 c.c. (Indivisibilità)
+      - Art. 1123 c.c. (Ripartizione delle spese)
+      - Art. 1129 c.c. (Nomina, revoca ed obblighi dell'amministratore)
+    termini_chiave:
+      - condominio negli edifici
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: conservazione_della_garanzia_patrimoniale_azione_revocatoria_e_sequestro_conservativo_cc
+    label: Conservazione della garanzia patrimoniale (azione revocatoria e sequestro conservativo) (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3212
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3213
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3214
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3215
+    norme_riferimento:
+      - Art. 2900 c.c. (Azione surrogatoria — condizioni, modalità ed effetti)
+      - Art. 2901 c.c. (Azione revocatoria — condizioni)
+      - Art. 2902 c.c. (Effetti dell'azione revocatoria)
+      - Art. 2903 c.c. (Prescrizione dell'azione revocatoria)
+    termini_chiave:
+      - conservazione della garanzia patrimoniale (azione revocatoria e sequestro conservativo)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: consorzi_cc
+    label: Consorzi (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2895
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2896
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2907
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2908
+    norme_riferimento:
+      - Art. 2602 c.c. (Nozione e norme applicabili)
+      - Art. 2603 c.c. (Forma e contenuto del contratto)
+      - Art. 2614 c.c. (Fondo consortile)
+      - Art. 2615 c.c. (Responsabilità verso i terzi)
+    termini_chiave:
+      - consorzi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: consulenza_tecnica_d_ufficio_cpc
+    label: Consulenza tecnica d'ufficio (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art217
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art220
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art222
+    norme_riferimento:
+      - Art. 191 c.p.c. (Nomina del consulente tecnico)
+      - Art. 194 c.p.c. (Attività del consulente)
+      - Art. 196 c.p.c. (Rinnovazione delle indagini e sostituzione del consulente)
+    termini_chiave:
+      - consulenza tecnica d'ufficio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: contratto_formazione_validita
+    label: 'Contratto: formazione, validità ed efficacia'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1321
+    norme_riferimento:
+      - artt. 1321-1469 c.c.
+    termini_chiave:
+      - contratto
+      - accordo delle parti
+      - causa
+      - oggetto
+      - forma
+      - autonomia contrattuale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: contratto_in_generale_cc
+    label: Contratto in generale (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1321 c.c. (Nozione)
+      - Art. 1322 c.c. (Autonomia contrattuale)
+      - Art. 1325 c.c. (Indicazione dei requisiti)
+      - Art. 1326 c.c. (Conclusione del contratto)
+      - Art. 1337 c.c. (Trattative e responsabilità precontrattuale)
+    termini_chiave:
+      - contratto in generale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: decadenza_cc
+    label: Decadenza (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3277
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3278
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3279
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3282
+    norme_riferimento:
+      - Art. 2964 c.c. (Inapplicabilità di regole della prescrizione)
+      - Art. 2965 c.c. (Decadenze stabilite contrattualmente)
+      - Art. 2966 c.c. (Cause che impediscono la decadenza)
+      - Art. 2969 c.c. (Rilievo d'ufficio)
+    termini_chiave:
+      - decadenza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: diritti_reali_godimento
+    label: Diritti reali di godimento (usufrutto, uso, abitazione, servitù, superficie, enfiteusi)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1027
+    norme_riferimento:
+      - artt. 978 ss. c.c.
+      - artt. 1021 ss. c.c.
+      - artt. 1027 ss. c.c.
+      - artt. 952 ss. c.c.
+      - artt. 957 ss. c.c.
+    termini_chiave:
+      - usufrutto
+      - servitù
+      - uso
+      - abitazione
+      - superficie
+      - enfiteusi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: ditta_insegna_e_marchio_cc
+    label: Ditta, insegna e marchio (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2856
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2858
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2861
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2862
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2866
+    norme_riferimento:
+      - Art. 2563 c.c. (Ditta)
+      - Art. 2565 c.c. (Trasferimento della ditta)
+      - Art. 2568 c.c. (Insegna)
+      - Art. 2569 c.c. (Diritto di esclusività del marchio)
+      - Art. 2573 c.c. (Trasferimento del marchio)
+    termini_chiave:
+      - ditta, insegna e marchio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: divisione_ereditaria_cc
+    label: Divisione ereditaria (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art713
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art715
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art718
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art720
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art727
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art728
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art732
+    norme_riferimento:
+      - Art. 713 c.c. (Facoltà di domandare la divisione)
+      - Art. 715 c.c. (Casi d'impedimento alla divisione)
+      - Art. 718 c.c. (Diritto ai beni in natura)
+      - Art. 720 c.c. (Immobili non divisibili)
+      - Art. 727 c.c. (Norme per la formazione delle porzioni)
+      - Art. 728 c.c. (Conguagli in danaro)
+      - Art. 732 c.c. (Diritto di prelazione)
+    termini_chiave:
+      - divisione ereditaria
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: donazione_cc
+    label: Donazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art769
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art774
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art781
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art782
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art783
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art788
+    norme_riferimento:
+      - Art. 769 c.c. (Definizione)
+      - Art. 774 c.c. (Capacità di donare)
+      - Art. 781 c.c. (Donazione tra coniugi)
+      - Art. 782 c.c. (Forma della donazione)
+      - Art. 783 c.c. (Donazioni di modico valore)
+      - Art. 788 c.c. (Motivo illecito)
+    termini_chiave:
+      - donazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: eredita_giacente_cc
+    label: Eredità giacente (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art528
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art529
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art530
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art531
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art532
+    norme_riferimento:
+      - Art. 528 c.c. (Nomina del curatore)
+      - Art. 529 c.c. (Obblighi del curatore)
+      - Art. 530 c.c. (Pagamento dei debiti ereditari)
+      - Art. 531 c.c. (Inventario, amministrazione e rendimento dei conti)
+      - Art. 532 c.c. (Cessazione della curatela per accettazione dell'eredità)
+    termini_chiave:
+      - eredità giacente
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: esecuzione_forzata_espropriazione_cpc
+    label: 'Esecuzione forzata: espropriazione (CPC)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art615
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art624
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1940-10-28;1443~art689
+    norme_riferimento:
+      - Art. 474 c.p.c. (Titolo esecutivo)
+      - Art. 483 c.p.c. (Cumulo dei mezzi di espropriazione)
+      - Art. 543 c.p.c. (Forma del pignoramento presso terzi)
+    termini_chiave:
+      - 'esecuzione forzata: espropriazione'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: famiglia_filiazione
+    label: Famiglia, matrimonio, unione civile e filiazione
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art143
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art315
+      - urn:nir:stato:legge:2016-05-20;76~art1
+    norme_riferimento:
+      - artt. 79 ss. c.c.
+      - artt. 143 ss. c.c.
+      - artt. 315 ss. c.c.
+      - l. 76/2016
+    termini_chiave:
+      - matrimonio
+      - separazione
+      - divorzio
+      - filiazione
+      - responsabilità genitoriale
+      - unione civile
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: fatti_illeciti_responsabilita_extracontrattuale_cc
+    label: Fatti illeciti (responsabilità extracontrattuale) (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2174
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2178
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2182
+    norme_riferimento:
+      - Art. 2043 c.c. (Risarcimento per fatto illecito)
+      - Art. 2048 c.c. (Responsabilità dei genitori, dei tutori, dei precettori e dei maestri d'arte)
+      - Art. 2051 c.c. (Danno cagionato da cosa in custodia)
+      - Art. 2055 c.c. (Responsabilità solidale)
+      - Art. 2059 c.c. (Danni non patrimoniali)
+    termini_chiave:
+      - fatti illeciti (responsabilità extracontrattuale)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: fideiussione_cc
+    label: Fideiussione (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1936 c.c. (Nozione)
+      - Art. 1939 c.c. (Validità della fideiussione)
+      - Art. 1944 c.c. (Obbligazione del fideiussore)
+      - Art. 1949 c.c. (Surrogazione del fideiussore nei diritti del creditore)
+      - Art. 1955 c.c. (Liberazione del fideiussore per fatto del creditore)
+    termini_chiave:
+      - fideiussione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: filiazione_cc
+    label: Filiazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art231
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art232
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art236
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art240
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art250
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art253
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art254
+    norme_riferimento:
+      - Art. 231 c.c. (Paternità del marito)
+      - Art. 232 c.c. (Presunzione di concepimento durante il matrimonio)
+      - Art. 236 c.c. (Atto di nascita e possesso di stato)
+      - Art. 240 c.c. (Contestazione dello stato di figlio)
+      - Art. 250 c.c. (Riconoscimento del figlio nato fuori del matrimonio)
+      - Art. 253 c.c. (Inammissibilità del riconoscimento in contrasto con lo stato di figlio)
+      - Art. 254 c.c. (Forma del riconoscimento)
+    termini_chiave:
+      - filiazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: gestione_di_affari_altrui_cc
+    label: Gestione di affari altrui (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 2028 c.c. (Obbligo di continuare la gestione)
+      - Art. 2030 c.c. (Obbligazioni del gestore)
+      - Art. 2031 c.c. (Obblighi dell'interessato)
+      - Art. 2032 c.c. (Ratifica dell'interessato)
+    termini_chiave:
+      - gestione di affari altrui
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: giurisdizione_e_competenza_cpc
+    label: Giurisdizione e competenza (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art4
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art10
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art12
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art44
+    norme_riferimento:
+      - Art. 1 c.p.c. (Giurisdizione dei giudici ordinari)
+      - Art. 7 c.p.c. (Competenza del giudice di pace)
+      - Art. 9 c.p.c. (Competenza del tribunale)
+      - Art. 38 c.p.c. (Incompetenza)
+    termini_chiave:
+      - giurisdizione e competenza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: imprenditore_e_azienda_cc
+    label: Imprenditore e azienda (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2205
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2206
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2209
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2210
+    norme_riferimento:
+      - Art. 2082 c.c. (Imprenditore)
+      - Art. 2083 c.c. (Piccoli imprenditori)
+      - Art. 2086 c.c. (Gestione dell'impresa)
+      - Art. 2087 c.c. (Tutela delle condizioni di lavoro)
+    termini_chiave:
+      - imprenditore e azienda
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: impugnazioni_appello_cpc
+    label: 'Impugnazioni: appello (CPC)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art380
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art383
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art386
+    norme_riferimento:
+      - Art. 339 c.p.c. (Appellabilità delle sentenze)
+      - Art. 342 c.p.c. (Forma dell'appello)
+      - Art. 345 c.p.c. (Domande ed eccezioni nuove)
+    termini_chiave:
+      - 'impugnazioni: appello'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: inadempimento_e_mora_cc
+    label: Inadempimento e mora (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1218 c.c. (Responsabilità del debitore)
+      - Art. 1219 c.c. (Costituzione in mora)
+      - Art. 1223 c.c. (Risarcimento del danno)
+      - Art. 1225 c.c. (Prevedibilità del danno)
+      - Art. 1229 c.c. (Clausole di esonero da responsabilità)
+    termini_chiave:
+      - inadempimento e mora
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: indegnita_a_succedere_cc
+    label: Indegnità a succedere (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art463
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art464
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art465
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art466
+    norme_riferimento:
+      - Art. 463 c.c. (Casi d'indegnità)
+      - Art. 464 c.c. (Restituzione dei frutti)
+      - Art. 465 c.c. (Indegnità del genitore)
+      - Art. 466 c.c. (Riabilitazione dell'indegno)
+    termini_chiave:
+      - indegnità a succedere
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: interdizione_e_inabilitazione_cc
+    label: Interdizione e inabilitazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art414
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art416
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art417
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art418
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art421
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art424
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art427
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art428
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art429
+    norme_riferimento:
+      - Art. 414 c.c. (Persone che possono essere interdette)
+      - Art. 416 c.c. (Interdizione e inabilitazione nell'ultimo anno di minore età)
+      - Art. 417 c.c. (Istanza d'interdizione o d'inabilitazione)
+      - Art. 418 c.c. (Poteri dell'autorità giudiziaria)
+      - Art. 421 c.c. (Decorrenza degli effetti)
+      - Art. 424 c.c. (Tutela dell'interdetto e curatela dell'inabilitato)
+      - Art. 427 c.c. (Atti compiuti dall'interdetto e dall'inabilitato)
+      - Art. 428 c.c. (Atti compiuti da persona incapace d'intendere o di volere)
+      - Art. 429 c.c. (Revoca dell'interdizione e dell'inabilitazione)
+    termini_chiave:
+      - interdizione e inabilitazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: invalidita_del_contratto_cc
+    label: Invalidità del contratto (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1418 c.c. (Cause di nullità del contratto)
+      - Art. 1421 c.c. (Legittimazione all'azione di nullità)
+      - Art. 1422 c.c. (Imprescrittibilità dell'azione di nullità)
+      - Art. 1425 c.c. (Incapacità delle parti)
+      - Art. 1427 c.c. (Errore, violenza e dolo)
+      - Art. 1439 c.c. (Dolo)
+      - Art. 1442 c.c. (Prescrizione dell'azione di annullamento)
+    termini_chiave:
+      - invalidità del contratto
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: ipoteca_cc
+    label: Ipoteca (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3119
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3120
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3128
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3129
+    norme_riferimento:
+      - Art. 2808 c.c. (Costituzione ed effetti dell'ipoteca)
+      - Art. 2809 c.c. (Specialità e indivisibilità dell'ipoteca)
+      - Art. 2817 c.c. (Ipoteca legale — persone a cui compete)
+      - Art. 2818 c.c. (Ipoteca giudiziale — provvedimenti da cui deriva)
+    termini_chiave:
+      - ipoteca
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: istruzione_probatoria_principi_generali_cpc
+    label: 'Istruzione probatoria: principi generali (CPC)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art125
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art126
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art270
+    norme_riferimento:
+      - Art. 115 c.p.c. (Disponibilità delle prove)
+      - Art. 116 c.p.c. (Valutazione delle prove)
+      - Art. 244 c.p.c. (Modo di deduzione)
+    termini_chiave:
+      - 'istruzione probatoria: principi generali'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: lavoro_autonomo_cc
+    label: Lavoro autonomo (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2346
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2349
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2350
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2351
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2353
+    norme_riferimento:
+      - Art. 2222 c.c. (Contratto d'opera)
+      - Art. 2225 c.c. (Corrispettivo)
+      - Art. 2226 c.c. (Difformità e vizi dell'opera)
+      - Art. 2227 c.c. (Recesso unilaterale dal contratto)
+      - Art. 2229 c.c. (Esercizio delle professioni intellettuali)
+    termini_chiave:
+      - lavoro autonomo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: lavoro_subordinato_cc
+    label: Lavoro subordinato (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2226
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2227
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2228
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2235
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2241
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2242
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2243
+    norme_riferimento:
+      - Art. 2103 c.c. (Prestazione del lavoro / mansioni)
+      - Art. 2104 c.c. (Diligenza del prestatore di lavoro)
+      - Art. 2105 c.c. (Obbligo di fedeltà)
+      - Art. 2112 c.c. (Mantenimento dei diritti dei lavoratori in caso di trasferimento d'azienda)
+      - Art. 2118 c.c. (Recesso dal contratto a tempo indeterminato)
+      - Art. 2119 c.c. (Recesso per giusta causa)
+      - Art. 2120 c.c. (Disciplina del trattamento di fine rapporto)
+    termini_chiave:
+      - lavoro subordinato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: legittima_diritti_dei_legittimari_cc
+    label: Legittima (diritti dei legittimari) (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art536
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art537
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art540
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art542
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art549
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art554
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art555
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art557
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art564
+    norme_riferimento:
+      - Art. 536 c.c. (Legittimari)
+      - Art. 537 c.c. (Riserva a favore dei figli)
+      - Art. 540 c.c. (Riserva a favore del coniuge)
+      - Art. 542 c.c. (Concorso di coniuge e figli)
+      - Art. 549 c.c. (Divieto di pesi o condizioni sulla quota dei legittimari)
+      - Art. 554 c.c. (Riduzione delle disposizioni testamentarie)
+      - Art. 555 c.c. (Riduzione delle donazioni)
+      - Art. 557 c.c. (Soggetti che possono chiedere la riduzione)
+      - Art. 564 c.c. (Condizioni per l'esercizio dell'azione di riduzione)
+    termini_chiave:
+      - legittima (diritti dei legittimari)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: locazione_cc
+    label: Locazione (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1571 c.c. (Nozione)
+      - Art. 1573 c.c. (Durata della locazione)
+      - Art. 1575 c.c. (Obbligazioni principali del locatore)
+      - Art. 1585 c.c. (Garanzia per molestie)
+      - Art. 1587 c.c. (Obbligazioni principali del conduttore)
+    termini_chiave:
+      - locazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: mandato_cc
+    label: Mandato (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1703 c.c. (Nozione)
+      - Art. 1704 c.c. (Mandato con rappresentanza)
+      - Art. 1705 c.c. (Mandato senza rappresentanza)
+      - Art. 1709 c.c. (Presunzione di onerosità)
+      - Art. 1713 c.c. (Obbligo di rendiconto)
+    termini_chiave:
+      - mandato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: matrimonio_cc
+    label: Matrimonio (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art79
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art82
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art84
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art86
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art87
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art93
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art117
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art122
+    norme_riferimento:
+      - Art. 79 c.c. (Effetti della promessa di matrimonio)
+      - Art. 82 c.c. (Matrimonio celebrato davanti a ministri del culto cattolico)
+      - Art. 84 c.c. (Età per contrarre matrimonio)
+      - Art. 86 c.c. (Libertà di stato)
+      - Art. 87 c.c. (Impedimenti per parentela, affinità, adozione)
+      - Art. 93 c.c. (Pubblicazione)
+      - Art. 117 c.c. (Matrimonio contratto con violazione degli artt. 84, 86, 87 e 88 — impugnabilità)
+      - Art. 122 c.c. (Violenza ed errore come vizi del consenso matrimoniale)
+    termini_chiave:
+      - matrimonio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: modi_di_estinzione_delle_obbligazioni_cc
+    label: Modi di estinzione delle obbligazioni (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1230 c.c. (Novazione oggettiva)
+      - Art. 1236 c.c. (Dichiarazione di remissione del debito)
+      - Art. 1241 c.c. (Estinzione per compensazione)
+      - Art. 1253 c.c. (Effetti della confusione)
+      - Art. 1256 c.c. (Impossibilità definitiva e impossibilità temporanea)
+    termini_chiave:
+      - modi di estinzione delle obbligazioni
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: nullita_annullabilita_resoluzione_rescissione
+    label: Invalidità e scioglimento del contratto (nullità, annullabilità, risoluzione, rescissione)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1418
+    norme_riferimento:
+      - artt. 1418-1459 c.c.
+    termini_chiave:
+      - nullità
+      - annullabilità
+      - risoluzione
+      - rescissione
+      - vizio del consenso
+      - inadempimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: obbligazioni_in_generale_cc
+    label: Obbligazioni in generale (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1173 c.c. (Fonti delle obbligazioni)
+      - Art. 1174 c.c. (Carattere patrimoniale della prestazione)
+      - Art. 1175 c.c. (Comportamento secondo correttezza)
+      - Art. 1176 c.c. (Diligenza nell'adempimento)
+    termini_chiave:
+      - obbligazioni in generale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: obblighi_alimentari_cc
+    label: Obblighi alimentari (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art433
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art438
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art441
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art442
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art445
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art447
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art448
+    norme_riferimento:
+      - Art. 433 c.c. (Persone obbligate)
+      - Art. 438 c.c. (Misura degli alimenti)
+      - Art. 441 c.c. (Concorso di obbligati)
+      - Art. 442 c.c. (Concorso di aventi diritto)
+      - Art. 445 c.c. (Decorrenza degli alimenti)
+      - Art. 447 c.c. (Inammissibilità di cessione e di compensazione)
+      - Art. 448 c.c. (Cessazione per morte dell'obbligato)
+    termini_chiave:
+      - obblighi alimentari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: opposizione_all_esecuzione_e_agli_atti_esecutivi_cpc
+    label: Opposizione all'esecuzione e agli atti esecutivi (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art769
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art771
+    norme_riferimento:
+      - Art. 615 c.p.c. (Forma dell'opposizione all'esecuzione)
+      - Art. 617 c.p.c. (Forma dell'opposizione agli atti esecutivi)
+    termini_chiave:
+      - opposizione all'esecuzione e agli atti esecutivi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: pagamento_dell_indebito_cc
+    label: Pagamento dell'indebito (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 2033 c.c. (Indebito oggettivo)
+      - Art. 2034 c.c. (Obbligazioni naturali)
+      - Art. 2036 c.c. (Indebito soggettivo)
+      - Art. 2037 c.c. (Restituzione di cosa determinata)
+    termini_chiave:
+      - pagamento dell'indebito
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: parentela_e_affinita_cc
+    label: Parentela e affinità (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art74
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art75
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art76
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art77
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art78
+    norme_riferimento:
+      - Art. 74 c.c. (Parentela)
+      - Art. 75 c.c. (Linee della parentela)
+      - Art. 76 c.c. (Computo dei gradi)
+      - Art. 77 c.c. (Limite della parentela)
+      - Art. 78 c.c. (Affinità)
+    termini_chiave:
+      - parentela e affinità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: parti_capacita_processuale_e_difensori_cpc
+    label: Parti, capacità processuale e difensori (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art85
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art92
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art93
+    norme_riferimento:
+      - Art. 75 c.p.c. (Capacità processuale)
+      - Art. 82 c.p.c. (Patrocinio)
+      - Art. 83 c.p.c. (Procura alle liti)
+    termini_chiave:
+      - parti, capacità processuale e difensori
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: pegno_cc
+    label: Pegno (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3095
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3097
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3098
+    norme_riferimento:
+      - Art. 2784 c.c. (Nozione)
+      - Art. 2786 c.c. (Costituzione)
+      - Art. 2787 c.c. (Prelazione del creditore pignoratizio)
+    termini_chiave:
+      - pegno
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: petizione_di_eredita_cc
+    label: Petizione di eredità (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art533
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art534
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art535
+    norme_riferimento:
+      - Art. 533 c.c. (Nozione)
+      - Art. 534 c.c. (Diritti dei terzi)
+      - Art. 535 c.c. (Possessore di beni ereditari)
+    termini_chiave:
+      - petizione di eredità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: possesso_cc
+    label: Possesso (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1140
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1141
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1147
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1148
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1153
+    norme_riferimento:
+      - Art. 1140 c.c. (Possesso)
+      - Art. 1141 c.c. (Mutamento della detenzione in possesso)
+      - Art. 1147 c.c. (Possesso di buona fede)
+      - Art. 1148 c.c. (Acquisto dei frutti)
+      - Art. 1153 c.c. (Effetti dell'acquisto del possesso — possesso vale titolo)
+    termini_chiave:
+      - possesso
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: prescrizione_cc
+    label: Prescrizione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3247
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3248
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3256
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3259
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3260
+    norme_riferimento:
+      - Art. 2934 c.c. (Estinzione dei diritti)
+      - Art. 2935 c.c. (Decorrenza della prescrizione)
+      - Art. 2943 c.c. (Interruzione da parte del titolare)
+      - Art. 2945 c.c. (Effetti e durata dell'interruzione)
+      - Art. 2946 c.c. (Prescrizione ordinaria)
+    termini_chiave:
+      - prescrizione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: privilegi_cc
+    label: Privilegi (CC)
+    settore: civile
+    norme_urn:
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2969
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2970
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2971
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2972
+    norme_riferimento:
+      - Art. 2745 c.c. (Fondamento del privilegio)
+      - Art. 2746 c.c. (Distinzione dei privilegi)
+      - Art. 2747 c.c. (Efficacia del privilegio)
+      - Art. 2748 c.c. (Efficacia del privilegio speciale rispetto al pegno e alle ipoteche)
+    termini_chiave:
+      - privilegi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: procedimenti_cautelari_cpc
+    label: Procedimenti cautelari (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art669bis
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art669sexies
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art871
+    norme_riferimento:
+      - Art. 669-bis c.p.c. (Forma della domanda)
+      - Art. 669-sexies c.p.c. (Procedimento)
+      - Art. 700 c.p.c. (Condizioni per la concessione del provvedimento d'urgenza)
+    termini_chiave:
+      - procedimenti cautelari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: procedimento_per_ingiunzione_decreto_ingiuntivo_cpc
+    label: Procedimento per ingiunzione (decreto ingiuntivo) (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art790
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art798
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art804
+    norme_riferimento:
+      - Art. 633 c.p.c. (Condizioni di ammissibilità)
+      - Art. 641 c.p.c. (Accoglimento della domanda)
+      - Art. 647 c.p.c. (Esecutorietà per mancata opposizione)
+    termini_chiave:
+      - procedimento per ingiunzione (decreto ingiuntivo)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: produzione_dei_documenti_disconoscimento_e_querela_di_falso_cpc
+    label: Produzione dei documenti, disconoscimento e querela di falso (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art236
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art240
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art247
+    norme_riferimento:
+      - Art. 210 c.p.c. (Ordine di esibizione alla parte o al terzo)
+      - Art. 214 c.p.c. (Disconoscimento della scrittura privata)
+      - Art. 221 c.p.c. (Modo di proposizione e contenuto della querela)
+    termini_chiave:
+      - produzione dei documenti, disconoscimento e querela di falso
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: proprieta_cc
+    label: Proprietà (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art832
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art833
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art834
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art840
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art841
+    norme_riferimento:
+      - Art. 832 c.c. (Contenuto del diritto)
+      - Art. 833 c.c. (Atti d'emulazione)
+      - Art. 834 c.c. (Espropriazione per pubblico interesse)
+      - Art. 840 c.c. (Sottosuolo e spazio sovrastante al suolo)
+      - Art. 841 c.c. (Chiusura del fondo)
+    termini_chiave:
+      - proprietà
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: proprieta_possesso_usucapione
+    label: Proprietà, possesso e usucapione
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art832
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1140
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1158
+    norme_riferimento:
+      - artt. 832 ss. c.c.
+      - artt. 1140 ss. c.c.
+      - artt. 1158 ss. c.c.
+    termini_chiave:
+      - proprietà
+      - possesso
+      - detenzione
+      - usucapione
+      - interversione del possesso
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: prove_cc
+    label: Prove (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3004
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3006
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3007
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art3009
+    norme_riferimento:
+      - Art. 2697 c.c. (Onere della prova)
+      - Art. 2699 c.c. (Atto pubblico)
+      - Art. 2700 c.c. (Efficacia dell'atto pubblico)
+      - Art. 2702 c.c. (Efficacia della scrittura privata)
+    termini_chiave:
+      - prove
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rappresentanza_cc
+    label: Rappresentanza (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1387 c.c. (Fonti della rappresentanza)
+      - Art. 1388 c.c. (Contratto concluso dal rappresentante)
+      - Art. 1394 c.c. (Conflitto d'interessi)
+      - Art. 1395 c.c. (Contratto con se stesso)
+      - Art. 1398 c.c. (Rappresentanza senza potere)
+    termini_chiave:
+      - rappresentanza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rappresentazione_cc
+    label: Rappresentazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art467
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art468
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art469
+    norme_riferimento:
+      - Art. 467 c.c. (Nozione)
+      - Art. 468 c.c. (Soggetti)
+      - Art. 469 c.c. (Estensione del diritto di rappresentazione. Divisione)
+    termini_chiave:
+      - rappresentazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rescissione_cc
+    label: Rescissione (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1447 c.c. (Contratto concluso in stato di pericolo)
+      - Art. 1448 c.c. (Azione generale di rescissione per lesione)
+      - Art. 1449 c.c. (Prescrizione)
+      - Art. 1451 c.c. (Inammissibilità della convalida)
+      - Art. 1452 c.c. (Effetti della rescissione rispetto ai terzi)
+    termini_chiave:
+      - rescissione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: responsabilita_contrattuale
+    label: Responsabilità contrattuale
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1218
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1223
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1228
+    norme_riferimento:
+      - art. 1218 c.c.
+      - art. 1223 c.c.
+      - art. 1228 c.c.
+    termini_chiave:
+      - responsabilità contrattuale
+      - inadempimento
+      - esatto adempimento
+      - risarcimento del danno
+      - impossibilità della prestazione
+    disambigua_da:
+      responsabilita_extracontrattuale:
+        - vincolo contrattuale
+        - obbligazione preesistente
+        - inadempimento
+    sentenze_pilota: []
+
+  - id: responsabilita_extracontrattuale
+    label: Responsabilità extracontrattuale
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2043
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2051
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2059
+    norme_riferimento:
+      - art. 2043 c.c.
+      - art. 2051 c.c.
+      - art. 2059 c.c.
+    termini_chiave:
+      - illecito aquiliano
+      - danno ingiusto
+      - nesso causale
+      - custodia
+      - danno non patrimoniale
+    disambigua_da:
+      responsabilita_contrattuale:
+        - fatto illecito
+        - danno ingiusto
+        - assenza di rapporto contrattuale
+    sentenze_pilota: []
+
+  - id: responsabilita_genitoriale_cc
+    label: Responsabilità genitoriale (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art315bis
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art316
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art330
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art333
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art337bis
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art337ter
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art337quater
+    norme_riferimento:
+      - Art. 315-bis c.c. (Diritti e doveri del figlio)
+      - Art. 316 c.c. (Responsabilità genitoriale)
+      - Art. 330 c.c. (Decadenza dalla responsabilità genitoriale)
+      - Art. 333 c.c. (Condotta del genitore pregiudizievole ai figli)
+      - Art. 337-bis c.c. (Ambito di applicazione delle disposizioni sull'affidamento)
+      - Art. 337-ter c.c. (Provvedimenti riguardo ai figli)
+      - Art. 337-quater c.c. (Affidamento a un solo genitore e opposizione all'affidamento condiviso)
+    termini_chiave:
+      - responsabilità genitoriale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: responsabilita_patrimoniale_cc
+    label: Responsabilità patrimoniale (CC)
+    settore: civile
+    norme_urn:
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2964
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2965
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2968
+    norme_riferimento:
+      - Art. 2740 c.c. (Responsabilità patrimoniale)
+      - Art. 2741 c.c. (Concorso dei creditori e cause di prelazione)
+      - Art. 2744 c.c. (Divieto del patto commissorio)
+    termini_chiave:
+      - responsabilità patrimoniale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: revocazione_e_opposizione_di_terzo_cpc
+    label: Revocazione e opposizione di terzo (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art450
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art459
+    norme_riferimento:
+      - Art. 395 c.p.c. (Casi di revocazione)
+      - Art. 404 c.p.c. (Casi di opposizione di terzo)
+    termini_chiave:
+      - revocazione e opposizione di terzo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: ricorso_per_cassazione_cpc
+    label: Ricorso per cassazione (CPC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art405
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art424
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art435
+    norme_riferimento:
+      - Art. 360 c.p.c. (Sentenze impugnabili e motivi di ricorso)
+      - Art. 375 c.p.c. (Pronuncia in udienza pubblica o in camera di consiglio)
+      - Art. 383 c.p.c. (Cassazione con rinvio)
+    termini_chiave:
+      - ricorso per cassazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rinuncia_all_eredita_cc
+    label: Rinuncia all'eredità (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art519
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art520
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art521
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art522
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art524
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art525
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art527
+    norme_riferimento:
+      - Art. 519 c.c. (Dichiarazione di rinunzia)
+      - Art. 520 c.c. (Rinunzia condizionata, a termine o parziale)
+      - Art. 521 c.c. (Retroattività della rinunzia)
+      - Art. 522 c.c. (Devoluzione nelle successioni legittime)
+      - Art. 524 c.c. (Impugnazione della rinunzia da parte dei creditori)
+      - Art. 525 c.c. (Revoca della rinunzia)
+      - Art. 527 c.c. (Sottrazione di beni ereditari)
+    termini_chiave:
+      - rinuncia all'eredità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: risoluzione_per_inadempimento_cc
+    label: Risoluzione per inadempimento (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1453 c.c. (Risolubilità del contratto per inadempimento)
+      - Art. 1454 c.c. (Diffida ad adempiere)
+      - Art. 1456 c.c. (Clausola risolutiva espressa)
+      - Art. 1458 c.c. (Effetti della risoluzione)
+      - Art. 1460 c.c. (Eccezione d'inadempimento)
+      - Art. 1467 c.c. (Eccessiva onerosità sopravvenuta)
+    termini_chiave:
+      - risoluzione per inadempimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: scioglimento_del_matrimonio_divorzio_cc
+    label: Scioglimento del matrimonio (divorzio) (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art149
+    norme_riferimento:
+      - Art. 149 c.c. (Scioglimento del matrimonio)
+    termini_chiave:
+      - scioglimento del matrimonio (divorzio)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sentenza_contenuto_e_deliberazione_cpc
+    label: 'Sentenza: contenuto e deliberazione (CPC)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art144
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art303
+      - urn:nir:stato:regio.decreto:1940-10-28;1443~art305
+    norme_riferimento:
+      - Art. 132 c.p.c. (Contenuto della sentenza)
+      - Art. 275 c.p.c. (Decisione del collegio)
+      - Art. 276 c.p.c. (Deliberazione)
+    termini_chiave:
+      - 'sentenza: contenuto e deliberazione'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: separazione_personale_dei_coniugi_cc
+    label: Separazione personale dei coniugi (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art150
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art151
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art154
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art155
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art156
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art157
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art158
+    norme_riferimento:
+      - Art. 150 c.c. (Separazione personale)
+      - Art. 151 c.c. (Separazione giudiziale)
+      - Art. 154 c.c. (Riconciliazione)
+      - Art. 155 c.c. (rinvio alle disposizioni sui figli)
+      - Art. 156 c.c. (Effetti della separazione sui rapporti patrimoniali tra i coniugi)
+      - Art. 157 c.c. (Cessazione degli effetti della separazione)
+      - Art. 158 c.c. (Separazione consensuale)
+    termini_chiave:
+      - separazione personale dei coniugi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: servitu_prediali_cc
+    label: Servitù prediali (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1027
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1028
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1031
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1051
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1052
+    norme_riferimento:
+      - Art. 1027 c.c. (Contenuto del diritto)
+      - Art. 1028 c.c. (Nozione dell'utilità)
+      - Art. 1031 c.c. (Costituzione delle servitù)
+      - Art. 1051 c.c. (Passaggio coattivo)
+      - Art. 1052 c.c. (Passaggio coattivo a favore di fondo non intercluso)
+    termini_chiave:
+      - servitù prediali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_a_responsabilita_limitata_cc
+    label: Società a responsabilità limitata (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2681
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2682
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2684
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2604
+    norme_riferimento:
+      - Art. 2462 c.c. (Responsabilità)
+      - Art. 2463 c.c. (Costituzione)
+      - Art. 2464 c.c. (Conferimenti)
+      - Art. 2467 c.c. (Finanziamenti dei soci)
+    termini_chiave:
+      - società a responsabilità limitata
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_cooperative_cc
+    label: Società cooperative (CC)
+    settore: civile
+    norme_urn:
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2704
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2705
+      - __URNFIX_TMP__urn:nir:stato:regio.decreto:1942-03-16;262~art2706
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2791
+    norme_riferimento:
+      - Art. 2511 c.c. (Società cooperative)
+      - Art. 2512 c.c. (Cooperativa a mutualità prevalente)
+      - Art. 2513 c.c. (Criteri per la definizione della prevalenza)
+      - Art. 2515 c.c. (Denominazione sociale)
+    termini_chiave:
+      - società cooperative
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_in_accomandita_semplice_cc
+    label: Società in accomandita semplice (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2437
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2438
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2442
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2444
+    norme_riferimento:
+      - Art. 2313 c.c. (Nozione)
+      - Art. 2314 c.c. (Ragione sociale)
+      - Art. 2318 c.c. (Soci accomandatari)
+      - Art. 2320 c.c. (Soci accomandanti)
+    termini_chiave:
+      - società in accomandita semplice
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_in_generale_cc
+    label: Società in generale (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2371
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2372
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2373
+    norme_riferimento:
+      - Art. 2247 c.c. (Contratto di società)
+      - Art. 2248 c.c. (Comunione a scopo di godimento)
+      - Art. 2249 c.c. (Tipi di società)
+    termini_chiave:
+      - società in generale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_in_nome_collettivo_cc
+    label: Società in nome collettivo (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2415
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2416
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2421
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2428
+    norme_riferimento:
+      - Art. 2291 c.c. (Nozione)
+      - Art. 2292 c.c. (Ragione sociale)
+      - Art. 2297 c.c. (Mancata registrazione)
+      - Art. 2304 c.c. (Responsabilità dei soci)
+    termini_chiave:
+      - società in nome collettivo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_per_azioni_cc
+    label: Società per azioni (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2449
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2453
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2454
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2524
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2530
+    norme_riferimento:
+      - Art. 2325 c.c. (Responsabilità)
+      - Art. 2327 c.c. (Ammontare minimo del capitale)
+      - Art. 2328 c.c. (Atto costitutivo)
+      - Art. 2380 c.c. (Sistemi di amministrazione e di controllo)
+      - Art. 2383 c.c. (Nomina e revoca degli amministratori)
+    termini_chiave:
+      - società per azioni
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: societa_semplice_cc
+    label: Società semplice (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2375
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2381
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2389
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2391
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2396
+    norme_riferimento:
+      - Art. 2251 c.c. (Contratto sociale)
+      - Art. 2257 c.c. (Amministrazione disgiuntiva)
+      - Art. 2265 c.c. (Patto leonino)
+      - Art. 2267 c.c. (Responsabilità per le obbligazioni sociali)
+      - Art. 2272 c.c. (Cause di scioglimento)
+    termini_chiave:
+      - società semplice
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: successione_legittima_cc
+    label: Successione legittima (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art565
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art566
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art581
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art582
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art583
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art585
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art586
+    norme_riferimento:
+      - Art. 565 c.c. (Categorie dei successibili)
+      - Art. 566 c.c. (Successione dei figli)
+      - Art. 581 c.c. (Concorso del coniuge con i figli)
+      - Art. 582 c.c. (Concorso del coniuge con ascendenti, fratelli e sorelle)
+      - Art. 583 c.c. (Successione del solo coniuge)
+      - Art. 585 c.c. (Successione del coniuge separato)
+      - Art. 586 c.c. (Acquisto dei beni da parte dello Stato)
+    termini_chiave:
+      - successione legittima
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: successioni_testamento_legittima
+    label: Successioni, testamento e quota di legittima
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art456
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art536
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art587
+    norme_riferimento:
+      - artt. 456 ss. c.c.
+      - artt. 536 ss. c.c.
+      - artt. 587 ss. c.c.
+    termini_chiave:
+      - successione
+      - testamento
+      - legittimari
+      - quota di legittima
+      - riduzione
+      - collazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: superficie_cc
+    label: Superficie (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1049
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1050
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1051
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1053
+    norme_riferimento:
+      - Art. 952 c.c. (Costituzione del diritto di superficie)
+      - Art. 953 c.c. (Costituzione a tempo determinato)
+      - Art. 954 c.c. (Estinzione del diritto di superficie)
+      - Art. 956 c.c. (Divieto di proprietà separata delle piantagioni)
+    termini_chiave:
+      - superficie
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: testamento_cc
+    label: Testamento (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art587
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art588
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art589
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art591
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art601
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art602
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art603
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art606
+    norme_riferimento:
+      - Art. 587 c.c. (Testamento)
+      - Art. 588 c.c. (Disposizioni a titolo universale e a titolo particolare)
+      - Art. 589 c.c. (Testamento congiuntivo o reciproco)
+      - Art. 591 c.c. (Casi d'incapacità a disporre per testamento)
+      - Art. 601 c.c. (Forme del testamento)
+      - Art. 602 c.c. (Testamento olografo)
+      - Art. 603 c.c. (Testamento pubblico)
+      - Art. 606 c.c. (Nullità del testamento per difetto di forma)
+    termini_chiave:
+      - testamento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: trascrizione_cc
+    label: Trascrizione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2944
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2945
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2946
+    norme_riferimento:
+      - Art. 2643 c.c. (Atti soggetti a trascrizione)
+      - Art. 2644 c.c. (Effetti della trascrizione)
+      - Art. 2645 c.c. (Altri atti soggetti a trascrizione)
+    termini_chiave:
+      - trascrizione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: tutela_e_curatela_dei_minori_cc
+    label: Tutela e curatela dei minori (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art343
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art344
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art346
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art357
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art390
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art392
+    norme_riferimento:
+      - Art. 343 c.c. (Apertura della tutela)
+      - Art. 344 c.c. (Funzioni del giudice tutelare)
+      - Art. 346 c.c. (Nomina del tutore e del protutore)
+      - Art. 357 c.c. (Funzioni del tutore)
+      - Art. 390 c.c. (Emancipazione di diritto)
+      - Art. 392 c.c. (Curatore dell'emancipato)
+    termini_chiave:
+      - tutela e curatela dei minori
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: unioni_civili_e_convivenze_di_fatto_cc
+    label: Unioni civili e convivenze di fatto (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento: []
+    termini_chiave:
+      - unioni civili e convivenze di fatto
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: uso_e_abitazione_cc
+    label: Uso e abitazione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1118
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1119
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1121
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1123
+    norme_riferimento:
+      - Art. 1021 c.c. (Uso)
+      - Art. 1022 c.c. (Abitazione)
+      - Art. 1024 c.c. (Divieto di cessione)
+      - Art. 1026 c.c. (Applicabilità delle norme sull'usufrutto)
+    termini_chiave:
+      - uso e abitazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: usucapione_cc
+    label: Usucapione (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1158
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1203
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1163
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1167
+    norme_riferimento:
+      - Art. 1158 c.c. (Usucapione dei beni immobili e dei diritti reali immobiliari)
+      - Art. 1159 c.c. (Usucapione decennale)
+      - Art. 1163 c.c. (Vizi del possesso)
+      - Art. 1167 c.c. (Interruzione dell'usucapione per perdita di possesso)
+    termini_chiave:
+      - usucapione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: usufrutto_cc
+    label: Usufrutto (CC)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1075
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1076
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1078
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1081
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art1111
+    norme_riferimento:
+      - Art. 978 c.c. (Costituzione)
+      - Art. 979 c.c. (Durata)
+      - Art. 981 c.c. (Contenuto del diritto di usufrutto)
+      - Art. 984 c.c. (Frutti)
+      - Art. 1014 c.c. (Estinzione dell'usufrutto)
+    termini_chiave:
+      - usufrutto
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: vendita_cc
+    label: Vendita (CC)
+    settore: civile
+    norme_urn: []
+    norme_riferimento:
+      - Art. 1470 c.c. (Nozione)
+      - Art. 1476 c.c. (Obbligazioni principali del venditore)
+      - Art. 1478 c.c. (Vendita di cosa altrui)
+      - Art. 1483 c.c. (Evizione totale della cosa)
+      - Art. 1487 c.c. (Modificazione o esclusione convenzionale della garanzia)
+    termini_chiave:
+      - vendita
     disambigua_da: {}
     sentenze_pilota: []
 
   # =======================================================================
   # AMMINISTRATIVO
   # =======================================================================
-  - id: procedimento_amministrativo_partecipazione
-    label: "Procedimento amministrativo e partecipazione"
-    settore: amministrativo
-    norme_urn:
-      - "urn:nir:stato:legge:1990-08-07;241~art2"   # art. 2 l. 241/1990
-    norme_riferimento:
-      - "l. 241/1990"
-    termini_chiave:
-      - "procedimento amministrativo"
-      - "avvio del procedimento"
-      - "partecipazione procedimentale"
-      - "responsabile del procedimento"
-      - "motivazione"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: provvedimento_amministrativo_invalidita
-    label: "Provvedimento amministrativo e invalidità"
-    settore: amministrativo
-    norme_urn: []
-    norme_riferimento:
-      - "l. 241/1990"
-      - "art. 21-octies l. 241/1990"
-      - "art. 21-nonies l. 241/1990"
-    termini_chiave:
-      - "provvedimento amministrativo"
-      - "annullabilità"
-      - "nullità"
-      - "vizio di legittimità"
-      - "eccesso di potere"
-    disambigua_da: {}
-    sentenze_pilota: []
-
   - id: accesso_documentale_civico
-    label: "Accesso documentale, accesso civico semplice e generalizzato"
+    label: Accesso documentale, accesso civico semplice e generalizzato
     settore: amministrativo
     norme_urn:
-      - "urn:nir:stato:legge:1990-08-07;241~art22"          # art. 22 l. 241/1990
-      - "urn:nir:stato:decreto.legislativo:2013-03-14;33~art5"   # art. 5 d.lgs. 33/2013 (accesso civico)
+      - urn:nir:stato:legge:1990-08-07;241~art22
+      - urn:nir:stato:decreto.legislativo:2013-03-14;33~art5
     norme_riferimento:
-      - "artt. 22 ss. l. 241/1990"
-      - "d.lgs. 33/2013"
+      - artt. 22 ss. l. 241/1990
+      - d.lgs. 33/2013
     termini_chiave:
-      - "accesso agli atti"
-      - "accesso documentale"
-      - "accesso civico"
-      - "foia"
-      - "ostensione"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: silenzio_pubblica_amministrazione
-    label: "Silenzio della pubblica amministrazione"
-    settore: amministrativo
-    norme_urn:
-      - "urn:nir:stato:legge:1990-08-07;241~art2"   # art. 2 l. 241/1990 (obbligo di provvedere)
-    norme_riferimento:
-      - "art. 2 l. 241/1990"
-      - "art. 20 l. 241/1990"
-      - "c.p.a."
-    termini_chiave:
-      - "silenzio inadempimento"
-      - "silenzio assenso"
-      - "obbligo di provvedere"
-      - "inerzia della PA"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: autotutela_annullamento_revoca
-    label: "Autotutela amministrativa: annullamento d'ufficio e revoca"
-    settore: amministrativo
-    norme_urn: []
-    norme_riferimento:
-      - "art. 21-nonies l. 241/1990"
-      - "art. 21-quinquies l. 241/1990"
-    termini_chiave:
-      - "autotutela"
-      - "annullamento d'ufficio"
-      - "revoca"
-      - "interesse pubblico sopravvenuto"
-      - "affidamento del privato"
+      - accesso agli atti
+      - accesso documentale
+      - accesso civico
+      - foia
+      - ostensione
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: appalti_pubblici
-    label: "Contratti pubblici e appalti"
+    label: Contratti pubblici e appalti
     settore: amministrativo
     norme_urn: []
     norme_riferimento:
-      - "d.lgs. 36/2023"
+      - d.lgs. 36/2023
     termini_chiave:
-      - "appalto pubblico"
-      - "gara"
-      - "offerta economicamente più vantaggiosa"
-      - "esclusione"
-      - "avvalimento"
-      - "soccorso istruttorio"
+      - appalto pubblico
+      - gara
+      - offerta economicamente più vantaggiosa
+      - esclusione
+      - avvalimento
+      - soccorso istruttorio
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: autotutela_annullamento_revoca
+    label: 'Autotutela amministrativa: annullamento d''ufficio e revoca'
+    settore: amministrativo
+    norme_urn: []
+    norme_riferimento:
+      - art. 21-nonies l. 241/1990
+      - art. 21-quinquies l. 241/1990
+    termini_chiave:
+      - autotutela
+      - annullamento d'ufficio
+      - revoca
+      - interesse pubblico sopravvenuto
+      - affidamento del privato
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: concorsi_pubblici
-    label: "Concorsi pubblici e accesso al pubblico impiego"
+    label: Concorsi pubblici e accesso al pubblico impiego
     settore: amministrativo
     norme_urn:
-      - "urn:nir:stato:decreto.legislativo:2001-03-30;165~art35"   # art. 35 d.lgs. 165/2001
+      - urn:nir:stato:decreto.legislativo:2001-03-30;165~art35
     norme_riferimento:
-      - "art. 97 Cost."
-      - "d.lgs. 165/2001"
+      - art. 97 Cost.
+      - d.lgs. 165/2001
     termini_chiave:
-      - "concorso pubblico"
-      - "graduatoria"
-      - "commissione"
-      - "titoli ed esami"
-      - "accesso al pubblico impiego"
+      - concorso pubblico
+      - graduatoria
+      - commissione
+      - titoli ed esami
+      - accesso al pubblico impiego
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: procedimento_amministrativo_partecipazione
+    label: Procedimento amministrativo e partecipazione
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:legge:1990-08-07;241~art2
+    norme_riferimento:
+      - l. 241/1990
+    termini_chiave:
+      - procedimento amministrativo
+      - avvio del procedimento
+      - partecipazione procedimentale
+      - responsabile del procedimento
+      - motivazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: provvedimento_amministrativo_invalidita
+    label: Provvedimento amministrativo e invalidità
+    settore: amministrativo
+    norme_urn: []
+    norme_riferimento:
+      - l. 241/1990
+      - art. 21-octies l. 241/1990
+      - art. 21-nonies l. 241/1990
+    termini_chiave:
+      - provvedimento amministrativo
+      - annullabilità
+      - nullità
+      - vizio di legittimità
+      - eccesso di potere
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: silenzio_pubblica_amministrazione
+    label: Silenzio della pubblica amministrazione
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:legge:1990-08-07;241~art2
+    norme_riferimento:
+      - art. 2 l. 241/1990
+      - art. 20 l. 241/1990
+      - c.p.a.
+    termini_chiave:
+      - silenzio inadempimento
+      - silenzio assenso
+      - obbligo di provvedere
+      - inerzia della PA
     disambigua_da: {}
     sentenze_pilota: []
 
   # =======================================================================
   # LAVORO
   # =======================================================================
-  - id: subordinazione_eterodirezione
-    label: "Lavoro subordinato e criteri di subordinazione"
+  - id: discriminazione_mobbing_straining
+    label: Discriminazione, mobbing e straining
     settore: lavoro
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2094"        # art. 2094 c.c.
-      - "urn:nir:stato:decreto.legislativo:2015-06-15;81~art2"      # art. 2 d.lgs. 81/2015
+      - urn:nir:stato:decreto.legislativo:2006-04-11;198~art25
+      - urn:nir:stato:decreto.legislativo:2003-07-09;216~art2
     norme_riferimento:
-      - "art. 2094 c.c."
-      - "d.lgs. 81/2015"
+      - art. 2087 c.c.
+      - d.lgs. 198/2006
+      - d.lgs. 216/2003
     termini_chiave:
-      - "lavoro subordinato"
-      - "eterodirezione"
-      - "etero-organizzazione"
-      - "lavoro autonomo"
-      - "collaborazione"
+      - mobbing
+      - straining
+      - discriminazione
+      - condotta vessatoria
+      - ambiente lavorativo ostile
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: licenziamento_giusta_causa_giustificato_motivo
-    label: "Licenziamento: giusta causa, giustificato motivo e tutele"
+    label: 'Licenziamento: giusta causa, giustificato motivo e tutele'
     settore: lavoro
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2119"     # art. 2119 c.c.
-      - "urn:nir:stato:legge:1966-07-15;604~art1"                # l. 604/1966
-      - "urn:nir:stato:legge:1970-05-20;300~art18"               # art. 18 St. lav.
-      - "urn:nir:stato:decreto.legislativo:2015-03-04;23~art1"   # d.lgs. 23/2015 (tutele crescenti)
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2119
+      - urn:nir:stato:legge:1966-07-15;604~art1
+      - urn:nir:stato:legge:1970-05-20;300~art18
+      - urn:nir:stato:decreto.legislativo:2015-03-04;23~art1
     norme_riferimento:
-      - "art. 2119 c.c."
-      - "l. 604/1966"
-      - "art. 18 l. 300/1970"
-      - "d.lgs. 23/2015"
+      - art. 2119 c.c.
+      - l. 604/1966
+      - art. 18 l. 300/1970
+      - d.lgs. 23/2015
     termini_chiave:
-      - "licenziamento"
-      - "giusta causa"
-      - "giustificato motivo"
-      - "reintegrazione"
-      - "tutela indennitaria"
+      - licenziamento
+      - giusta causa
+      - giustificato motivo
+      - reintegrazione
+      - tutela indennitaria
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: mansioni_demansionamento
-    label: "Mansioni, inquadramento e demansionamento"
+    label: Mansioni, inquadramento e demansionamento
     settore: lavoro
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2103"   # art. 2103 c.c.
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2103
     norme_riferimento:
-      - "art. 2103 c.c."
+      - art. 2103 c.c.
     termini_chiave:
-      - "mansioni"
-      - "demansionamento"
-      - "inquadramento"
-      - "ius variandi"
-      - "professionalità"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: trasferimento_azienda_2112
-    label: "Trasferimento d'azienda e tutela dei rapporti di lavoro"
-    settore: lavoro
-    norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2112"   # art. 2112 c.c.
-    norme_riferimento:
-      - "art. 2112 c.c."
-    termini_chiave:
-      - "trasferimento d'azienda"
-      - "continuità del rapporto"
-      - "cessionario"
-      - "cedente"
-      - "ramo d'azienda"
+      - mansioni
+      - demansionamento
+      - inquadramento
+      - ius variandi
+      - professionalità
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: sicurezza_lavoro_infortunio_malattia_professionale
-    label: "Sicurezza sul lavoro, infortunio e malattia professionale"
+    label: Sicurezza sul lavoro, infortunio e malattia professionale
     settore: lavoro
     norme_urn:
-      - "urn:nir:stato:regio.decreto:1942-03-16;262~art2087"       # art. 2087 c.c.
-      - "urn:nir:stato:decreto.legislativo:2008-04-09;81~art2"     # art. 2 d.lgs. 81/2008
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2087
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art2
     norme_riferimento:
-      - "art. 2087 c.c."
-      - "d.lgs. 81/2008"
-      - "d.P.R. 1124/1965"
+      - art. 2087 c.c.
+      - d.lgs. 81/2008
+      - d.P.R. 1124/1965
     termini_chiave:
-      - "sicurezza sul lavoro"
-      - "infortunio"
-      - "malattia professionale"
-      - "obbligo di sicurezza"
-      - "dvr"
+      - sicurezza sul lavoro
+      - infortunio
+      - malattia professionale
+      - obbligo di sicurezza
+      - dvr
     disambigua_da: {}
     sentenze_pilota: []
 
-  - id: discriminazione_mobbing_straining
-    label: "Discriminazione, mobbing e straining"
+  - id: subordinazione_eterodirezione
+    label: Lavoro subordinato e criteri di subordinazione
     settore: lavoro
     norme_urn:
-      - "urn:nir:stato:decreto.legislativo:2006-04-11;198~art25"    # d.lgs. 198/2006
-      - "urn:nir:stato:decreto.legislativo:2003-07-09;216~art2"     # d.lgs. 216/2003
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2094
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art2
     norme_riferimento:
-      - "art. 2087 c.c."
-      - "d.lgs. 198/2006"
-      - "d.lgs. 216/2003"
+      - art. 2094 c.c.
+      - d.lgs. 81/2015
     termini_chiave:
-      - "mobbing"
-      - "straining"
-      - "discriminazione"
-      - "condotta vessatoria"
-      - "ambiente lavorativo ostile"
+      - lavoro subordinato
+      - eterodirezione
+      - etero-organizzazione
+      - lavoro autonomo
+      - collaborazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: trasferimento_azienda_2112
+    label: Trasferimento d'azienda e tutela dei rapporti di lavoro
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:regio.decreto:1942-03-16;262~art2112
+    norme_riferimento:
+      - art. 2112 c.c.
+    termini_chiave:
+      - trasferimento d'azienda
+      - continuità del rapporto
+      - cessionario
+      - cedente
+      - ramo d'azienda
     disambigua_da: {}
     sentenze_pilota: []
 
   # =======================================================================
   # TRIBUTARIO
   # =======================================================================
-  - id: accertamento_tributario
-    label: "Accertamento tributario"
-    settore: tributario
-    norme_urn:
-      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art38"   # art. 38 d.P.R. 600/1973
-    norme_riferimento:
-      - "d.P.R. 600/1973"
-      - "d.P.R. 633/1972"
-      - "Statuto del contribuente"
-    termini_chiave:
-      - "avviso di accertamento"
-      - "rettifica"
-      - "accertamento analitico"
-      - "accertamento induttivo"
-      - "motivazione dell'atto"
-    disambigua_da: {}
-    sentenze_pilota: []
-
   - id: abuso_diritto_elusione_fiscale
-    label: "Abuso del diritto ed elusione fiscale"
+    label: Abuso del diritto ed elusione fiscale
     settore: tributario
     norme_urn: []
     norme_riferimento:
-      - "art. 10-bis l. 212/2000"
+      - art. 10-bis l. 212/2000
     termini_chiave:
-      - "abuso del diritto"
-      - "elusione fiscale"
-      - "vantaggio fiscale indebito"
-      - "operazioni prive di sostanza economica"
+      - abuso del diritto
+      - elusione fiscale
+      - vantaggio fiscale indebito
+      - operazioni prive di sostanza economica
     disambigua_da:
       evasione_fiscale_reato_tributario:
-        - "art. 10-bis"
-        - "operazione abusiva"
-        - "assenza di violazione penale necessaria"
+        - art. 10-bis
+        - operazione abusiva
+        - assenza di violazione penale necessaria
+    sentenze_pilota: []
+
+  - id: accertamento_tributario
+    label: Accertamento tributario
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;600~art38
+    norme_riferimento:
+      - d.P.R. 600/1973
+      - d.P.R. 633/1972
+      - Statuto del contribuente
+    termini_chiave:
+      - avviso di accertamento
+      - rettifica
+      - accertamento analitico
+      - accertamento induttivo
+      - motivazione dell'atto
+    disambigua_da: {}
     sentenze_pilota: []
 
   - id: detrazione_iva_inerenza
-    label: "IVA: detrazione, inerenza e operazioni soggettivamente/oggettivamente inesistenti"
+    label: 'IVA: detrazione, inerenza e operazioni soggettivamente/oggettivamente inesistenti'
     settore: tributario
     norme_urn:
-      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art19"   # art. 19 d.P.R. 633/1972
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1972-10-26;633~art19
     norme_riferimento:
-      - "d.P.R. 633/1972"
-      - "principi unionali IVA"
+      - d.P.R. 633/1972
+      - principi unionali IVA
     termini_chiave:
-      - "detrazione IVA"
-      - "inerenza"
-      - "fatture per operazioni inesistenti"
-      - "buona fede del cessionario"
-      - "indetraibilità"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: riscossione_cartella_intimazione_fermo_ipoteca
-    label: "Riscossione: cartella, intimazione, fermo e ipoteca"
-    settore: tributario
-    norme_urn:
-      - "urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;602~art50"   # art. 50 d.P.R. 602/1973
-    norme_riferimento:
-      - "d.P.R. 602/1973"
-    termini_chiave:
-      - "cartella di pagamento"
-      - "intimazione di pagamento"
-      - "fermo amministrativo"
-      - "ipoteca esattoriale"
-      - "riscossione coattiva"
-    disambigua_da: {}
-    sentenze_pilota: []
-
-  - id: sanzioni_tributarie
-    label: "Sanzioni tributarie amministrative"
-    settore: tributario
-    norme_urn:
-      - "urn:nir:stato:decreto.legislativo:1997-12-18;472~art5"   # art. 5 d.lgs. 472/1997
-    norme_riferimento:
-      - "d.lgs. 472/1997"
-    termini_chiave:
-      - "sanzione tributaria"
-      - "colpevolezza"
-      - "cumulo giuridico"
-      - "ravvedimento operoso"
-      - "obiettiva incertezza normativa"
+      - detrazione IVA
+      - inerenza
+      - fatture per operazioni inesistenti
+      - buona fede del cessionario
+      - indetraibilità
     disambigua_da: {}
     sentenze_pilota: []
 
   - id: rimborso_tributi_indebiti
-    label: "Rimborso di tributi indebitamente versati"
+    label: Rimborso di tributi indebitamente versati
     settore: tributario
     norme_urn: []
     norme_riferimento:
-      - "d.P.R. 602/1973"
-      - "norme speciali di imposta"
+      - d.P.R. 602/1973
+      - norme speciali di imposta
     termini_chiave:
-      - "rimborso"
-      - "indebito tributario"
-      - "istanza di rimborso"
-      - "silenzio-rifiuto"
-      - "restituzione di imposta"
+      - rimborso
+      - indebito tributario
+      - istanza di rimborso
+      - silenzio-rifiuto
+      - restituzione di imposta
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: riscossione_cartella_intimazione_fermo_ipoteca
+    label: 'Riscossione: cartella, intimazione, fermo e ipoteca'
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1973-09-29;602~art50
+    norme_riferimento:
+      - d.P.R. 602/1973
+    termini_chiave:
+      - cartella di pagamento
+      - intimazione di pagamento
+      - fermo amministrativo
+      - ipoteca esattoriale
+      - riscossione coattiva
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sanzioni_tributarie
+    label: Sanzioni tributarie amministrative
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1997-12-18;472~art5
+    norme_riferimento:
+      - d.lgs. 472/1997
+    termini_chiave:
+      - sanzione tributaria
+      - colpevolezza
+      - cumulo giuridico
+      - ravvedimento operoso
+      - obiettiva incertezza normativa
     disambigua_da: {}
     sentenze_pilota: []
