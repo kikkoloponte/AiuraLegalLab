@@ -1035,9 +1035,26 @@ class AnalystAgent:
         )
 
         # Estrai settore_giuridico dalla Fase 1 (tassonomia: penale|civile|amministrativo|lavoro|tributario)
+        #
+        # settore_confidence alimenta il filtro settore di PhaseRetriever
+        # (AIURA_SETTORE_FILTER/AIURA_SETTORE_SOFT — vedi phase_retriever.py):
+        # prima era hardcoded a 0.0, quindi il filtro non scattava MAI a
+        # prescindere dai flag env, lasciando passare rumore cross-ramo nel
+        # retrieval (es. art. 2905 c.c. — sequestro conservativo CIVILE —
+        # per una domanda di sequestro preventivo PENALE). Distinguiamo:
+        #   0.8 — il modello ha classificato direttamente un valore valido
+        #         (soglia hard=0.7 superata: filtro attivo se
+        #         AIURA_SETTORE_FILTER=1)
+        #   0.5 — inferito dal fallback lessicale su QUALIFICAZIONE/query
+        #         (soglia soft: penalizza senza escludere, se
+        #         AIURA_SETTORE_SOFT=1)
+        #   0.0 — nessun settore riconosciuto, nessun filtro
         _SETTORI_VALIDI = frozenset({"penale", "civile", "amministrativo", "lavoro", "tributario"})
         settore_giuridico = str(data_f1.get("settore_giuridico", "")).strip().lower()
-        if settore_giuridico not in _SETTORI_VALIDI:
+        settore_confidence = 0.0
+        if settore_giuridico in _SETTORI_VALIDI:
+            settore_confidence = 0.8
+        else:
             # Fallback: inferisci dal testo della QUALIFICAZIONE
             _qualificazione_content = next(
                 (s.content for s in sections_f1 if s.step == "QUALIFICAZIONE"), ""
@@ -1055,8 +1072,13 @@ class AnalystAgent:
                 settore_giuridico = "civile"
             else:
                 settore_giuridico = ""
+            if settore_giuridico:
+                settore_confidence = 0.5
         if settore_giuridico:
-            logger.info(f"[S3 Seq] settore_giuridico estratto da Fase 1: {settore_giuridico!r}")
+            logger.info(
+                f"[S3 Seq] settore_giuridico estratto da Fase 1: {settore_giuridico!r} "
+                f"(confidence={settore_confidence})"
+            )
         else:
             logger.info("[S3 Seq] settore_giuridico non riconosciuto — retrieval senza filtro settore")
 
@@ -1109,14 +1131,14 @@ class AnalystAgent:
             try:
                 norm_sources = await _asyncio.to_thread(
                     phase_retriever.retrieve_normativa,
-                    questione_retrieval, 6, settore_giuridico, 0.0, query_type,
+                    questione_retrieval, 6, settore_giuridico, settore_confidence, query_type,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval normativa fallito: {exc}")
             try:
                 dott_sources = await _asyncio.to_thread(
                     phase_retriever.retrieve_dottrina,
-                    questione_retrieval, _dott_top_k, settore_giuridico, 0.0, query_type,
+                    questione_retrieval, _dott_top_k, settore_giuridico, settore_confidence, query_type,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval dottrina fallito: {exc}")
@@ -1230,6 +1252,7 @@ class AnalystAgent:
                     phase1.giurisprudenza_retrieval_varianti,   # 1-3 formulazioni, vedi Fase 1
                     6,
                     settore_giuridico,
+                    settore_confidence,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval giurisprudenza fallito: {exc}")
@@ -1248,7 +1271,7 @@ class AnalystAgent:
                 import asyncio as _asyncio
                 mass_sources = await _asyncio.to_thread(
                     phase_retriever.retrieve_massimario,
-                    qualificazione_retrieval, 3, settore_giuridico,
+                    qualificazione_retrieval, 3, settore_giuridico, settore_confidence,
                 )
             except Exception as exc:
                 logger.warning(f"[S3 Seq] retrieval massimario fallito: {exc}")
