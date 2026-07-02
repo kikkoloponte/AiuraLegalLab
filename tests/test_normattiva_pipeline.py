@@ -16,6 +16,7 @@ import mongomock_motor
 from bson import ObjectId
 
 from aiura_legal.ingestion.normattiva.pipeline import NormattivaPipeline, ChunkCollectionResult
+from aiura_legal.ingestion.normattiva.parser import NormattivaDocAdapter
 from aiura_legal.ingestion.chunker import Chunker
 
 
@@ -217,9 +218,9 @@ async def test_chunk_collection_same_chunks_each_run(pipeline, mock_db):
     per chiamata — la logica di chunking è deterministica.
 
     Nota: il test usa upsert=False (insert_many) compatibile con mongomock.
-    L'idempotenza reale dell'upsert (UpdateOne → no duplicati) è garantita
-    dalla chiave composta {source_id, chunk_index, workspace} e viene
-    testata su MongoDB reale con mirror_normattiva.py --limit 10.
+    L'idempotenza reale dell'upsert (UpdateOne su _id deterministico → no
+    duplicati anche se il fetcher assegna un source_id/URN diverso tra due
+    esecuzioni) è verificata in TestIdDeterministicoTraRebuild sotto.
     """
     await _seed(mock_db, [
         _normattiva_doc("urn:nir:stato:legge:2020-01-01;1", tipo="LEGGE"),
@@ -328,3 +329,77 @@ async def test_result_empty_collection(pipeline, mock_db):
     assert result.docs_processed == 0
     assert result.chunks_created == 0
     assert result.errors == 0
+
+
+# ---------------------------------------------------------------------------
+# Test id deterministico tra rebuild (root cause del disallineamento
+# source_mongo_id scoperto negli istituti_giuridici — vedi chunk_id.py)
+# ---------------------------------------------------------------------------
+
+class TestIdDeterministicoTraRebuild:
+    """
+    L'upsert reale (upsert=True, UpdateOne) matcha per _id deterministico,
+    calcolato da (fonte, articolo_num, valid_from, chunk_index) — non più
+    dall'URN posizionale del fetcher. Se due esecuzioni dello scraping
+    assegnano URN diversi allo STESSO vero articolo (perché l'URN dipende
+    dalla posizione nella catena, non dal contenuto), il chunk deve comunque
+    finire con lo stesso _id e nessun duplicato.
+    """
+
+    # NOTA: questi test verificano il record prodotto da _process_doc (dove
+    # viene calcolato l'_id) invece di passare per bulk_write/UpdateOne su
+    # mongomock-motor: la libreria di mock non supporta la sintassi UpdateOne
+    # della versione di pymongo installata (limite pre-esistente del tooling
+    # di test, mai esposto prima perché nessun test usava upsert=True) —
+    # l'upsert reale è verificato manualmente su MongoDB vero.
+
+    @pytest.mark.asyncio
+    async def test_stesso_articolo_urn_diverso_stesso_id(self, mock_db):
+        pipeline = NormattivaPipeline(
+            mongo_db=mock_db, workspace="mio-studio",
+            chunker=Chunker(max_tokens=256, overlap=32),
+        )
+        testo = "Art. 79. Domicilio dei coniugi, del minore e dell'interdetto." * 5
+
+        # Prima esecuzione: l'articolo "Art. 79" ha URN ~art79 (posizione 79)
+        adapter1 = NormattivaDocAdapter.from_mongo_doc(
+            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art79", text=testo)
+        )
+        buffer1: list[dict] = []
+        await pipeline._process_doc(adapter1, buffer1)
+
+        # Seconda esecuzione (simulata): stesso vero articolo, ma il fetcher
+        # gli ha assegnato un URN diverso per un disallineamento posizionale
+        # (es. ~art80 invece di ~art79) — scenario che ha causato la
+        # corruzione osservata in produzione.
+        adapter2 = NormattivaDocAdapter.from_mongo_doc(
+            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art80", text=testo)
+        )
+        buffer2: list[dict] = []
+        await pipeline._process_doc(adapter2, buffer2)
+
+        assert len(buffer1) == 1 and len(buffer2) == 1
+        assert buffer1[0]["_id"] == buffer2[0]["_id"]
+
+    @pytest.mark.asyncio
+    async def test_articolo_num_diverso_produce_id_diverso(self, mock_db):
+        """Controllo di non-regressione: articoli realmente diversi non collidono."""
+        pipeline = NormattivaPipeline(
+            mongo_db=mock_db, workspace="mio-studio",
+            chunker=Chunker(max_tokens=256, overlap=32),
+        )
+        adapter1 = NormattivaDocAdapter.from_mongo_doc(
+            _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art79",
+                             text="Art. 79. Primo articolo di prova." * 5)
+        )
+        buffer1: list[dict] = []
+        await pipeline._process_doc(adapter1, buffer1)
+
+        doc2 = _normattiva_doc("urn:nir:stato:regio.decreto:1942-03-16;262~art80",
+                                text="Art. 45. Secondo articolo di prova." * 5)
+        doc2["articolo_num"] = "Art. 45"
+        adapter2 = NormattivaDocAdapter.from_mongo_doc(doc2)
+        buffer2: list[dict] = []
+        await pipeline._process_doc(adapter2, buffer2)
+
+        assert buffer1[0]["_id"] != buffer2[0]["_id"]

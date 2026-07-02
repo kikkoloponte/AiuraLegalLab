@@ -15,6 +15,7 @@ from typing import Optional
 from loguru import logger
 
 from aiura_legal.ingestion.chunker import Chunker, NormattivaChunker
+from aiura_legal.ingestion.normattiva.chunk_id import compute_deterministic_chunk_id
 from aiura_legal.ingestion.normattiva.parser import NormattivaDocAdapter
 from aiura_legal.core.graph.builder import LegalGraphBuilder
 
@@ -171,6 +172,18 @@ class NormattivaPipeline:
                 "text": c.text,
                 "token_count": c.token_count,
             }
+            # _id deterministico da identità stabile (fonte+articolo_num+
+            # valid_from+chunk_index), NON dall'URN posizionale del fetcher
+            # (source_id) — vedi chunk_id.py per il motivo. Garantisce che
+            # lo stesso articolo produca sempre lo stesso _id tra rebuild
+            # successivi, anche se il fetcher assegna URN diversi.
+            record["_id"] = compute_deterministic_chunk_id(
+                workspace=chunk_base["workspace"],
+                fonte=chunk_base["fonte"],
+                articolo_num=chunk_base["articolo_num"],
+                valid_from=chunk_base.get("valid_from"),
+                chunk_index=c.index,
+            )
             buffer.append(record)
 
         return len(chunks)
@@ -182,14 +195,14 @@ class NormattivaPipeline:
         try:
             if self.upsert:
                 from pymongo import UpdateOne
+                # _id è nel filtro, non nel $set: alcune versioni di MongoDB
+                # rifiutano $set su _id anche a parità di valore. Sull'insert
+                # (upsert=True), MongoDB usa comunque il filtro come valore
+                # iniziale di _id per il nuovo documento.
                 ops = [
                     UpdateOne(
-                        {
-                            "source_id": r["source_id"],
-                            "chunk_index": r["chunk_index"],
-                            "workspace": r["workspace"],
-                        },
-                        {"$set": r},
+                        {"_id": r["_id"]},
+                        {"$set": {k: v for k, v in r.items() if k != "_id"}},
                         upsert=True,
                     )
                     for r in buffer
