@@ -408,3 +408,52 @@ class TestExpandSentenza:
 
         assert len(results) == 1
         assert results[0].source_id == "a1b2c3d4e5f60718"
+
+
+# ---------------------------------------------------------------------------
+# resolve_labels() — chip leggibili per la UI di revisione questioni
+# ---------------------------------------------------------------------------
+
+class TestResolveLabels:
+
+    def test_risolve_articolo(self, tmp_path):
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:art1218", **_article_node("urn:art1218", art_num="1218"))
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        labels = r.resolve_labels(["urn:art1218"])
+
+        assert labels == {"urn:art1218": "Codice Civile 1218"}
+
+    def test_risolve_sentenza(self, tmp_path):
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("a1b2c3d4e5f60718", **_sentenza_node("a1b2c3d4e5f60718", organo="cassazione", numero="123", anno="2021"))
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        labels = r.resolve_labels(["a1b2c3d4e5f60718"])
+
+        assert labels == {"a1b2c3d4e5f60718": "cassazione n.123/2021"}
+
+    def test_id_inesistente_omesso(self, tmp_path):
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:art1218", **_article_node("urn:art1218", art_num="1218"))
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        labels = r.resolve_labels(["urn:art1218", "urn:non_esiste"])
+
+        assert labels == {"urn:art1218": "Codice Civile 1218"}
+
+    def test_lista_vuota_ritorna_vuoto(self, tmp_path):
+        G: nx.DiGraph = nx.DiGraph()
+        G.add_node("urn:art1218", **_article_node("urn:art1218", art_num="1218"))
+        _save_graph(G, tmp_path)
+
+        r = GraphRetriever(str(tmp_path))
+        assert r.resolve_labels([]) == {}
+
+    def test_grafo_assente_ritorna_vuoto(self, tmp_path):
+        r = GraphRetriever(str(tmp_path))
+        assert r.resolve_labels(["urn:qualsiasi"]) == {}

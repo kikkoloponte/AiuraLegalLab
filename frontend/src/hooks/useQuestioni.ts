@@ -75,6 +75,22 @@ export function useUpdateQuestione() {
   })
 }
 
+export function useResolveLabels() {
+  // useCallback per la stessa ragione di useSearchNodes: identità stabile
+  // usata come dipendenza di useEffect in NodeIdPicker.
+  return useCallback(async (ids: string[]): Promise<Record<string, string>> => {
+    if (ids.length === 0) return {}
+    try {
+      const { data } = await apiClient.get('/questioni/resolve-labels', {
+        params: { ids: ids.join(',') },
+      })
+      return data.labels
+    } catch {
+      return {}
+    }
+  }, [])
+}
+
 export function useSearchNodes() {
   // useCallback: identità stabile tra render — è una dipendenza di useEffect
   // in NodeIdPicker, una nuova funzione ogni render causerebbe un loop

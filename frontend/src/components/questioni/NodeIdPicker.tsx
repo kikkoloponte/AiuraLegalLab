@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, X } from 'lucide-react'
-import { useSearchNodes, type NodeSearchResult } from '@/hooks/useQuestioni'
+import { useSearchNodes, useResolveLabels, type NodeSearchResult } from '@/hooks/useQuestioni'
 
 interface NodeIdPickerProps {
   nodeType: 'article' | 'sentenza'
@@ -13,12 +13,19 @@ interface NodeIdPickerProps {
  * Input con autocomplete per aggiungere id reali (articoli/sentenze) a
  * norme_pertinenti/decisioni_pertinenti — l'avvocato sceglie da una lista
  * di nodi che esistono davvero nel grafo, non scrive un URN a mano.
+ *
+ * Le chip mostrano l'etichetta leggibile (es. "Art. 1218 c.c."), non l'id
+ * tecnico (URN/hash) — risolta via /questioni/resolve-labels per gli id già
+ * presenti al caricamento, e salvata subito per quelli scelti dalla ricerca
+ * (evita un round-trip in più: l'autocomplete la conosce già).
  */
 export function NodeIdPicker({ nodeType, ids, onAdd, onRemove }: NodeIdPickerProps) {
   const searchNodes = useSearchNodes()
+  const resolveLabels = useResolveLabels()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<NodeSearchResult[]>([])
   const [open, setOpen] = useState(false)
+  const [labels, setLabels] = useState<Record<string, string>>({})
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
@@ -36,7 +43,24 @@ export function NodeIdPicker({ nodeType, ids, onAdd, onRemove }: NodeIdPickerPro
     return () => clearTimeout(debounceRef.current)
   }, [query, nodeType, searchNodes])
 
+  // Risolve le etichette per gli id già presenti (caricati dal registro) che
+  // non sono ancora nella mappa locale — non richiede una label per ogni id
+  // ad ogni render, solo per quelli mai visti.
+  useEffect(() => {
+    const missing = ids.filter((id) => !(id in labels))
+    if (missing.length === 0) return
+    let cancelled = false
+    resolveLabels(missing).then((resolved) => {
+      if (cancelled) return
+      setLabels((prev) => ({ ...prev, ...resolved }))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [ids, labels, resolveLabels])
+
   const handleSelect = (result: NodeSearchResult) => {
+    setLabels((prev) => ({ ...prev, [result.id]: result.label }))
     onAdd(result.id)
     setQuery('')
     setResults([])
@@ -49,14 +73,15 @@ export function NodeIdPicker({ nodeType, ids, onAdd, onRemove }: NodeIdPickerPro
         {ids.map((id) => (
           <span
             key={id}
+            title={id}
             className="inline-flex items-center gap-1 text-[11px] bg-muted border border-border rounded px-1.5 py-0.5 text-foreground"
           >
-            <span className="max-w-[220px] truncate">{id}</span>
+            <span className="max-w-[220px] truncate">{labels[id] || id}</span>
             <button
               type="button"
               onClick={() => onRemove(id)}
               className="text-muted-foreground hover:text-foreground"
-              aria-label={`Rimuovi ${id}`}
+              aria-label={`Rimuovi ${labels[id] || id}`}
             >
               <X className="w-3 h-3" />
             </button>

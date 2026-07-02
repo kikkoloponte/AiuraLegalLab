@@ -160,3 +160,21 @@ class TestSearchNodes:
     def test_node_type_non_valido_422(self, client):
         resp = client.get("/questioni/search-nodes", params={"q": "1218", "node_type": "altro"})
         assert resp.status_code == 422
+
+
+class TestResolveLabels:
+
+    def test_risolve_id_esistente(self, client):
+        resp = client.get("/questioni/resolve-labels", params={"ids": "urn:art1218"})
+        assert resp.status_code == 200
+        assert resp.json()["labels"] == {"urn:art1218": "C.C. 1218"}
+
+    def test_id_inesistente_omesso_senza_errore(self, client):
+        resp = client.get("/questioni/resolve-labels", params={"ids": "urn:non_esiste"})
+        assert resp.status_code == 200
+        assert resp.json()["labels"] == {}
+
+    def test_lista_mista_risolve_solo_i_presenti(self, client):
+        resp = client.get("/questioni/resolve-labels", params={"ids": "urn:art1218,urn:non_esiste"})
+        assert resp.status_code == 200
+        assert resp.json()["labels"] == {"urn:art1218": "C.C. 1218"}

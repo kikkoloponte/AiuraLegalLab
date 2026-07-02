@@ -39,6 +39,10 @@ class ChunkSearchResponse(BaseModel):
     results: list[ChunkSearchResult]
 
 
+class ResolveChunksResponse(BaseModel):
+    labels: dict[str, str]  # source_mongo_id -> etichetta leggibile, solo per gli id trovati
+
+
 class IstitutiListResponse(BaseModel):
     items: list[IstitutoGiuridico]
 
@@ -79,6 +83,45 @@ async def search_chunks(
         testo = (doc.get("text") or "")[:120].replace("\n", " ")
         results.append(ChunkSearchResult(id=str(doc["_id"]), label=label, preview=testo))
     return ChunkSearchResponse(results=results)
+
+
+@router.get("/resolve-chunks", response_model=ResolveChunksResponse)
+async def resolve_chunks(
+    ids: str = Query(..., description="ObjectId separati da virgola (source_mongo_id già selezionati)"),
+) -> ResolveChunksResponse:
+    """
+    Risolve source_mongo_id grezzi in etichette leggibili — evita di mostrare
+    all'avvocato l'ObjectId nudo nelle schede istituto già salvate (vedi
+    ChunkPicker.tsx). Id malformati o non trovati vengono omessi in silenzio.
+    """
+    from bson import ObjectId
+    from bson.errors import InvalidId
+
+    id_list = [i.strip() for i in ids.split(",") if i.strip()]
+    object_ids = []
+    for i in id_list:
+        try:
+            object_ids.append(ObjectId(i))
+        except InvalidId:
+            continue
+    if not object_ids:
+        return ResolveChunksResponse(labels={})
+
+    coll = MongoClient.get().chunks
+    cursor = coll.find(
+        {"_id": {"$in": object_ids}},
+        {"titolo": 1, "articolo_num": 1, "titolo_articolo": 1, "corpus": 1},
+    )
+    labels: dict[str, str] = {}
+    async for doc in cursor:
+        titolo = doc.get("titolo") or ""
+        articolo_num = doc.get("articolo_num") or ""
+        titolo_articolo = doc.get("titolo_articolo") or ""
+        corpus_val = doc.get("corpus") or ""
+        label_parts = [p for p in [articolo_num, titolo_articolo or titolo, f"[{corpus_val}]"] if p]
+        if label_parts:
+            labels[str(doc["_id"])] = " — ".join(label_parts)
+    return ResolveChunksResponse(labels=labels)
 
 
 @router.get("", response_model=IstitutiListResponse)

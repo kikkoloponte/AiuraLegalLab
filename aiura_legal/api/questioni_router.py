@@ -99,6 +99,10 @@ class NodeSearchResponse(BaseModel):
     results: list[NodeSearchResult]
 
 
+class ResolveLabelsResponse(BaseModel):
+    labels: dict[str, str]  # id -> etichetta leggibile, solo per gli id trovati nel grafo
+
+
 def _to_model(q: QuestioneGiuridica) -> QuestioneModel:
     return QuestioneModel(
         id=q.id,
@@ -134,6 +138,20 @@ async def search_nodes(
     """Autocomplete id reali dal grafo per norme_pertinenti/decisioni_pertinenti."""
     results = _get_graph().search_nodes(q, node_type=node_type, limit=limit)
     return NodeSearchResponse(results=[NodeSearchResult(**r) for r in results])
+
+
+@router.get("/resolve-labels", response_model=ResolveLabelsResponse)
+async def resolve_labels(
+    ids: str = Query(..., description="Id separati da virgola (norme_pertinenti/decisioni_pertinenti già selezionati)"),
+) -> ResolveLabelsResponse:
+    """
+    Risolve id grezzi (URN/hash) in etichette leggibili per le chip già
+    selezionate in NodeIdPicker — evita di mostrare all'avvocato solo id
+    tecnici per le voci non appena aggiunte tramite ricerca.
+    """
+    id_list = [i.strip() for i in ids.split(",") if i.strip()]
+    labels = _get_graph().resolve_labels(id_list)
+    return ResolveLabelsResponse(labels=labels)
 
 
 @router.get("/{id}", response_model=QuestioneWithVersion)

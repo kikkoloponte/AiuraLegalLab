@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Search, X } from 'lucide-react'
-import { useSearchChunks, type ChunkCorpus, type ChunkSearchResult } from '@/hooks/useIstitutiGiuridici'
+import { useSearchChunks, useResolveChunks, type ChunkCorpus, type ChunkSearchResult } from '@/hooks/useIstitutiGiuridici'
 
 interface ChunkPickerProps {
   value: string | null
@@ -13,14 +13,40 @@ interface ChunkPickerProps {
  * Campo source_mongo_id con autocomplete: l'utente digita testo libero,
  * vede label+preview dei chunk che matchano e sceglie — niente ObjectId a
  * memoria. Il campo rimane editabile a mano per chi vuole incollare un id diretto.
+ *
+ * Il valore selezionato mostra l'etichetta leggibile (es. "Art. 321 —
+ * Oggetto del sequestro preventivo"), non l'ObjectId grezzo — risolta via
+ * /istituti/resolve-chunks per i valori già presenti al caricamento della
+ * scheda, e nota subito per quelli scelti dalla ricerca (la conosciamo già
+ * dal risultato dell'autocomplete). L'id resta visibile come tooltip.
  */
 export function ChunkPicker({ value, onChange, corpus, placeholder }: ChunkPickerProps) {
   const searchChunks = useSearchChunks()
+  const resolveChunks = useResolveChunks()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<ChunkSearchResult[]>([])
   const [open, setOpen] = useState(false)
+  const [label, setLabel] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const wrapperRef = useRef<HTMLDivElement>(null)
+
+  // Risolve l'etichetta quando il valore cambia dall'esterno (caricamento
+  // scheda esistente). Per un valore scelto dalla ricerca la impostiamo
+  // subito in handleSelect, senza aspettare questo round-trip.
+  useEffect(() => {
+    if (!value) {
+      setLabel(null)
+      return
+    }
+    let cancelled = false
+    resolveChunks([value]).then((resolved) => {
+      if (!cancelled && resolved[value]) setLabel(resolved[value])
+    })
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
 
   useEffect(() => {
     clearTimeout(debounceRef.current)
@@ -49,6 +75,7 @@ export function ChunkPicker({ value, onChange, corpus, placeholder }: ChunkPicke
   }, [])
 
   const handleSelect = (r: ChunkSearchResult) => {
+    setLabel(r.label)
     onChange(r.id)
     setQuery('')
     setResults([])
@@ -56,6 +83,7 @@ export function ChunkPicker({ value, onChange, corpus, placeholder }: ChunkPicke
   }
 
   const handleClear = () => {
+    setLabel(null)
     onChange(null)
     setQuery('')
   }
@@ -67,13 +95,16 @@ export function ChunkPicker({ value, onChange, corpus, placeholder }: ChunkPicke
     <div ref={wrapperRef} className="space-y-1">
       {/* valore corrente selezionato */}
       {value && (
-        <div className="flex items-center gap-1.5 text-xs bg-muted border border-border rounded-md px-2 py-1">
-          <span className="flex-1 font-mono text-foreground truncate">{value}</span>
+        <div
+          title={value}
+          className="flex items-center gap-1.5 text-xs bg-muted border border-border rounded-md px-2 py-1"
+        >
+          <span className="flex-1 text-foreground truncate">{label || value}</span>
           <button
             type="button"
             onClick={handleClear}
             className="text-muted-foreground hover:text-foreground flex-shrink-0"
-            aria-label="Rimuovi source_mongo_id"
+            aria-label={`Rimuovi ${label || value}`}
           >
             <X className="w-3 h-3" />
           </button>
@@ -105,7 +136,6 @@ export function ChunkPicker({ value, onChange, corpus, placeholder }: ChunkPicke
               >
                 <div className="text-xs font-medium text-foreground truncate">{r.label}</div>
                 <div className="text-[10px] text-muted-foreground truncate mt-0.5">{r.preview}</div>
-                <div className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">{r.id}</div>
               </button>
             ))}
           </div>

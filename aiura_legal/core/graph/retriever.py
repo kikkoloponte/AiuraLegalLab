@@ -196,6 +196,17 @@ class GraphRetriever:
         """
         return self._impl.search_nodes(query_text, node_type=node_type, limit=limit)
 
+    def resolve_labels(self, node_ids: list[str]) -> dict[str, str]:
+        """
+        Risolve id grezzi (URN articolo, id sentenza) in etichette leggibili
+        ({"Art. 1218 c.c."}, ecc.) — usato dalla UI di revisione per mostrare
+        le chip di norme_pertinenti/decisioni_pertinenti già selezionate con
+        un'etichetta comprensibile invece del solo id tecnico (vedi
+        NodeIdPicker.tsx). Ritorna solo gli id trovati nel grafo — il
+        chiamante mostra l'id grezzo come fallback per quelli assenti.
+        """
+        return self._impl.resolve_labels(node_ids)
+
 
 # ---------------------------------------------------------------------------
 # Interfaccia comune (duck typing — niente ABC per restare leggero)
@@ -226,6 +237,9 @@ class _BaseBackend:
         raise NotImplementedError
 
     def search_nodes(self, query_text: str, node_type: str, limit: int) -> list[dict]:
+        raise NotImplementedError
+
+    def resolve_labels(self, node_ids: list[str]) -> dict[str, str]:
         raise NotImplementedError
 
 
@@ -507,6 +521,29 @@ class _NetworkXBackend(_BaseBackend):
                 results.append({"id": node_id, "label": label})
 
         return results
+
+    def resolve_labels(self, node_ids: list[str]) -> dict[str, str]:
+        if not self.is_available or not node_ids:
+            return {}
+        G = self._load_graph()
+        if G is None:
+            return {}
+
+        out: dict[str, str] = {}
+        for nid in node_ids:
+            if not G.has_node(nid):
+                continue
+            attrs = G.nodes[nid]
+            node_type = attrs.get("node_type")
+            if node_type == "article":
+                label = f"{attrs.get('titolo', '')} {attrs.get('articolo_num', '')}".strip()
+            elif node_type == "sentenza":
+                label = f"{attrs.get('organo', '')} n.{attrs.get('numero', '')}/{attrs.get('anno', '')}".strip()
+            else:
+                continue
+            if label:
+                out[nid] = label
+        return out
 
     def _load_graph(self) -> Optional[nx.DiGraph]:
         """Carica il grafo in memoria (lazy, una sola volta, thread-safe)."""
@@ -911,6 +948,35 @@ class _Neo4jBackend(_BaseBackend):
             return []
 
         return [{"id": rec["id"], "label": rec["label"].strip()} for rec in records]
+
+    def resolve_labels(self, node_ids: list[str]) -> dict[str, str]:
+        driver = self._get_driver()
+        if driver is None or not node_ids:
+            return {}
+        query = (
+            "MATCH (n) WHERE (n.urn IN $ids OR n.id IN $ids) "
+            "RETURN coalesce(n.urn, n.id) AS id, labels(n) AS labels, "
+            "coalesce(n.titolo, '') AS titolo, coalesce(n.articolo_num, '') AS articolo_num, "
+            "coalesce(n.organo, '') AS organo, coalesce(n.numero, '') AS numero, coalesce(n.anno, '') AS anno"
+        )
+        try:
+            with driver.session() as session:
+                records = session.run(query, ids=node_ids).data()
+        except Exception as exc:
+            logger.warning(f"[GraphRetriever:neo4j] resolve_labels() fallita: {exc}")
+            return {}
+
+        out: dict[str, str] = {}
+        for rec in records:
+            if "Articolo" in rec["labels"]:
+                label = f"{rec['titolo']} {rec['articolo_num']}".strip()
+            elif "Sentenza" in rec["labels"]:
+                label = f"{rec['organo']} n.{rec['numero']}/{rec['anno']}".strip()
+            else:
+                continue
+            if label:
+                out[rec["id"]] = label
+        return out
 
     @staticmethod
     def _is_valid(node_props: dict, valid_on: date) -> bool:

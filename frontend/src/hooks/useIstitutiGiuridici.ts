@@ -158,6 +158,20 @@ export interface ChunkSearchResult {
 
 export type ChunkCorpus = 'normattiva' | 'giurisprudenza' | 'dottrina' | 'studio'
 
+export function useResolveChunks() {
+  return useCallback(async (ids: string[]): Promise<Record<string, string>> => {
+    if (ids.length === 0) return {}
+    try {
+      const { data } = await apiClient.get('/istituti/resolve-chunks', {
+        params: { ids: ids.join(',') },
+      })
+      return data.labels
+    } catch {
+      return {}
+    }
+  }, [])
+}
+
 export function useSearchChunks() {
   return useCallback(async (q: string, corpus?: ChunkCorpus): Promise<ChunkSearchResult[]> => {
     if (q.length < 2) return []
