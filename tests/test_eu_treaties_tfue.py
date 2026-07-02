@@ -104,6 +104,30 @@ def test_parse_tfue_lines_empty_input():
 
 
 # ---------------------------------------------------------------------------
+# Frontespizio EUR-Lex — tabella "Contiene: Gazzetta ufficiale ..." con la
+# cronologia delle modifiche cita per esteso titoli di protocolli/decisioni
+# (incluse righe che iniziano per "PROTOCOLLO") ben prima dell'articolato.
+# ---------------------------------------------------------------------------
+
+_FRONT_MATTER_LINES = [
+    "TESTO consolidato: 12016E/TXT — IT — 01.09.2024",
+    "Il presente testo è un semplice strumento di documentazione.",
+    "VERSIONE CONSOLIDATA",
+    "DEL TRATTATO SUL FUNZIONAMENTO DELL'UNIONE EUROPEA",
+    "Contiene:",
+    "PROTOCOLLO",
+    "CHE MODIFICA IL PROTOCOLLO SULLE DISPOSIZIONI TRANSITORIE",
+    "DECISIONE DEL CONSIGLIO EUROPEO",
+]
+
+
+def test_parse_tfue_lines_skips_frontmatter_protocol_mention():
+    lines = _FRONT_MATTER_LINES + _SAMPLE_LINES
+    articles = parse_tfue_lines(lines)
+    assert [a.numero for a in articles] == ["101", "102", "119"]
+
+
+# ---------------------------------------------------------------------------
 # TfueDocAdapter
 # ---------------------------------------------------------------------------
 
