@@ -975,12 +975,32 @@ class AnalystAgent:
             _system_f1 = _SYSTEM_PROMPT_FRAMING
             _phase1_name = "FRAMING"
 
+        # Vocabolario chiuso degli istituti — usato dal modello per popolare
+        # istituto_id (fallback se il match lessicale post-hoc non trova nulla,
+        # vedi sotto). Costruito una volta per chiamata: se il registro è vuoto
+        # o non disponibile, il blocco è semplicemente omesso (nessun impatto
+        # sul prompt, comportamento identico a prima di questo campo).
+        _istituto_vocab_block = ""
+        try:
+            _vocab = get_registry().vocabolario()
+        except Exception as exc:  # noqa: BLE001
+            _vocab = []
+            logger.warning(f"[S3 Seq Fase1] vocabolario istituti non disponibile: {exc}")
+        if _vocab:
+            _vocab_lines = "\n".join(f"{vid}: {label}" for vid, label in _vocab)
+            _istituto_vocab_block = (
+                "\nVOCABOLARIO ISTITUTI (scegli SOLO da questo elenco per istituto_id, "
+                "o usa null se nessuno corrisponde — non inventare id):\n"
+                f"{_vocab_lines}\n"
+            )
+
         prompt_f1 = (
             f"DOMANDA DELL'AVVOCATO: {query}\n\n"
             f"{_prompt_f1_steps}"
             "OGNI sezione: massimo 80 parole nel campo content. citations[] = array vuoto.\n"
             f"BUDGET TOKEN: la risposta JSON DEVE terminare entro {_budget_f1} token. "
             "Chiudi subito il JSON all'ultimo step.\n"
+            f"{_istituto_vocab_block}"
             "Rispondi ESCLUSIVAMENTE con un oggetto JSON valido e completo.\n"
         )
         raw_f1 = ""
@@ -1082,21 +1102,54 @@ class AnalystAgent:
         else:
             logger.info("[S3 Seq] settore_giuridico non riconosciuto — retrieval senza filtro settore")
 
-        # Classificazione ISTITUTO dal registro (vocabolario chiuso, deterministico).
+        # Classificazione ISTITUTO dal registro (vocabolario chiuso).
         # Serve a (a) iniettare la norma cardine in Fase 2 — separando istituti che
         # condividono il lessico (es. sequestro penale ex 321 c.p.p. vs confisca
         # antimafia ex 25 d.lgs. 159) — e (b) iniettare le sentenze pilota
         # groundabili in Fase 3.
+        #
+        # Match lessicale (match_query, deterministico) tentato per primo — è il
+        # path primario, gratuito. Se non trova nulla, fallback sull'istituto_id
+        # che il modello ha già prodotto nella STESSA chiamata di Fase 1 (nessuna
+        # chiamata LLM aggiuntiva): utile per formulazioni indirette (soprattutto
+        # in query_type="doctrine") che non riproducono la denominazione esatta
+        # dell'istituto richiesta da match_query(). L'id proposto dal modello è
+        # validato contro il registro prima dell'uso — mai fidarsi di un id non
+        # presente nel vocabolario chiuso.
         istituto = None
+        istituto_source = ""
         try:
             _ist_matches = get_registry().match_query(
                 f"{query} {questione_retrieval} {qualificazione_retrieval}"
             )
             istituto = _ist_matches[0][0] if _ist_matches else None
+            if istituto:
+                istituto_source = "lessicale"
         except Exception as exc:  # noqa: BLE001
-            logger.warning(f"[S3 Seq] classificazione istituto fallita: {exc}")
+            logger.warning(f"[S3 Seq] classificazione istituto (lessicale) fallita: {exc}")
+
+        if istituto is None:
+            _istituto_id_llm = str(data_f1.get("istituto_id") or "").strip()
+            if _istituto_id_llm and _istituto_id_llm.lower() != "null":
+                try:
+                    _candidate = get_registry().by_id(_istituto_id_llm)
+                except Exception as exc:  # noqa: BLE001
+                    _candidate = None
+                    logger.warning(f"[S3 Seq] lookup istituto_id LLM fallito: {exc}")
+                if _candidate is not None:
+                    istituto = _candidate
+                    istituto_source = "llm_fallback"
+                else:
+                    logger.warning(
+                        f"[S3 Seq] istituto_id proposto dal modello non nel vocabolario: "
+                        f"{_istituto_id_llm!r} — ignorato"
+                    )
+
         if istituto:
-            logger.info(f"[S3 Seq] istituto classificato: {istituto.id!r} ({istituto.settore})")
+            logger.info(
+                f"[S3 Seq] istituto classificato: {istituto.id!r} ({istituto.settore}) "
+                f"[fonte={istituto_source}]"
+            )
 
         phase1 = PhaseResult(
             phase=1, name=_phase1_name,

@@ -102,6 +102,7 @@ Questo valore guida il retrieval di Fase 2/3: sceglilo con cura.
     }
   ],
   "settore_giuridico": "penale",
+  "istituto_id": "id_esatto_dal_vocabolario_o_null",
   "questione_retrieval": "testo conciso per retrieval normativa (max 120 char)",
   "qualificazione_retrieval": "testo conciso per retrieval giurisprudenza (max 120 char)",
   "giurisprudenza_retrieval_varianti": [
@@ -113,6 +114,13 @@ Questo valore guida il retrieval di Fase 2/3: sceglilo con cura.
   "gaps": []
 }
 ```
+
+Il campo `istituto_id` è OBBLIGATORIO se sotto trovi un blocco "VOCABOLARIO ISTITUTI":
+scegli l'id ESATTO (copia-incolla, senza modifiche) dell'istituto del vocabolario che
+meglio corrisponde alla QUALIFICAZIONE, oppure `null` se nessuno corrisponde
+davvero — NON inventare un id che non è nell'elenco, NON forzare una corrispondenza
+approssimativa solo per compilare il campo. Se il blocco vocabolario non è presente
+nel prompt, ometti il campo o lascialo `null`.
 
 Il campo `settore_giuridico` DEVE contenere uno dei valori della tassonomia sopra.
 Il campo `questione_retrieval` deve essere una stringa breve con i termini tecnici

@@ -77,6 +77,7 @@ Scegli ESATTAMENTE uno: penale | civile | amministrativo | lavoro | tributario
     }
   ],
   "settore_giuridico": "penale",
+  "istituto_id": "id_esatto_dal_vocabolario_o_null",
   "questione_retrieval": "testo conciso per retrieval normativa (max 120 char)",
   "qualificazione_retrieval": "testo conciso per retrieval giurisprudenza (max 120 char)",
   "giurisprudenza_retrieval_varianti": [
@@ -88,6 +89,13 @@ Scegli ESATTAMENTE uno: penale | civile | amministrativo | lavoro | tributario
   "gaps": []
 }
 ```
+
+Il campo `istituto_id` è OBBLIGATORIO se sotto trovi un blocco "VOCABOLARIO ISTITUTI":
+scegli l'id ESATTO (copia-incolla, senza modifiche) dell'istituto del vocabolario che
+meglio corrisponde a INQUADRAMENTO_ISTITUTO, oppure `null` se nessuno corrisponde
+davvero — NON inventare un id che non è nell'elenco, NON forzare una corrispondenza
+approssimativa solo per compilare il campo. Se il blocco vocabolario non è presente
+nel prompt, ometti il campo o lascialo `null`.
 
 Il campo `questione_retrieval` deve contenere i termini tecnici chiave dell'istituto
 per la ricerca BM25 normativa.

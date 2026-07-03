@@ -800,3 +800,153 @@ async def test_prompt_anti_overflow_token_budget(monkeypatch):
             f"fase {n}: prompt {total} token > budget {budget} "
             f"(n_ctx={_llm_settings.llm_n_ctx} - max_tokens={kwargs['max_tokens']})"
         )
+
+
+# ---------------------------------------------------------------------------
+# Test classificazione istituto — fallback LLM quando il match lessicale fallisce
+# ---------------------------------------------------------------------------
+
+class _FakeIstituto:
+    def __init__(self, id_, norme_urn=(), settore="penale"):
+        self.id = id_
+        self.norme_urn = norme_urn
+        self.settore = settore
+        self.sentenze_pilota = ()
+
+
+class _FakeRegistryNoLexicalMatch:
+    """match_query non trova mai nulla — forza il path del fallback LLM."""
+    def match_query(self, text, top_k=3):
+        return []
+
+    def by_id(self, istituto_id):
+        if istituto_id == "istituto_valido_test":
+            return _FakeIstituto("istituto_valido_test", norme_urn=("urn:test:art1",))
+        return None
+
+    def vocabolario(self):
+        return [("istituto_valido_test", "Istituto Valido Test")]
+
+
+def _mock_ollama_with_istituto_id(istituto_id_value) -> MagicMock:
+    ollama = MagicMock()
+    ollama.model = "qwen2.5:7b-test"
+    call_count = {"n": 0}
+
+    def _fase1_json():
+        data = {
+            "analysis_sections": [
+                {"step": "RICOSTRUZIONE_FATTO", "content": "x", "citations": []},
+                {"step": "QUALIFICAZIONE", "content": "x", "citations": []},
+                {"step": "QUESTIONE", "content": "x", "citations": []},
+            ],
+            "overall_confidence": "MEDIUM",
+            "gaps": [],
+            "questione_retrieval": "questione test",
+            "qualificazione_retrieval": "qualificazione test",
+        }
+        if istituto_id_value is not None:
+            data["istituto_id"] = istituto_id_value
+        return json.dumps(data)
+
+    responses = [
+        _fase1_json(),
+        _phase_json(["FONTI_NORMATIVE", "INTERPRETAZIONE"]),
+        _phase_json(["GIURISPRUDENZA"]),
+        _phase_json(["SUSSUNZIONE", "OBIEZIONI", "CONCLUSIONE"]),
+    ]
+
+    async def _generate(**kwargs):
+        n = call_count["n"]
+        call_count["n"] += 1
+        return responses[n] if n < len(responses) else "{}"
+
+    ollama.generate = _generate
+    return ollama
+
+
+@pytest.mark.asyncio
+async def test_istituto_fallback_llm_usato_se_lessicale_fallisce(mock_phase_retriever):
+    """Se match_query() non trova nulla, l'istituto_id prodotto dal modello in
+    Fase 1 (stessa chiamata, nessun round-trip aggiuntivo) viene usato come
+    fallback, validato contro il registro, e la sua norma cardine iniettata."""
+    agent = AnalystAgent(ollama=_mock_ollama_with_istituto_id("istituto_valido_test"))
+
+    with patch("aiura_legal.agents.analyst.get_registry", return_value=_FakeRegistryNoLexicalMatch()), \
+         patch(
+             "aiura_legal.agents.analyst.fetch_sources_by_source_id",
+             return_value=[_make_source("urn:test:art1", "normativa", "Norma cardine iniettata.")],
+         ) as mock_fetch:
+        phases = []
+        async for phase in agent.analyze_sequential(
+            query="test", packet=_make_packet(), phase_retriever=mock_phase_retriever
+        ):
+            phases.append(phase)
+
+    mock_fetch.assert_called_once()
+    called_urns = mock_fetch.call_args[0][0]
+    assert list(called_urns) == ["urn:test:art1"]
+
+    phase2 = phases[1]
+    assert "urn:test:art1" in phase2.sources_used
+
+
+@pytest.mark.asyncio
+async def test_istituto_fallback_llm_ignora_id_non_nel_vocabolario(mock_phase_retriever):
+    """Un istituto_id inventato dal modello (non presente nel registro) viene
+    ignorato — mai fidarsi di un id fuori dal vocabolario chiuso."""
+    agent = AnalystAgent(ollama=_mock_ollama_with_istituto_id("id_inventato_non_esistente"))
+
+    with patch("aiura_legal.agents.analyst.get_registry", return_value=_FakeRegistryNoLexicalMatch()), \
+         patch("aiura_legal.agents.analyst.fetch_sources_by_source_id") as mock_fetch:
+        async for _ in agent.analyze_sequential(
+            query="test", packet=_make_packet(), phase_retriever=mock_phase_retriever
+        ):
+            pass
+
+    mock_fetch.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_istituto_fallback_llm_non_usato_se_null(mock_phase_retriever):
+    """istituto_id assente/null → nessun fallback, comportamento invariato."""
+    agent = AnalystAgent(ollama=_mock_ollama_with_istituto_id(None))
+
+    with patch("aiura_legal.agents.analyst.get_registry", return_value=_FakeRegistryNoLexicalMatch()), \
+         patch("aiura_legal.agents.analyst.fetch_sources_by_source_id") as mock_fetch:
+        async for _ in agent.analyze_sequential(
+            query="test", packet=_make_packet(), phase_retriever=mock_phase_retriever
+        ):
+            pass
+
+    mock_fetch.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_vocabolario_iniettato_nel_prompt_fase1():
+    """Il blocco VOCABOLARIO ISTITUTI compare nel prompt di Fase 1 quando il
+    registro ha voci, con l'id e la label esatti."""
+    captured: list[dict] = []
+
+    def _capture_ollama(store):
+        ollama = MagicMock()
+        ollama.model = "qwen2.5:7b-test"
+
+        async def _generate(**kwargs):
+            store.append(kwargs)
+            return "{}"
+
+        ollama.generate = _generate
+        return ollama
+
+    agent = AnalystAgent(ollama=_capture_ollama(captured))
+
+    with patch("aiura_legal.agents.analyst.get_registry", return_value=_FakeRegistryNoLexicalMatch()):
+        async for _ in agent.analyze_sequential(
+            query="test", packet=_make_packet(), phase_retriever=None
+        ):
+            pass
+
+    prompt_f1 = captured[0]["prompt"]
+    assert "VOCABOLARIO ISTITUTI" in prompt_f1
+    assert "istituto_valido_test: Istituto Valido Test" in prompt_f1
