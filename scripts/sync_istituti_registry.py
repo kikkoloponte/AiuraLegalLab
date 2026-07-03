@@ -38,6 +38,10 @@ _CODICE_TO_SETTORE = {
     "CPC": "civile",
     "CP": "penale",
     "CPP": "penale",
+    # Leggi complementari mappate a partire da questa sessione — vedi
+    # verifica presenza leggi complementari nella KB.
+    "D.LGS. 231/2001": "penale",     # responsabilità amministrativa degli enti da reato
+    "D.LGS. 159/2011": "penale",     # codice antimafia — misure di prevenzione
 }
 
 _HEADER = """# ===========================================================================
@@ -124,7 +128,7 @@ def build_new_entries(istituti_docs: list[dict], chunks_col) -> list[dict]:
         termini_chiave = [denom.lower()]
 
         entries.append({
-            "id": f"{_slugify(denom)}_{codice.lower()}",
+            "id": f"{_slugify(denom)}_{_slugify(codice)}",
             "label": f"{denom} ({codice})",
             "settore": settore,
             "norme_urn": _dedup_keep_order(norme_urn),

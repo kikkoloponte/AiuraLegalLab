@@ -15,6 +15,20 @@ istituti:
   # =======================================================================
   # PENALE
   # =======================================================================
+  - id: amministrazione_giudiziaria_dei_beni_e_tutela_dei_terzi_d_lgs_159_2011
+    label: Amministrazione giudiziaria dei beni e tutela dei terzi (D.LGS. 159/2011)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art34
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art52
+    norme_riferimento:
+      - Art. 34 d.lgs. 159/2011 (Amministrazione giudiziaria dei beni connessi ad attività economiche e delle aziende)
+      - Art. 52 d.lgs. 159/2011 (Diritti dei terzi)
+    termini_chiave:
+      - amministrazione giudiziaria dei beni e tutela dei terzi
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: appropriazione_indebita_cp
     label: Appropriazione indebita (CP)
     settore: penale
@@ -127,6 +141,30 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: confisca_antimafia_equivalente
+    label: Confisca per equivalente nelle misure di prevenzione
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art25
+    norme_riferimento:
+      - art. 25 d.lgs. 159/2011
+      - art. 20 d.lgs. 159/2011
+      - Art. 25 d.lgs. 159/2011 (Sequestro e confisca per equivalente)
+    termini_chiave:
+      - misura di prevenzione
+      - confisca di prevenzione
+      - proposto
+      - pericolosità sociale
+      - terzi in buona fede
+      - confisca per equivalente nelle misure di prevenzione
+    disambigua_da:
+      sequestro_preventivo_e_confisca_per_equivalente_cpp:
+        - codice antimafia
+        - misura di prevenzione
+        - proposto
+        - pericolosità
+    sentenze_pilota: []
+
   - id: corruzione_cp
     label: Corruzione (CP)
     settore: penale
@@ -200,6 +238,20 @@ istituti:
       - Art. 595 c.p. (Diffamazione)
     termini_chiave:
       - diffamazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: documentazione_antimafia_comunicazione_e_informazione_d_lgs_159_2011
+    label: Documentazione antimafia (comunicazione e informazione) (D.LGS. 159/2011)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art84
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art91
+    norme_riferimento:
+      - Art. 84 d.lgs. 159/2011 (Definizioni)
+      - Art. 91 d.lgs. 159/2011 (Informazione antimafia)
+    termini_chiave:
+      - documentazione antimafia (comunicazione e informazione)
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -385,6 +437,34 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: misure_di_prevenzione_patrimoniali_sequestro_e_confisca_di_prevenzione_d_lgs_159_2011
+    label: 'Misure di prevenzione patrimoniali: sequestro e confisca di prevenzione (D.LGS. 159/2011)'
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art20
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art24
+    norme_riferimento:
+      - Art. 20 d.lgs. 159/2011 (Sequestro)
+      - Art. 24 d.lgs. 159/2011 (Confisca)
+    termini_chiave:
+      - 'misure di prevenzione patrimoniali: sequestro e confisca di prevenzione'
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: misure_di_prevenzione_personali_d_lgs_159_2011
+    label: Misure di prevenzione personali (D.LGS. 159/2011)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art4
+      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art6
+    norme_riferimento:
+      - Art. 4 d.lgs. 159/2011 (Soggetti destinatari)
+      - Art. 6 d.lgs. 159/2011 (Tipologia delle misure e loro presupposti)
+    termini_chiave:
+      - misure di prevenzione personali
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: misure_di_sicurezza_cp
     label: Misure di sicurezza (CP)
     settore: penale
@@ -400,6 +480,20 @@ istituti:
       - Art. 203 c.p. (Pericolosità sociale)
     termini_chiave:
       - misure di sicurezza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: modelli_di_organizzazione_e_gestione_ed_esonero_da_responsabilita_d_lgs_231_2001
+    label: Modelli di organizzazione e gestione ed esonero da responsabilità (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art6
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art7
+    norme_riferimento:
+      - Art. 6 d.lgs. 231/2001 (Soggetti in posizione apicale e modelli di organizzazione dell'ente)
+      - Art. 7 d.lgs. 231/2001 (Soggetti sottoposti all'altrui direzione e modelli di organizzazione dell'ente)
+    termini_chiave:
+      - modelli di organizzazione e gestione ed esonero da responsabilità
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -531,6 +625,20 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: procedimento_di_accertamento_della_responsabilita_dell_ente_d_lgs_231_2001
+    label: Procedimento di accertamento della responsabilità dell'ente (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art34
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art59
+    norme_riferimento:
+      - Art. 34 d.lgs. 231/2001 (Disposizioni processuali applicabili)
+      - Art. 59 d.lgs. 231/2001 (Contestazione dell'illecito amministrativo)
+    termini_chiave:
+      - procedimento di accertamento della responsabilità dell'ente
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: prove_principi_generali_cpp
     label: 'Prove: principi generali (CPP)'
     settore: penale
@@ -591,6 +699,22 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: responsabilita_amministrativa_degli_enti_da_reato_d_lgs_231_2001
+    label: Responsabilità amministrativa degli enti da reato (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art1
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art5
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art8
+    norme_riferimento:
+      - Art. 1 d.lgs. 231/2001 (Soggetti)
+      - Art. 5 d.lgs. 231/2001 (Responsabilità dell'ente)
+      - Art. 8 d.lgs. 231/2001 (Autonomia delle responsabilità dell'ente)
+    termini_chiave:
+      - responsabilità amministrativa degli enti da reato
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: riciclaggio_cp
     label: Riciclaggio (CP)
     settore: penale
@@ -621,6 +745,52 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: sanzioni_interdittive_d_lgs_231_2001
+    label: Sanzioni interdittive (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art9
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art13
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art14
+    norme_riferimento:
+      - Art. 9 d.lgs. 231/2001 (Sanzioni amministrative)
+      - Art. 13 d.lgs. 231/2001 (Sanzioni interdittive)
+      - Art. 14 d.lgs. 231/2001 (Criteri di scelta delle sanzioni interdittive)
+    termini_chiave:
+      - sanzioni interdittive
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sanzioni_pecuniarie_e_criteri_di_commisurazione_d_lgs_231_2001
+    label: Sanzioni pecuniarie e criteri di commisurazione (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art10
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art11
+    norme_riferimento:
+      - Art. 10 d.lgs. 231/2001 (Sanzione amministrativa pecuniaria)
+      - Art. 11 d.lgs. 231/2001 (Criteri di commisurazione della sanzione pecuniaria)
+    termini_chiave:
+      - sanzioni pecuniarie e criteri di commisurazione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sequestro_preventivo_e_confisca_nei_confronti_dell_ente_d_lgs_231_2001
+    label: Sequestro preventivo e confisca nei confronti dell'ente (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art19
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art45
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art53
+    norme_riferimento:
+      - Art. 19 d.lgs. 231/2001 (Confisca)
+      - Art. 45 d.lgs. 231/2001 (Applicazione delle misure cautelari)
+      - Art. 53 d.lgs. 231/2001 (Sequestro preventivo)
+    termini_chiave:
+      - sequestro preventivo e confisca nei confronti dell'ente
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: sequestro_preventivo_e_confisca_per_equivalente_cpp
     label: Sequestro preventivo e confisca per equivalente (CPP)
     settore: penale
@@ -629,8 +799,8 @@ istituti:
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art382
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art384
       - urn:nir:stato:decreto.del.presidente.della.repubblica:1988-09-22;447~art696
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art383  # art. 322-ter c.p. (URN storico)
-      - urn:nir:stato:regio.decreto:1930-10-19;1398~art240  # art. 240 c.p.
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art383
+      - urn:nir:stato:regio.decreto:1930-10-19;1398~art240
     norme_riferimento:
       - Art. 321 c.p.p. (Oggetto del sequestro preventivo)
       - Art. 322 c.p.p. (Riesame del decreto di sequestro preventivo)
@@ -645,44 +815,17 @@ istituti:
       - sequestro finalizzato alla confisca
     disambigua_da:
       confisca_antimafia_equivalente:
-        - "art. 321 c.p.p."
-        - "profitto del reato"
-        - "reato tributario"
-        - "procedimento penale"
+        - art. 321 c.p.p.
+        - profitto del reato
+        - reato tributario
+        - procedimento penale
     sentenze_pilota:
       - organo: Cass. SS.UU. penali
         numero: '10561'
         anno: '2014'
         nome: Gubert
-        principio: >-
-          Verso il terzo estraneo al reato il sequestro per equivalente non è
-          ammesso: è consentita solo la confisca diretta del profitto del reato
-          che si trovi nella sua disponibilità. Il per-equivalente colpisce i
-          soli beni del reo, e quando il sequestro diretto del profitto è
-          impossibile ex actis.
+        principio: 'Verso il terzo estraneo al reato il sequestro per equivalente non è ammesso: è consentita solo la confisca diretta del profitto del reato che si trovi nella sua disponibilità. Il per-equivalente colpisce i soli beni del reo, e quando il sequestro diretto del profitto è impossibile ex actis.'
         source_id: aiura_upload_j4o38mif
-
-  - id: confisca_antimafia_equivalente
-    label: Confisca per equivalente nelle misure di prevenzione
-    settore: penale
-    norme_urn:
-      - urn:nir:stato:decreto.legislativo:2011-09-06;159~art25  # art. 25 d.lgs. 159/2011
-    norme_riferimento:
-      - art. 25 d.lgs. 159/2011
-      - art. 20 d.lgs. 159/2011
-    termini_chiave:
-      - misura di prevenzione
-      - confisca di prevenzione
-      - proposto
-      - pericolosità sociale
-      - terzi in buona fede
-    disambigua_da:
-      sequestro_preventivo_e_confisca_per_equivalente_cpp:
-        - "codice antimafia"
-        - "misura di prevenzione"
-        - "proposto"
-        - "pericolosità"
-    sentenze_pilota: []
 
   - id: soggetti_del_procedimento_penale_giudice_pubblico_ministero_cpp
     label: Soggetti del procedimento penale (giudice, pubblico ministero) (CPP)
@@ -775,6 +918,22 @@ istituti:
       - Art. 425 c.p.p. (Sentenza di non luogo a procedere)
     termini_chiave:
       - udienza preliminare
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: vicende_modificative_dell_ente_trasformazione_fusione_scissione_d_lgs_231_2001
+    label: Vicende modificative dell'ente (trasformazione, fusione, scissione) (D.LGS. 231/2001)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art28
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art29
+      - urn:nir:stato:decreto.legislativo:2001-06-08;231~art30
+    norme_riferimento:
+      - Art. 28 d.lgs. 231/2001 (Trasformazione dell'ente)
+      - Art. 29 d.lgs. 231/2001 (Fusione dell'ente)
+      - Art. 30 d.lgs. 231/2001 (Scissione dell'ente)
+    termini_chiave:
+      - vicende modificative dell'ente (trasformazione, fusione, scissione)
     disambigua_da: {}
     sentenze_pilota: []
 
