@@ -954,6 +954,32 @@ istituti:
   # =======================================================================
   # CIVILE
   # =======================================================================
+  - id: abuso_di_informazioni_privilegiate_e_manipolazione_del_mercato_d_lgs_58_1998
+    label: Abuso di informazioni privilegiate e manipolazione del mercato (D.LGS. 58/1998)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art184
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art185
+    norme_riferimento:
+      - Art. 184 TUF (Abuso o comunicazione illecita di informazioni privilegiate)
+      - Art. 185 TUF (Manipolazione del mercato)
+    termini_chiave:
+      - abuso di informazioni privilegiate e manipolazione del mercato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: accesso_agli_strumenti_di_regolazione_della_crisi_e_dell_insolvenza_d_lgs_14_2019
+    label: Accesso agli strumenti di regolazione della crisi e dell'insolvenza (D.LGS. 14/2019)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2019-01-12;14~art40
+    norme_riferimento:
+      - Art. 40 CCII (Domanda di accesso agli strumenti di regolazione della crisi e dell'insolvenza e alla liquidazione giudiziale)
+    termini_chiave:
+      - accesso agli strumenti di regolazione della crisi e dell'insolvenza
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: accettazione_dell_eredita_cc
     label: Accettazione dell'eredità (CC)
     settore: civile
@@ -977,6 +1003,18 @@ istituti:
       - Art. 491 c.c. (Responsabilità dell'erede nell'amministrazione)
     termini_chiave:
       - accettazione dell'eredità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: adeguamento_dell_ordinamento_nazionale_al_gdpr_d_lgs_196_2003
+    label: Adeguamento dell'ordinamento nazionale al GDPR (D.LGS. 196/2003)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-06-30;196~art2
+    norme_riferimento:
+      - Art. 2 d.lgs. 196/2003 (Finalità)
+    termini_chiave:
+      - adeguamento dell'ordinamento nazionale al gdpr
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -1162,6 +1200,30 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: attivita_bancaria_e_riserva_di_legge_d_lgs_385_1993
+    label: Attività bancaria e riserva di legge (D.LGS. 385/1993)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1993-09-01;385~art10
+    norme_riferimento:
+      - Art. 10 TUB (Attività bancaria)
+    termini_chiave:
+      - attività bancaria e riserva di legge
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: azione_diretta_del_danneggiato_verso_l_assicuratore_rca_d_lgs_209_2005
+    label: Azione diretta del danneggiato verso l'assicuratore RCA (D.LGS. 209/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-07;209~art144
+    norme_riferimento:
+      - Art. 144 c.a.p. (Azione diretta del danneggiato)
+    termini_chiave:
+      - azione diretta del danneggiato verso l'assicuratore rca
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: azioni_possessorie_cc
     label: Azioni possessorie (CC)
     settore: civile
@@ -1204,6 +1266,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: brevetto_per_invenzione_oggetto_d_lgs_30_2005
+    label: 'Brevetto per invenzione: oggetto (D.LGS. 30/2005)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-02-10;30~art45
+    norme_riferimento:
+      - Art. 45 c.p.i. (Oggetto del brevetto)
+    termini_chiave:
+      - 'brevetto per invenzione: oggetto'
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: capacita_giuridica_e_capacita_di_agire_cc
     label: Capacità giuridica e capacità di agire (CC)
     settore: civile
@@ -1237,6 +1311,22 @@ istituti:
       - Art. 1267 c.c. (Garanzia della solvenza del debitore)
     termini_chiave:
       - cessione del credito
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: clausole_vessatorie_nei_contratti_tra_professionista_e_consumatore_d_lgs_206_2005
+    label: Clausole vessatorie nei contratti tra professionista e consumatore (D.LGS. 206/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art3
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art33
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art34
+    norme_riferimento:
+      - Art. 3 d.lgs. 206/2005 (Definizioni)
+      - Art. 33 d.lgs. 206/2005 (Clausole vessatorie nel contratto tra professionista e consumatore)
+      - Art. 34 d.lgs. 206/2005 (Accertamento della vessatorietà delle clausole)
+    termini_chiave:
+      - clausole vessatorie nei contratti tra professionista e consumatore
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -1300,6 +1390,42 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: compiti_del_garante_per_la_protezione_dei_dati_personali_d_lgs_196_2003
+    label: Compiti del Garante per la protezione dei dati personali (D.LGS. 196/2003)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-06-30;196~art154
+    norme_riferimento:
+      - Art. 154 d.lgs. 196/2003 (Compiti)
+    termini_chiave:
+      - compiti del garante per la protezione dei dati personali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: composizione_negoziata_per_la_soluzione_della_crisi_d_impresa_d_lgs_14_2019
+    label: Composizione negoziata per la soluzione della crisi d'impresa (D.LGS. 14/2019)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2019-01-12;14~art12
+    norme_riferimento:
+      - Art. 12 CCII (Composizione negoziata per la soluzione della crisi d'impresa)
+    termini_chiave:
+      - composizione negoziata per la soluzione della crisi d'impresa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comunicazioni_al_pubblico_degli_emittenti_quotati_d_lgs_58_1998
+    label: Comunicazioni al pubblico degli emittenti quotati (D.LGS. 58/1998)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art114
+    norme_riferimento:
+      - Art. 114 TUF (Comunicazioni al pubblico)
+    termini_chiave:
+      - comunicazioni al pubblico degli emittenti quotati
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: comunione_cc
     label: Comunione (CC)
     settore: civile
@@ -1341,6 +1467,18 @@ istituti:
       - Art. 194 c.c. (Divisione dei beni della comunione)
     termini_chiave:
       - comunione legale tra coniugi
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: concordato_preventivo_d_lgs_14_2019
+    label: Concordato preventivo (D.LGS. 14/2019)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2019-01-12;14~art84
+    norme_riferimento:
+      - Art. 84 CCII (Finalità del concordato preventivo e tipologie di piano)
+    termini_chiave:
+      - concordato preventivo
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -1452,6 +1590,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: credito_al_consumo_obblighi_informativi_precontrattuali_d_lgs_385_1993
+    label: 'Credito al consumo: obblighi informativi precontrattuali (D.LGS. 385/1993)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1993-09-01;385~art124
+    norme_riferimento:
+      - Art. 124 TUB (Obblighi precontrattuali)
+    termini_chiave:
+      - 'credito al consumo: obblighi informativi precontrattuali'
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: decadenza_cc
     label: Decadenza (CC)
     settore: civile
@@ -1467,6 +1617,30 @@ istituti:
       - Art. 2969 c.c. (Rilievo d'ufficio)
     termini_chiave:
       - decadenza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: definizioni_di_crisi_e_insolvenza_d_lgs_14_2019
+    label: Definizioni di crisi e insolvenza (D.LGS. 14/2019)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2019-01-12;14~art2
+    norme_riferimento:
+      - Art. 2 CCII (Definizioni)
+    termini_chiave:
+      - definizioni di crisi e insolvenza
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: diritto_di_recesso_nei_contratti_a_distanza_e_fuori_dei_locali_commerciali_d_lgs_206_2005
+    label: Diritto di recesso nei contratti a distanza e fuori dei locali commerciali (D.LGS. 206/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art52
+    norme_riferimento:
+      - Art. 52 d.lgs. 206/2005 (Diritto di recesso)
+    termini_chiave:
+      - diritto di recesso nei contratti a distanza e fuori dei locali commerciali
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -1636,6 +1810,44 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: forma_dei_contratti_di_investimento_d_lgs_58_1998
+    label: Forma dei contratti di investimento (D.LGS. 58/1998)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art23
+    norme_riferimento:
+      - Art. 23 TUF (Contratti)
+    termini_chiave:
+      - forma dei contratti di investimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: forma_scritta_e_trasparenza_dei_contratti_bancari_d_lgs_385_1993
+    label: Forma scritta e trasparenza dei contratti bancari (D.LGS. 385/1993)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1993-09-01;385~art117
+    norme_riferimento:
+      - Art. 117 TUB (Contratti)
+    termini_chiave:
+      - forma scritta e trasparenza dei contratti bancari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: garanzia_legale_di_conformita_nella_vendita_di_beni_di_consumo_d_lgs_206_2005
+    label: Garanzia legale di conformità nella vendita di beni di consumo (D.LGS. 206/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art128
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art130
+    norme_riferimento:
+      - Art. 128 d.lgs. 206/2005 (Ambito di applicazione e definizioni)
+      - Art. 130 d.lgs. 206/2005 (Obblighi del venditore e condotta del consumatore)
+    termini_chiave:
+      - garanzia legale di conformità nella vendita di beni di consumo
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: gestione_di_affari_altrui_cc
     label: Gestione di affari altrui (CC)
     settore: civile
@@ -1772,6 +1984,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: intermediari_finanziari_e_albo_d_lgs_385_1993
+    label: Intermediari finanziari e albo (D.LGS. 385/1993)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1993-09-01;385~art106
+    norme_riferimento:
+      - Art. 106 TUB (Albo degli intermediari finanziari)
+    termini_chiave:
+      - intermediari finanziari e albo
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: invalidita_del_contratto_cc
     label: Invalidità del contratto (CC)
     settore: civile
@@ -1902,6 +2126,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: liquidazione_giudiziale_ex_fallimento_d_lgs_14_2019
+    label: Liquidazione giudiziale (ex fallimento) (D.LGS. 14/2019)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2019-01-12;14~art121
+    norme_riferimento:
+      - Art. 121 CCII (Presupposti della liquidazione giudiziale)
+    termini_chiave:
+      - liquidazione giudiziale (ex fallimento)
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: locazione_cc
     label: Locazione (CC)
     settore: civile
@@ -1939,6 +2175,20 @@ istituti:
       - Art. 1713 c.c. (Obbligo di rendiconto)
     termini_chiave:
       - mandato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: marchio_d_impresa_oggetto_e_diritto_alla_registrazione_d_lgs_30_2005
+    label: 'Marchio d''impresa: oggetto e diritto alla registrazione (D.LGS. 30/2005)'
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-02-10;30~art7
+      - urn:nir:stato:decreto.legislativo:2005-02-10;30~art19
+    norme_riferimento:
+      - Art. 7 c.p.i. (Oggetto della registrazione)
+      - Art. 19 c.p.i. (Diritto alla registrazione)
+    termini_chiave:
+      - 'marchio d''impresa: oggetto e diritto alla registrazione'
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -1988,6 +2238,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: modifica_unilaterale_delle_condizioni_contrattuali_jus_variandi_bancario_d_lgs_385_1993
+    label: Modifica unilaterale delle condizioni contrattuali (jus variandi bancario) (D.LGS. 385/1993)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1993-09-01;385~art118
+    norme_riferimento:
+      - Art. 118 TUB (Modifica unilaterale delle condizioni contrattuali)
+    termini_chiave:
+      - modifica unilaterale delle condizioni contrattuali (jus variandi bancario)
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: obbligazioni_in_generale_cc
     label: Obbligazioni in generale (CC)
     settore: civile
@@ -2027,6 +2289,30 @@ istituti:
       - Art. 448 c.c. (Cessazione per morte dell'obbligato)
     termini_chiave:
       - obblighi alimentari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: obbligo_di_assicurazione_della_responsabilita_civile_auto_rca_d_lgs_209_2005
+    label: Obbligo di assicurazione della responsabilità civile auto (RCA) (D.LGS. 209/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-07;209~art122
+    norme_riferimento:
+      - Art. 122 c.a.p. (Veicoli a motore)
+    termini_chiave:
+      - obbligo di assicurazione della responsabilità civile auto (rca)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: offerta_al_pubblico_di_titoli_d_lgs_58_1998
+    label: Offerta al pubblico di titoli (D.LGS. 58/1998)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art94
+    norme_riferimento:
+      - Art. 94 TUF (Offerta al pubblico di titoli)
+    termini_chiave:
+      - offerta al pubblico di titoli
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -2147,6 +2433,18 @@ istituti:
       - Art. 1153 c.c. (Effetti dell'acquisto del possesso — possesso vale titolo)
     termini_chiave:
       - possesso
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: pratiche_commerciali_scorrette_d_lgs_206_2005
+    label: Pratiche commerciali scorrette (D.LGS. 206/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art20
+    norme_riferimento:
+      - Art. 20 d.lgs. 206/2005 (Divieto delle pratiche commerciali scorrette)
+    termini_chiave:
+      - pratiche commerciali scorrette
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -2310,6 +2608,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: regole_di_condotta_nella_prestazione_di_servizi_di_investimento_d_lgs_58_1998
+    label: Regole di condotta nella prestazione di servizi di investimento (D.LGS. 58/1998)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1998-02-24;58~art21
+    norme_riferimento:
+      - Art. 21 TUF (Criteri generali)
+    termini_chiave:
+      - regole di condotta nella prestazione di servizi di investimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: rescissione_cc
     label: Rescissione (CC)
     settore: civile
@@ -2327,6 +2637,18 @@ istituti:
       - Art. 1452 c.c. (Effetti della rescissione rispetto ai terzi)
     termini_chiave:
       - rescissione
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: responsabilita_del_produttore_per_danno_da_prodotti_difettosi_d_lgs_206_2005
+    label: Responsabilità del produttore per danno da prodotti difettosi (D.LGS. 206/2005)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2005-09-06;206~art114
+    norme_riferimento:
+      - Art. 114 d.lgs. 206/2005 (Responsabilità del produttore)
+    termini_chiave:
+      - responsabilità del produttore per danno da prodotti difettosi
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -2730,6 +3052,18 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: trattamento_illecito_di_dati_personali_d_lgs_196_2003
+    label: Trattamento illecito di dati personali (D.LGS. 196/2003)
+    settore: civile
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-06-30;196~art167
+    norme_riferimento:
+      - Art. 167 d.lgs. 196/2003 (Trattamento illecito di dati)
+    termini_chiave:
+      - trattamento illecito di dati personali
+    disambigua_da: {}
+    sentenze_pilota: []
+
   - id: tutela_e_curatela_dei_minori_cc
     label: Tutela e curatela dei minori (CC)
     settore: civile
@@ -2835,5 +3169,140 @@ istituti:
       - Art. 1487 c.c. (Modificazione o esclusione convenzionale della garanzia)
     termini_chiave:
       - vendita
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # AMMINISTRATIVO
+  # =======================================================================
+  - id: attivita_di_gestione_di_rifiuti_non_autorizzata_d_lgs_152_2006
+    label: Attività di gestione di rifiuti non autorizzata (D.LGS. 152/2006)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2006-04-03;152~art256
+    norme_riferimento:
+      - Art. 256 d.lgs. 152/2006 (Attività di gestione di rifiuti non autorizzata)
+    termini_chiave:
+      - attività di gestione di rifiuti non autorizzata
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: bonifica_dei_siti_contaminati_d_lgs_152_2006
+    label: Bonifica dei siti contaminati (D.LGS. 152/2006)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2006-04-03;152~art242
+      - urn:nir:stato:decreto.legislativo:2006-04-03;152~art244
+    norme_riferimento:
+      - Art. 242 d.lgs. 152/2006 (Procedure operative ed amministrative)
+      - Art. 244 d.lgs. 152/2006 (Ordinanze)
+    termini_chiave:
+      - bonifica dei siti contaminati
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: divieto_di_abbandono_di_rifiuti_d_lgs_152_2006
+    label: Divieto di abbandono di rifiuti (D.LGS. 152/2006)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2006-04-03;152~art192
+    norme_riferimento:
+      - Art. 192 d.lgs. 152/2006 (Divieto di abbandono)
+    termini_chiave:
+      - divieto di abbandono di rifiuti
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # LAVORO
+  # =======================================================================
+  - id: documento_di_valutazione_dei_rischi_dvr_d_lgs_81_2008
+    label: Documento di valutazione dei rischi (DVR) (D.LGS. 81/2008)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art28
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art29
+    norme_riferimento:
+      - Art. 28 d.lgs. 81/2008 (Oggetto della valutazione dei rischi)
+      - Art. 29 d.lgs. 81/2008 (Modalità di effettuazione della valutazione dei rischi)
+    termini_chiave:
+      - documento di valutazione dei rischi (dvr)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: misure_generali_di_tutela_della_salute_e_sicurezza_sul_lavoro_d_lgs_81_2008
+    label: Misure generali di tutela della salute e sicurezza sul lavoro (D.LGS. 81/2008)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art15
+    norme_riferimento:
+      - Art. 15 d.lgs. 81/2008 (Misure generali di tutela)
+    termini_chiave:
+      - misure generali di tutela della salute e sicurezza sul lavoro
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: obblighi_del_datore_di_lavoro_delegabili_e_non_delegabili_d_lgs_81_2008
+    label: Obblighi del datore di lavoro (delegabili e non delegabili) (D.LGS. 81/2008)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art17
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art18
+    norme_riferimento:
+      - Art. 17 d.lgs. 81/2008 (Obblighi del datore di lavoro non delegabili)
+      - Art. 18 d.lgs. 81/2008 (Obblighi del datore di lavoro e del dirigente)
+    termini_chiave:
+      - obblighi del datore di lavoro (delegabili e non delegabili)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  # =======================================================================
+  # TRIBUTARIO
+  # =======================================================================
+  - id: applicazione_dell_irpef_ai_non_residenti_d_p_r_917_1986
+    label: Applicazione dell'IRPEF ai non residenti (D.P.R. 917/1986)
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art31
+    norme_riferimento:
+      - Art. 23 TUIR (Applicazione dell'imposta ai non residenti)
+    termini_chiave:
+      - applicazione dell'irpef ai non residenti
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: determinazione_del_reddito_d_impresa_base_imponibile_ires_d_p_r_917_1986
+    label: Determinazione del reddito d'impresa (base imponibile IRES) (D.P.R. 917/1986)
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art105
+    norme_riferimento:
+      - Art. 83 TUIR (Determinazione del reddito complessivo)
+    termini_chiave:
+      - determinazione del reddito d'impresa (base imponibile ires)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: presupposto_dell_irpef_d_p_r_917_1986
+    label: Presupposto dell'IRPEF (D.P.R. 917/1986)
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art2
+    norme_riferimento:
+      - Art. 1 TUIR (Presupposto dell'imposta)
+    termini_chiave:
+      - presupposto dell'irpef
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: soggetti_passivi_ires_d_p_r_917_1986
+    label: Soggetti passivi IRES (D.P.R. 917/1986)
+    settore: tributario
+    norme_urn:
+      - urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917~art94
+    norme_riferimento:
+      - Art. 73 TUIR (Soggetti passivi)
+    termini_chiave:
+      - soggetti passivi ires
     disambigua_da: {}
     sentenze_pilota: []

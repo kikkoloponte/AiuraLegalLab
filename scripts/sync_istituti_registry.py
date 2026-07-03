@@ -42,6 +42,16 @@ _CODICE_TO_SETTORE = {
     # verifica presenza leggi complementari nella KB.
     "D.LGS. 231/2001": "penale",     # responsabilità amministrativa degli enti da reato
     "D.LGS. 159/2011": "penale",     # codice antimafia — misure di prevenzione
+    "D.LGS. 206/2005": "civile",     # codice del consumo
+    "D.LGS. 385/1993": "civile",     # TUB — testo unico bancario
+    "D.LGS. 58/1998":  "civile",     # TUF — testo unico finanza
+    "D.LGS. 196/2003": "civile",     # codice privacy
+    "D.P.R. 917/1986": "tributario", # TUIR
+    "D.LGS. 30/2005":  "civile",     # codice proprietà industriale
+    "D.LGS. 209/2005": "civile",     # codice assicurazioni private
+    "D.LGS. 152/2006": "amministrativo",  # codice dell'ambiente
+    "D.LGS. 81/2008":  "lavoro",     # testo unico sicurezza sul lavoro
+    "D.LGS. 14/2019":  "civile",     # codice della crisi d'impresa e dell'insolvenza
 }
 
 _HEADER = """# ===========================================================================
