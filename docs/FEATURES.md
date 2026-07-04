@@ -347,9 +347,21 @@ implementazione attuale:
   gli ID strutturati (`urn:nir:…`, `CC_ART_…`); riconoscere e verificare anche
   i riferimenti in linguaggio naturale ("Cass. civ. n. 12345/2020",
   "art. 1218 c.c.") contro le fonti del Packet.
-- [ ] **Wiring ContextBudgetManager** — il componente esiste ed è testato ma
-  non è collegato: oggi l'LLM vede max ~300-400 caratteri per fonte. Assemblare
-  il contesto pieno entro `n_ctx` migliorerebbe sensibilmente l'analisi.
+- [x] **Wiring ContextBudgetManager** — verificato 2026-07-04: collegato di
+  default (`AIURA_FULLTEXT_CONTEXT=1`) in `analyst._source_texts_for_prompt()`.
+  Questa voce di roadmap era obsoleta.
+- [ ] **Stima token lato client prima dell'invio LLM** — `openai_compat_client.py`
+  costruisce ed invia il payload senza contare i token; un overflow di `n_ctx`
+  produce solo un 400 dal server, intercettato per-fase con un `except`
+  generico che logga e prosegue con fallback silenziosi (vedi bug Fase 1 in
+  CLAUDE.md, risolto 2026-07-04 solo per il caso specifico del vocabolario
+  istituti — il problema di fondo, nessun controllo preventivo generico,
+  resta aperto).
+- [ ] **Segnalare le fasi IQRAC degradate in UI/Reviewer** — quando una fase
+  S3 fallisce (400, timeout, JSON non parsabile) la pipeline prosegue con
+  fallback silenziosi senza propagare un flag `degraded`/`error` al frontend
+  né declassare la confidence vista dal Reviewer S5 — un utente può vedere
+  PASS·HIGH anche se la Fase 1 (framing) non ha prodotto nulla.
 - [ ] **Riparare i test del branch corrente** — 3 gruppi rotti dopo i refactor
   recenti (`test_classify_batch`, `test_sequential_analyst`,
   `test_retrieval_perf`).

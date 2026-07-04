@@ -90,9 +90,18 @@ class IstitutoRegistry:
         """Istituto di un chunk normattiva dal suo source_id (URN). None se non mappato."""
         return self._by_urn.get(source_id)
 
-    def vocabolario(self) -> list[tuple[str, str]]:
-        """(id, label) per il prompt del classificatore di Fase 1 (vocabolario CHIUSO)."""
-        return [(i.id, i.label) for i in self._istituti]
+    def vocabolario(self, settore: Optional[str] = None) -> list[tuple[str, str]]:
+        """(id, label) per il prompt del classificatore di Fase 1 (vocabolario CHIUSO).
+
+        Se `settore` è dato, filtra agli istituti di quel settore (riduce la
+        dimensione del blocco iniettato nel prompt — vedi analyst.py Fase 1).
+        Ritorna la lista non filtrata se il filtro non produce risultati, così
+        il chiamante non riceve mai un vocabolario vuoto per un settore ignoto.
+        """
+        if settore is None:
+            return [(i.id, i.label) for i in self._istituti]
+        filtered = [(i.id, i.label) for i in self._istituti if i.settore == settore]
+        return filtered or [(i.id, i.label) for i in self._istituti]
 
     def piloti(self, istituto_id: str) -> tuple[SentenzaPilota, ...]:
         ist = self._by_id.get(istituto_id)

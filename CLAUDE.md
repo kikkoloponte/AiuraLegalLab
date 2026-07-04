@@ -154,8 +154,30 @@ Componenti concreti dietro il retrieval:
                        detection. ⚠️ NON applica il filtro settore (rumore cross-settore noto)
   reranker.py        — CrossEncoder finale + _settore_boost() (soft boost per settore)
   settori.py         — classify_query()/classify_keywords(), classificatore settore zero-LLM
-  ContextBudgetManager (core/retrieval/context_budget.py) — esiste, testato, NON collegato:
-                       l'LLM vede oggi solo ~300-400 caratteri per fonte, non il contesto pieno
+  ContextBudgetManager (core/retrieval/context_budget.py) — collegato di default
+                       (AIURA_FULLTEXT_CONTEXT=1, verificato 2026-07-04): budget
+                       token per corpus su full-text/sommario delle fonti in
+                       analyst._source_texts_for_prompt(). Con AIURA_FULLTEXT_
+                       CONTEXT=0 torna al comportamento storico snippet[:400].
+                       ⚠️ NON copre il blocco VOCABOLARIO ISTITUTI iniettato in
+                       S3 Fase 1 (vedi bug sotto) — quel blocco è fuori budget.
+
+⚠️ Bug risolto 2026-07-04 — overflow n_ctx in S3 Fase 1 (FRAMING/FRAMING_DOTTRINA):
+  il blocco VOCABOLARIO ISTITUTI (registry.vocabolario(), analyst.py Fase 1)
+  iniettava SEMPRE tutti gli istituti del registro (232 → ~6.800 token,
+  misurato), a prescindere dal settore della query. Sommato a system prompt +
+  query, sforava n_ctx=8192 su modelli locali piccoli (LM Studio 400: "request
+  exceeds available context size") → Fase 1 falliva silenziosamente (nessun
+  segnale in UI/Reviewer), la QUESTIONE distillata restava vuota e il re-query
+  di Fase 2 cadeva sulla query grezza, con più rischio di citazioni normative
+  fuori settore (rumore cross-settore, vedi GraphRetriever sopra).
+  Fix: registry.vocabolario(settore=...) filtra per settore usando
+  settori.classify_query() (zero-LLM, confidence ≥0.80) prima di costruire il
+  prompt di Fase 1; fallback all'elenco completo se il match non è confidente.
+  Riduce il blocco a ~1.900 token (64 istituti) per query di settore chiaro.
+  Non ancora risolto: nessuna stima token lato client prima dell'invio (ci si
+  affida al 400 del server) e nessun flag "fase degradata" propagato a
+  UI/Reviewer quando una fase fallisce comunque.
 
 ## Privacy e PII
 - LegalAnonymizer (core/anonymizer/anonymizer.py): regex (CF, P.IVA, IBAN,

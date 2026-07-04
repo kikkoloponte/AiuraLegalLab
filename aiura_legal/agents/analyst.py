@@ -29,6 +29,7 @@ from aiura_legal.core.retrieval.source_texts import (
     fulltext_enabled,
 )
 from aiura_legal.core.istituti.registry import get_registry
+from aiura_legal.core.retrieval.settori import classify_query
 from aiura_legal.core.types import ResearchPacket, SearchResult
 
 
@@ -980,9 +981,17 @@ class AnalystAgent:
         # vedi sotto). Costruito una volta per chiamata: se il registro è vuoto
         # o non disponibile, il blocco è semplicemente omesso (nessun impatto
         # sul prompt, comportamento identico a prima di questo campo).
+        # Filtro deterministico per settore (zero-LLM, vedi settori.classify_query):
+        # riduce il blocco iniettato nel prompt evitando l'overflow di n_ctx senza
+        # perdere candidati plausibili — resta un ventaglio ampio dentro il settore
+        # corretto, non un troncamento arbitrario dell'elenco.
         _istituto_vocab_block = ""
         try:
-            _vocab = get_registry().vocabolario()
+            _settore_hits = classify_query(query)
+            _settore_filter = (
+                _settore_hits[0][0] if _settore_hits and _settore_hits[0][1] >= 0.80 else None
+            )
+            _vocab = get_registry().vocabolario(settore=_settore_filter)
         except Exception as exc:  # noqa: BLE001
             _vocab = []
             logger.warning(f"[S3 Seq Fase1] vocabolario istituti non disponibile: {exc}")
