@@ -24,14 +24,19 @@ FONTE_TFUE = "trattato_ue"
 SOURCE_TFUE = "eurlex_tfue"
 SETTORE_TFUE = ["unione_europea"]
 
-_PARTE_RE = re.compile(
-    r"^PARTE\s+(PRIMA|SECONDA|TERZA|QUARTA|QUINTA|SESTA|SETTIMA)\b", re.IGNORECASE
-)
-_TITOLO_RE = re.compile(r"^TITOLO\s+([IVXLCDM]+)\b", re.IGNORECASE)
-_CAPO_RE = re.compile(r"^CAPO\s+(\d+|[IVXLCDM]+)\b", re.IGNORECASE)
-_SEZIONE_RE = re.compile(r"^Sezione\s+(\d+)\b", re.IGNORECASE)
-_ARTICOLO_RE = re.compile(r"^Articolo\s+(\d+\s*(?:bis|ter|quater)?)\b", re.IGNORECASE)
-_STOP_RE = re.compile(r"^(PROTOCOLLO|ALLEGATO|DICHIARAZIONE)\b", re.IGNORECASE)
+#  Case-sensitive apposta: le intestazioni ufficiali EUR-Lex sono sempre in
+#  MAIUSCOLO/Title-Case ("Articolo 101", "PARTE PRIMA", "Sezione 1"). Il
+#  corpo del testo cita spesso gli stessi termini in minuscolo dentro frasi
+#  o elenchi puntati (es. articolo 353 TFUE: "articolo 311, terzo e quarto
+#  comma, — articolo 312, paragrafo 2 ..."): con IGNORECASE quelle righe
+#  venivano scambiate per nuove intestazioni di articolo, generando
+#  duplicati con testo tronco.
+_PARTE_RE = re.compile(r"^PARTE\s+(PRIMA|SECONDA|TERZA|QUARTA|QUINTA|SESTA|SETTIMA)\b")
+_TITOLO_RE = re.compile(r"^TITOLO\s+([IVXLCDM]+)\b")
+_CAPO_RE = re.compile(r"^CAPO\s+(\d+|[IVXLCDM]+)\b")
+_SEZIONE_RE = re.compile(r"^Sezione\s+(\d+)\b")
+_ARTICOLO_RE = re.compile(r"^Articolo\s+(\d+\s*(?:bis|ter|quater)?)\b")
+_STOP_RE = re.compile(r"^(PROTOCOLLO|ALLEGATO|DICHIARAZIONE)\b")
 
 
 @dataclass
@@ -58,11 +63,30 @@ def html_to_lines(html: str) -> list[str]:
     return [ln for ln in lines if ln]
 
 
+def _body_start_index(lines: list[str]) -> int:
+    """
+    Individua l'inizio del corpo del trattato, saltando il frontespizio
+    EUR-Lex (titolo, avvertenza, tabella "Contiene: Gazzetta ufficiale ..."
+    con la cronologia delle modifiche). Quella tabella cita per esteso i
+    titoli dei protocolli/decisioni di modifica — incluse righe che iniziano
+    per "PROTOCOLLO" — ben prima dell'articolato vero, e farebbero scattare
+    _STOP_RE troppo presto se non venissero saltate.
+    """
+    for i, line in enumerate(lines):
+        if _PARTE_RE.match(line):
+            return i
+    for i, line in enumerate(lines):
+        if _ARTICOLO_RE.match(line):
+            return i
+    return 0
+
+
 def parse_tfue_lines(lines: list[str]) -> list[TfueArticle]:
     """
     Parsa la gerarchia Parte/Titolo/Capo/Sezione/Articolo da righe di testo
     già normalizzate (una unità logica per riga).
     """
+    lines = lines[_body_start_index(lines):]
     articles: list[TfueArticle] = []
 
     parte = titolo_sezione = capo = sezione = ""
