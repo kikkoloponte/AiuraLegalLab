@@ -1128,6 +1128,15 @@ class AnalystAgent:
         except Exception as exc:  # noqa: BLE001
             logger.warning(f"[S3 Seq] classificazione istituto (lessicale) fallita: {exc}")
 
+        # NB: il fallback semantico (embedding) è stato provato qui e poi
+        # disattivato — nei test empirici produce falsi positivi ad alta
+        # confidenza tra istituti di rami diversi (es. "clausola penale"
+        # civilistica classificata come istituto penale sostanziale, score
+        # 0.841 > soglia 0.78). Vedi [[project_istituti_reasoning_test]] per
+        # il dettaglio. Il match semantico resta usato SOLO nel Clarifier
+        # (semantic_match.suggest_istituto_candidates) come segnale
+        # secondario a soglia molto più alta, mai come classificatore diretto.
+
         if istituto is None:
             _istituto_id_llm = str(data_f1.get("istituto_id") or "").strip()
             if _istituto_id_llm and _istituto_id_llm.lower() != "null":
@@ -1333,17 +1342,28 @@ class AnalystAgent:
         # cardine (es. Gubert sul terzo estraneo) con source_id REALE → citabile
         # senza allucinazione. Confluiscono nel blocco MASSIMARIO (in cima).
         if istituto:
-            _pilot_ids = [p.source_id for p in istituto.sentenze_pilota if p.source_id]
-            if _pilot_ids:
-                import asyncio as _asyncio
-                _inj = await _asyncio.to_thread(
-                    fetch_sources_by_source_id, _pilot_ids, "massimario",
-                )
+            _piloti = [p for p in istituto.sentenze_pilota if p.source_id and p.principio]
+            if _piloti:
                 _existing = {s.source_id for s in giuri_sources + mass_sources}
-                _new = [s for s in _inj if s.source_id not in _existing]
+                _new = [
+                    SearchResult(
+                        doc_id=p.source_id,
+                        score=999.0,
+                        snippet=p.principio,
+                        metadata={"organo": p.organo, "numero": p.numero,
+                                  "anno": p.anno, "nome": p.nome, "titolo": p.riferimento},
+                        source_id=p.source_id,
+                        retrieval_method="istituto_pilota",
+                        source_layer="massimario",
+                        full_text=p.principio,
+                    )
+                    for p in _piloti
+                    if p.source_id not in _existing
+                ]
                 if _new:
                     logger.info(
-                        f"[S3 Seq] iniettati {len(_new)} piloti istituto {istituto.id!r}"
+                        f"[S3 Seq] iniettati {len(_new)} piloti istituto {istituto.id!r} "
+                        "(testo dal campo `principio` curato, non dal chunk grezzo)"
                     )
                     mass_sources = _new + mass_sources
 
