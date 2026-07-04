@@ -218,6 +218,25 @@ python scripts/run_query_suite.py                                # query suite m
 
 # Settings UI: http://localhost:5173/settings (cambio modello LLM senza riavvio manuale)
 
+## Workflow git multi-sessione
+⚠️ Regola vincolante: **ogni sessione (Claude Code o altro agente) lavora sul
+proprio branch dedicato**, mai direttamente su un branch condiviso già in uso
+da un'altra sessione attiva. Motivo: il 2026-07-04 due sessioni in parallelo
+sullo stesso branch (`feat/ontology-istituti`) hanno scritto sugli stessi file
+(CLAUDE.md, docs/FEATURES.md, analyst.py, registry.py) senza saperlo a vicenda
+— una sessione ha committato sovrascrivendo silenziosamente le modifiche di
+codice non ancora committate dell'altra, che sono andate perse e hanno dovuto
+essere rifatte da zero.
+
+- Prima di iniziare una modifica non banale: `git checkout -b <nome-branch>`
+  da un punto noto (es. `feat/ontology-istituti` o `main`), non lavorare a
+  branch corrente se non sei sicuro che nessun'altra sessione sia attiva lì.
+- Se scopri che un'altra sessione sta già lavorando sullo stesso branch,
+  fermati e chiedi all'utente prima di committare: non dare per scontato che
+  il working tree rispecchi solo le tue modifiche.
+- Il merge verso il branch condiviso/main resta una decisione esplicita
+  dell'utente, non automatica a fine sessione.
+
 ## Convenzioni
 - Path Python: usa / anche su Windows
 - Async ovunque: motor per MongoDB, httpx per HTTP
