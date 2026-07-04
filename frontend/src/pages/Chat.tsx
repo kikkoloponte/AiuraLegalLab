@@ -51,6 +51,7 @@ export function Chat() {
               {msg.role === 'assistant' && (
                 <AIMessage
                   response={msg.response}
+                  text={msg.text}
                   streaming={msg.streaming}
                   agentStatus={msg.agentStatus}
                   error={msg.error}

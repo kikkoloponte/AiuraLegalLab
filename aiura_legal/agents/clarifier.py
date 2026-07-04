@@ -19,13 +19,15 @@ from __future__ import annotations
 import json
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
 from loguru import logger
 
 from aiura_legal.agents.ollama_client import OllamaClient
+from aiura_legal.core.istituti.registry import Istituto, get_registry
+from aiura_legal.core.istituti.semantic_match import get_semantic_matcher, suggest_istituto_candidates
 
 _SKILL_PATH = (
     Path(__file__).resolve().parent.parent.parent
@@ -67,6 +69,8 @@ class ClarificationResult:
     missing_element: Optional[str] = None    # giurisdizione|data|tipo_parte|branca
     turn_number: int = 0
     parse_ok: bool = True
+    istituto_candidates: list[str] = field(default_factory=list)  # id proposti a scelta multipla
+    enriched_query: Optional[str] = None      # query arricchita dall'istituto scelto dall'avvocato
 
 
 # ---------------------------------------------------------------------------
@@ -145,6 +149,31 @@ def _is_specific_enough(query: str) -> bool:
     if _RE_LEGAL_QUESTION.search(q):
         return True
     return False
+
+
+def _resolve_candidate_choice(context: str, candidates: list[Istituto]) -> Optional[Istituto]:
+    """
+    Risolve la risposta dell'avvocato a una domanda a scelta multipla di istituti.
+    Riconosce un numero d'ordine ("2", "opzione 2") o parole della label
+    dell'istituto nel testo libero. "Altro"/nessun match → None (l'avvocato
+    ha specificato qualcos'altro, si procede con la valutazione normale).
+    """
+    text = context.strip().lower()
+    if not text or "altro" in text:
+        return None
+
+    m = re.search(r"\b(\d+)\b", text)
+    if m:
+        idx = int(m.group(1)) - 1
+        if 0 <= idx < len(candidates):
+            return candidates[idx]
+
+    for cand in candidates:
+        label_words = [w for w in re.findall(r"[a-zàèéìòóù]+", cand.label.lower()) if len(w) > 3]
+        if label_words and sum(1 for w in label_words if w in text) >= max(1, len(label_words) // 2):
+            return cand
+
+    return None
 
 
 class ClarifierAgent:
@@ -252,6 +281,57 @@ class ClarifierAgent:
                 needs_clarification=False,
                 turn_number=turn_number,
             )
+
+        # Turno di risposta a una scelta multipla proposta al turno precedente:
+        # i candidati sono ricalcolati deterministicamente sulla query ORIGINALE
+        # (non dipendono dal turno), quindi ritroviamo la stessa lista senza
+        # doverla far viaggiare nella request.
+        if turn_number >= 1 and context:
+            candidates = suggest_istituto_candidates(query, get_registry(), get_semantic_matcher())
+            if len(candidates) >= 2:
+                resolved = _resolve_candidate_choice(context, candidates)
+                if resolved is not None:
+                    enriched = (
+                        f"{query} — con riferimento specifico a: {resolved.label} "
+                        f"({'; '.join(resolved.norme_riferimento[:2])})"
+                    )
+                    logger.info(
+                        f"[S1 Clarifier] istituto risolto da scelta multipla: {resolved.id!r}"
+                    )
+                    return ClarificationResult(
+                        needs_clarification=False,
+                        turn_number=turn_number,
+                        enriched_query=enriched,
+                    )
+                logger.info(
+                    "[S1 Clarifier] risposta scelta multipla non risolta "
+                    "('altro' o testo libero) — procedo con valutazione normale"
+                )
+
+        # Disambiguazione istituto a scelta multipla: precede il pre-filtro
+        # perché una query può già sembrare "specifica" (contiene un nome di
+        # istituto riconosciuto, es. "sequestro preventivo") e saltare dritta
+        # al retrieval pur essendo ambigua tra istituti vicini che condividono
+        # lessico (es. sequestro CPP vs confisca antimafia — il caso che ha
+        # originato questo intero filone di fix in questa sessione).
+        if turn_number == 0:
+            candidates = suggest_istituto_candidates(query, get_registry(), get_semantic_matcher())
+            if len(candidates) >= 2:
+                options = "\n".join(f"{i + 1}) {c.label}" for i, c in enumerate(candidates))
+                question = (
+                    "La tua domanda potrebbe riguardare istituti giuridici diversi. "
+                    f"A quale ti riferisci?\n{options}\n{len(candidates) + 1}) Altro (specifica tu)"
+                )
+                logger.info(
+                    f"[S1 Clarifier] scelta multipla istituto: {[c.id for c in candidates]!r}"
+                )
+                return ClarificationResult(
+                    needs_clarification=True,
+                    question_to_user=question,
+                    missing_element="istituto",
+                    turn_number=turn_number,
+                    istituto_candidates=[c.id for c in candidates],
+                )
 
         # Pre-filtro: query già specifiche non raggiungono il LLM
         if _is_specific_enough(query):

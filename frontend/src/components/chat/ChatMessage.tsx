@@ -18,6 +18,7 @@ export function UserMessage({ text }: UserMessageProps) {
 
 interface AIMessageProps {
   response?: LegalResponse
+  text?: string
   streaming?: boolean
   agentStatus?: string
   error?: string
@@ -25,11 +26,19 @@ interface AIMessageProps {
   onGraphOpen?: (nodeId: string) => void
 }
 
-export function AIMessage({ response, streaming, agentStatus, error, className, onGraphOpen }: AIMessageProps) {
+export function AIMessage({ response, text, streaming, agentStatus, error, className, onGraphOpen }: AIMessageProps) {
   if (error) {
     return (
       <div className={cn('text-xs text-red-400 bg-red-950/50 border border-red-800 rounded-lg px-3 py-2 max-w-[85%]', className)}>
         ❌ {error}
+      </div>
+    )
+  }
+
+  if (!streaming && !response && text) {
+    return (
+      <div className={cn('max-w-[70%] bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-relaxed', className)}>
+        {text}
       </div>
     )
   }

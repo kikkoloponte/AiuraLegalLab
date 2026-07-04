@@ -110,14 +110,30 @@ const PHASE_LABELS: Record<string, string> = {
   SINTESI:          'Fase 4 · Sintesi e conclusione...',
 }
 
+// Stato di un chiarimento S1 in sospeso: la domanda ORIGINALE va rimandata
+// invariata ad ogni turno successivo (il backend usa `query` + `clarification_context`
+// per costruire il prompt combinato — vedi ClarifierAgent.assess), altrimenti la
+// risposta dell'avvocato al chiarimento sostituirebbe la domanda originale invece
+// di integrarla.
+interface PendingClarification {
+  originalQuery: string
+  turn: number
+}
+
 export function useChat(workspace: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
   const [agentStatus, setAgentStatus] = useState('')
+  const [pendingClarification, setPendingClarification] = useState<PendingClarification | null>(null)
   const queryClient = useQueryClient()
 
-  const sendQuery = useCallback(async (query: string) => {
-    const userMsg: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: query }
+  const sendQuery = useCallback(async (queryInput: string) => {
+    const isFollowUp = pendingClarification !== null
+    const effectiveQuery = isFollowUp ? pendingClarification!.originalQuery : queryInput
+    const clarificationTurn = isFollowUp ? pendingClarification!.turn : 0
+    const clarificationContext = isFollowUp ? queryInput : undefined
+
+    const userMsg: ChatMessage = { id: crypto.randomUUID(), role: 'user', text: queryInput }
     const aiId = crypto.randomUUID()
     const aiMsg: ChatMessage = {
       id: aiId,
@@ -129,21 +145,25 @@ export function useChat(workspace: string) {
     setMessages((prev) => [...prev, userMsg, aiMsg])
     setLoading(true)
     setAgentStatus('S2 Researcher · recupero fonti...')
+    setPendingClarification(null)
 
     // Accumula sezioni delle 4 fasi per costruire la risposta progressiva
     const accumulatedSections: AnalysisSectionRaw[] = []
     let finalVerdict = 'PASS'
     let finalConfidence = 'MEDIUM'
+    const query = effectiveQuery
 
     try {
       const res = await fetch('/api/query/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query,
+          query: effectiveQuery,
           workspace,
           intent: 'fattispecie_analysis',
           mode: 'standard',
+          clarification_turn: clarificationTurn,
+          clarification_context: clarificationContext,
         }),
       })
 
@@ -294,6 +314,7 @@ export function useChat(workspace: string) {
 
           } else if (event.type === 'clarification_needed') {
             const question = String(event.question ?? '')
+            setPendingClarification({ originalQuery: effectiveQuery, turn: clarificationTurn + 1 })
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === aiId
@@ -326,9 +347,12 @@ export function useChat(workspace: string) {
       setLoading(false)
       setAgentStatus('')
     }
-  }, [workspace, queryClient])
+  }, [workspace, queryClient, pendingClarification])
 
-  const clear = useCallback(() => setMessages([]), [])
+  const clear = useCallback(() => {
+    setMessages([])
+    setPendingClarification(null)
+  }, [])
 
   return { messages, loading, agentStatus, sendQuery, clear } as const
 }

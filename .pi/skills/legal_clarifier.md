@@ -46,6 +46,13 @@ Query → risposta attesa:
 - Max 1 domanda per turno (mai liste)
 - Max 2 turni totali, poi procedi con defaults
 - Se dubbi tra true/false → scegli **false**
+- Se nel prompt è presente "RISPOSTA PRECEDENTE": quell'informazione è già
+  acquisita. NON richiedere di nuovo la stessa cosa in altre parole (es. se
+  l'avvocato ha già detto "diritto penale", non richiedere "penale o civile?").
+  Chiedi chiarimento solo su un elemento DIVERSO e ancora mancante — se non
+  ce n'è uno chiaro, rispondi `false` e procedi.
+- La presenza di termini come "reato", "imputato", "pena" rende il ramo
+  penale già certo: non chiedere conferma della branca giuridica in quel caso.
 
 ## Default dopo 2 turni
 

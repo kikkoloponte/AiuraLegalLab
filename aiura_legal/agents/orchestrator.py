@@ -237,7 +237,14 @@ class LegalOrchestrator:
                     duration_total_s=round(time.monotonic() - t_total, 3),
                 )
             else:
-                logger.info("[Orchestrator] S1 → query sufficiente, procedo con S2")
+                if clarification.enriched_query:
+                    logger.info(
+                        f"[Orchestrator] S1 → query arricchita da scelta istituto: "
+                        f"{clarification.enriched_query[:80]!r}"
+                    )
+                    query = clarification.enriched_query
+                else:
+                    logger.info("[Orchestrator] S1 → query sufficiente, procedo con S2")
         elif clarification_turn >= 2:
             logger.info("[Orchestrator] S1 saltato (turn >= 2 — defaults applicati)")
 
@@ -451,6 +458,12 @@ class LegalOrchestrator:
                         "missing_element": clarification.missing_element,
                     }
                     return
+                if clarification.enriched_query:
+                    logger.info(
+                        f"[Orchestrator Seq] S1 → query arricchita da scelta istituto: "
+                        f"{clarification.enriched_query[:80]!r}"
+                    )
+                    query = clarification.enriched_query
             except Exception as exc:
                 logger.warning(f"[Orchestrator Seq] S1 errore: {exc} — procedo")
 
