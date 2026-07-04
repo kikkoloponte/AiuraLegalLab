@@ -289,6 +289,39 @@ registro di ragionamento IQRAC (§2).
   (`eval/run_bench.py`, in sviluppo).
 - 665 test automatici con mongomock-motor (zero MongoDB reale).
 
+### 17. Questioni Giuridiche — livello ontologico (scoperta 2026-07-04)
+
+Feature esistente nel codice ma non documentata finora in questo file né
+nel backlog — trovata solo con un inventario sistematico dei componenti
+assenti da CLAUDE.md. Distinta dagli Istituti Giuridici (§15): mentre gli
+istituti sono schede pratiche per il ragionamento IQRAC, le Questioni sono
+un livello di modellazione ontologica separato.
+
+- **Storage file-based** (non MongoDB): `ontology/legal_kb_ontology.ttl`
+  (schema RDF/OWL — classi/relazioni astratte, es. `Tesi_Dottrinale`,
+  `Orientamento_Interpretativo`) + `ontology/questioni_curate.yaml`
+  (istanze `QuestioneGiuridica` curate).
+- **QuestioneLoader** ([questione_loader.py](../aiura_legal/core/graph/questione_loader.py)):
+  legge solo le voci con stato approvato, validazione referenziale, scrive
+  gli archi nel grafo legale.
+- **QuestioniRegistry** ([questioni_registry.py](../aiura_legal/core/graph/questioni_registry.py)):
+  CRUD per la UI di revisione — vede tutte le voci indipendentemente dallo
+  stato, optimistic concurrency control. Dipende da `QuestioneLoader` per
+  parsing/validazione (non duplica la logica).
+- **API**: [questioni_router.py](../aiura_legal/api/questioni_router.py) —
+  `GET/PUT /questioni`, `GET /questioni/search-nodes`.
+- **Frontend** (route `/questioni`): `Questioni.tsx`, `QuestioneCard.tsx`,
+  `NodeIdPicker.tsx`, `useQuestioni.ts`.
+- **Why**: l'avvocato approva/modifica/rifiuta le `QuestioneGiuridica`
+  proposte senza editare YAML a mano — stesso principio delle Istituti
+  Giuridici ma per la struttura ontologica anziché le schede pratiche.
+- Spec di riferimento:
+  `docs/superpowers/specs/2026-06-26-questioni-review-ui-design.md`.
+- **Non verificato in questa sessione**: quanto della strategia
+  "ontologia al posto dei manuali coperti da copyright" (vedi
+  `docs/prompts/audit-manuali-copyright-ontologia.md`) sia effettivamente
+  popolato con dati reali vs. solo l'infrastruttura CRUD.
+
 ---
 
 ## Features future
