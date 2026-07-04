@@ -824,7 +824,7 @@ istituti:
         numero: '10561'
         anno: '2014'
         nome: Gubert
-        principio: 'Verso il terzo estraneo al reato il sequestro per equivalente non è ammesso: è consentita solo la confisca diretta del profitto del reato che si trovi nella sua disponibilità. Il per-equivalente colpisce i soli beni del reo, e quando il sequestro diretto del profitto è impossibile ex actis.'
+        principio: 'Il sequestro per equivalente non può mai colpire il terzo realmente estraneo al reato (in buona fede, senza interposizione fittizia): esso resta una misura sanzionatoria a carico esclusivo del patrimonio del reo, applicabile quando la confisca diretta del profitto nel SUO patrimonio è impossibile — questa condizione di impossibilità riguarda il reo, non giustifica mai l''estensione al terzo. I beni intestati al terzo sono aggredibili solo se il terzo non è in buona fede e/o è un mero prestanome (interposizione fittizia, bene nella disponibilità di fatto del reo): in tal caso non si applica il per-equivalente ma la confisca DIRETTA del profitto effettivamente rinvenuto presso di lui.'
         source_id: aiura_upload_j4o38mif
 
   - id: soggetti_del_procedimento_penale_giudice_pubblico_ministero_cpp
@@ -948,6 +948,72 @@ istituti:
       - Art. 609-octies c.p. (Violenza sessuale di gruppo)
     termini_chiave:
       - violenza sessuale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: accertamenti_tecnici_e_deposito_degli_atti_nelle_indagini_preliminari_d_lgs_271_1989
+    label: Accertamenti tecnici e deposito degli atti nelle indagini preliminari (D.LGS. 271/1989)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art148
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art149
+    norme_riferimento:
+      - Art. 117 norme att. c.p.p. (Accertamenti tecnici che modificano lo stato dei luoghi, delle cose o delle persone)
+      - Art. 118 norme att. c.p.p. (Deposito di atti compiuti nel corso delle indagini preliminari)
+    termini_chiave:
+      - accertamenti tecnici e deposito degli atti nelle indagini preliminari
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: comunicazione_delle_notizie_di_reato_e_informazioni_sul_procedimento_d_lgs_271_1989
+    label: Comunicazione delle notizie di reato e informazioni sul procedimento (D.LGS. 271/1989)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art159
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art162
+    norme_riferimento:
+      - Art. 127 norme att. c.p.p. (Comunicazione delle notizie di reato al procuratore generale)
+      - Art. 129 norme att. c.p.p. (Informazioni sul procedimento penale)
+    termini_chiave:
+      - comunicazione delle notizie di reato e informazioni sul procedimento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: priorita_nella_trattazione_delle_notizie_di_reato_d_lgs_271_1989
+    label: Priorità nella trattazione delle notizie di reato (D.LGS. 271/1989)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art5
+    norme_riferimento:
+      - Art. 3-bis norme att. c.p.p. (Priorità nella trattazione delle notizie di reato e nell'esercizio dell'azione penale)
+    termini_chiave:
+      - priorità nella trattazione delle notizie di reato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: restituzione_vendita_e_destinazione_delle_cose_sequestrate_o_confiscate_d_lgs_271_1989
+    label: Restituzione, vendita e destinazione delle cose sequestrate o confiscate (D.LGS. 271/1989)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art101
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art102
+    norme_riferimento:
+      - Art. 85 norme att. c.p.p. (Restituzione con imposizione di prescrizioni)
+      - Art. 86 norme att. c.p.p. (Vendita o distruzione delle cose confiscate)
+    termini_chiave:
+      - restituzione, vendita e destinazione delle cose sequestrate o confiscate
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: verbale_e_registrazioni_delle_intercettazioni_d_lgs_271_1989
+    label: Verbale e registrazioni delle intercettazioni (D.LGS. 271/1989)
+    settore: penale
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:1989-07-28;271~art108
+    norme_riferimento:
+      - Art. 89 norme att. c.p.p. (Verbale e registrazioni delle intercettazioni)
+    termini_chiave:
+      - verbale e registrazioni delle intercettazioni
     disambigua_da: {}
     sentenze_pilota: []
 
@@ -3213,6 +3279,148 @@ istituti:
     disambigua_da: {}
     sentenze_pilota: []
 
+  - id: organi_di_governo_del_comune_e_della_provincia_d_lgs_267_2000
+    label: Organi di governo del comune e della provincia (D.LGS. 267/2000)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art38
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art49
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art51
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art53
+    norme_riferimento:
+      - Art. 36 TUEL (Organi di governo)
+      - Art. 46 TUEL (Elezione del sindaco e del presidente della provincia - Nomina della giunta)
+      - Art. 48 TUEL (Competenze delle giunte)
+      - Art. 50 TUEL (Competenze del sindaco e del presidente della provincia)
+    termini_chiave:
+      - organi di governo del comune e della provincia
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: scioglimento_e_commissariamento_degli_enti_locali_d_lgs_267_2000
+    label: Scioglimento e commissariamento degli enti locali (D.LGS. 267/2000)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art145
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art147
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art148
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art149
+    norme_riferimento:
+      - Art. 141 TUEL (Scioglimento e sospensione dei consigli comunali e provinciali)
+      - Art. 143 TUEL (Scioglimento dei consigli comunali e provinciali conseguente a fenomeni di infiltrazione e di condizionamento di tipo mafioso o similare)
+      - Art. 144 TUEL (Commissione straordinaria e Comitato di sostegno e monitoraggio)
+      - Art. 145 TUEL (Gestione straordinaria)
+    termini_chiave:
+      - scioglimento e commissariamento degli enti locali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: controlli_interni_ed_esterni_sugli_enti_locali_d_lgs_267_2000
+    label: Controlli interni ed esterni sugli enti locali (D.LGS. 267/2000)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art152
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art157
+    norme_riferimento:
+      - Art. 147 TUEL (Tipologia dei controlli interni)
+      - Art. 148 TUEL (Controlli esterni)
+    termini_chiave:
+      - controlli interni ed esterni sugli enti locali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: responsabilita_patrimoniale_di_amministratori_e_dipendenti_degli_enti_locali_d_lgs_267_2000
+    label: Responsabilità patrimoniale di amministratori e dipendenti degli enti locali (D.LGS. 267/2000)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art96
+    norme_riferimento:
+      - Art. 93 TUEL (Responsabilità patrimoniale)
+    termini_chiave:
+      - responsabilità patrimoniale di amministratori e dipendenti degli enti locali
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: organo_di_revisione_economico_finanziaria_d_lgs_267_2000
+    label: Organo di revisione economico-finanziaria (D.LGS. 267/2000)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art247
+      - urn:nir:stato:decreto.legislativo:2000-08-18;267~art248
+    norme_riferimento:
+      - Art. 234 TUEL (Organo di revisione economico-finanziario)
+      - Art. 235 TUEL (Durata dell'incarico e cause di cessazione)
+    termini_chiave:
+      - organo di revisione economico-finanziaria
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: giurisdizione_amministrativa_d_lgs_104_2010
+    label: Giurisdizione amministrativa (D.LGS. 104/2010)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art10
+    norme_riferimento:
+      - Art. 7 c.p.a. (Giurisdizione amministrativa)
+    termini_chiave:
+      - giurisdizione amministrativa
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: azione_di_annullamento_e_ricorso_al_tar_d_lgs_104_2010
+    label: Azione di annullamento e ricorso al TAR (D.LGS. 104/2010)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art32
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art44
+    norme_riferimento:
+      - Art. 29 c.p.a. (Azione di annullamento)
+      - Art. 41 c.p.a. (Notificazione del ricorso e suoi destinatari)
+    termini_chiave:
+      - azione di annullamento e ricorso al tar
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: misure_cautelari_collegiali_nel_processo_amministrativo_d_lgs_104_2010
+    label: Misure cautelari collegiali nel processo amministrativo (D.LGS. 104/2010)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art58
+    norme_riferimento:
+      - Art. 55 c.p.a. (Misure cautelari collegiali)
+    termini_chiave:
+      - misure cautelari collegiali nel processo amministrativo
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: appello_al_consiglio_di_stato_d_lgs_104_2010
+    label: Appello al Consiglio di Stato (D.LGS. 104/2010)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art105
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art106
+    norme_riferimento:
+      - Art. 100 c.p.a. (Appellabilità delle sentenze dei tribunali amministrativi regionali)
+      - Art. 101 c.p.a. (Contenuto del ricorso in appello)
+    termini_chiave:
+      - appello al consiglio di stato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: rito_abbreviato_per_gli_appalti_pubblici_d_lgs_104_2010
+    label: Rito abbreviato per gli appalti pubblici (D.LGS. 104/2010)
+    settore: amministrativo
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art124
+      - urn:nir:stato:decreto.legislativo:2010-07-02;104~art125
+    norme_riferimento:
+      - Art. 119 c.p.a. (Rito abbreviato comune a determinate materie)
+      - Art. 120 c.p.a. (Disposizioni specifiche ai giudizi di cui all'articolo 119, comma 1, lettera a — appalti pubblici)
+    termini_chiave:
+      - rito abbreviato per gli appalti pubblici
+    disambigua_da: {}
+    sentenze_pilota: []
+
   # =======================================================================
   # LAVORO
   # =======================================================================
@@ -3253,6 +3461,306 @@ istituti:
       - Art. 18 d.lgs. 81/2008 (Obblighi del datore di lavoro e del dirigente)
     termini_chiave:
       - obblighi del datore di lavoro (delegabili e non delegabili)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: sorveglianza_sanitaria_d_lgs_81_2008
+    label: Sorveglianza sanitaria (D.LGS. 81/2008)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art41
+    norme_riferimento:
+      - Art. 41 d.lgs. 81/2008 (Sorveglianza sanitaria)
+    termini_chiave:
+      - sorveglianza sanitaria
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: formazione_dei_lavoratori_d_lgs_81_2008
+    label: Formazione dei lavoratori (D.LGS. 81/2008)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2008-04-09;81~art37
+    norme_riferimento:
+      - Art. 37 d.lgs. 81/2008 (Formazione dei lavoratori e dei loro rappresentanti)
+    termini_chiave:
+      - formazione dei lavoratori
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: licenziamento_illegittimo_e_tutela_reale_l_300_1970
+    label: Licenziamento illegittimo e tutela reale (L. 300/1970)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1970-05-20;300~art18
+    norme_riferimento:
+      - Art. 18 St. Lav. (Tutela del lavoratore in caso di licenziamento illegittimo)
+    termini_chiave:
+      - licenziamento illegittimo e tutela reale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: liberta_di_opinione_dei_lavoratori_l_300_1970
+    label: Libertà di opinione dei lavoratori (L. 300/1970)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1970-05-20;300~art1
+    norme_riferimento:
+      - Art. 1 St. Lav. (Libertà di opinione)
+    termini_chiave:
+      - libertà di opinione dei lavoratori
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: controlli_a_distanza_dei_lavoratori_l_300_1970
+    label: Controlli a distanza dei lavoratori (L. 300/1970)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1970-05-20;300~art4
+    norme_riferimento:
+      - Art. 4 St. Lav. (Impianti audiovisivi e altri strumenti di controllo)
+    termini_chiave:
+      - controlli a distanza dei lavoratori
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: divieto_di_indagini_sulle_opinioni_del_lavoratore_l_300_1970
+    label: Divieto di indagini sulle opinioni del lavoratore (L. 300/1970)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1970-05-20;300~art8
+    norme_riferimento:
+      - Art. 8 St. Lav. (Divieto di indagini sulle opinioni)
+    termini_chiave:
+      - divieto di indagini sulle opinioni del lavoratore
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: repressione_della_condotta_antisindacale_l_300_1970
+    label: Repressione della condotta antisindacale (L. 300/1970)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1970-05-20;300~art28
+    norme_riferimento:
+      - Art. 28 St. Lav. (Repressione della condotta antisindacale)
+    termini_chiave:
+      - repressione della condotta antisindacale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: distacco_del_lavoratore_d_lgs_276_2003
+    label: Distacco del lavoratore (D.LGS. 276/2003)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-09-10;276~art30
+    norme_riferimento:
+      - Art. 30 d.lgs. 276/2003 (Distacco)
+    termini_chiave:
+      - distacco del lavoratore
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: contratto_di_lavoro_a_tempo_determinato_d_lgs_81_2015
+    label: Contratto di lavoro a tempo determinato (D.LGS. 81/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art19
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art20
+    norme_riferimento:
+      - Art. 19 d.lgs. 81/2015 (Apposizione del termine e durata massima)
+      - Art. 20 d.lgs. 81/2015 (Divieti)
+    termini_chiave:
+      - contratto di lavoro a tempo determinato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: contratto_di_lavoro_a_tempo_parziale_part_time_d_lgs_81_2015
+    label: Contratto di lavoro a tempo parziale (part-time) (D.LGS. 81/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art4
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art5
+    norme_riferimento:
+      - Art. 4 d.lgs. 81/2015 (Definizione)
+      - Art. 5 d.lgs. 81/2015 (Forma e contenuti del contratto di lavoro a tempo parziale)
+    termini_chiave:
+      - contratto di lavoro a tempo parziale (part-time)
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: lavoro_intermittente_d_lgs_81_2015
+    label: Lavoro intermittente (D.LGS. 81/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art13
+    norme_riferimento:
+      - Art. 13 d.lgs. 81/2015 (Definizione e casi di ricorso al lavoro intermittente)
+    termini_chiave:
+      - lavoro intermittente
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: somministrazione_di_lavoro_d_lgs_81_2015
+    label: Somministrazione di lavoro (D.LGS. 81/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art31
+    norme_riferimento:
+      - Art. 31 d.lgs. 81/2015 (Somministrazione di lavoro a tempo indeterminato e determinato)
+    termini_chiave:
+      - somministrazione di lavoro
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: apprendistato_d_lgs_81_2015
+    label: Apprendistato (D.LGS. 81/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-06-15;81~art41
+    norme_riferimento:
+      - Art. 41 d.lgs. 81/2015 (Definizione)
+    termini_chiave:
+      - apprendistato
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: licenziamento_illegittimo_nel_regime_a_tutele_crescenti_d_lgs_23_2015
+    label: Licenziamento illegittimo nel regime a tutele crescenti (D.LGS. 23/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-03-04;23~art2
+      - urn:nir:stato:decreto.legislativo:2015-03-04;23~art3
+    norme_riferimento:
+      - Art. 2 d.lgs. 23/2015 (Licenziamento discriminatorio, nullo e intimato in forma orale)
+      - Art. 3 d.lgs. 23/2015 (Licenziamento per giustificato motivo e giusta causa)
+    termini_chiave:
+      - licenziamento illegittimo nel regime a tutele crescenti
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: revoca_del_licenziamento_d_lgs_23_2015
+    label: Revoca del licenziamento (D.LGS. 23/2015)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2015-03-04;23~art5
+    norme_riferimento:
+      - Art. 5 d.lgs. 23/2015 (Revoca del licenziamento)
+    termini_chiave:
+      - revoca del licenziamento
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: congedo_di_maternita_d_lgs_151_2001
+    label: Congedo di maternità (D.LGS. 151/2001)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-03-26;151~art16
+      - urn:nir:stato:decreto.legislativo:2001-03-26;151~art22
+    norme_riferimento:
+      - Art. 16 d.lgs. 151/2001 (Divieto di adibire al lavoro le donne)
+      - Art. 22 d.lgs. 151/2001 (Trattamento economico e normativo)
+    termini_chiave:
+      - congedo di maternità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: congedo_di_paternita_d_lgs_151_2001
+    label: Congedo di paternità (D.LGS. 151/2001)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-03-26;151~art28
+    norme_riferimento:
+      - Art. 28 d.lgs. 151/2001 (Congedo di paternità alternativo)
+    termini_chiave:
+      - congedo di paternità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: divieto_di_licenziamento_durante_la_maternita_d_lgs_151_2001
+    label: Divieto di licenziamento durante la maternità (D.LGS. 151/2001)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2001-03-26;151~art54
+    norme_riferimento:
+      - Art. 54 d.lgs. 151/2001 (Divieto di licenziamento)
+    termini_chiave:
+      - divieto di licenziamento durante la maternità
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: regime_sanzionatorio_del_licenziamento_nel_rito_fornero_l_92_2012
+    label: Regime sanzionatorio del licenziamento nel rito Fornero (L. 92/2012)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:2012-06-28;92~art1
+    norme_riferimento:
+      - 'Art. 1, comma 42, L. 92/2012 (Riforma dell''art. 18 St. Lav. — regime sanzionatorio del licenziamento per i rapporti di lavoro anteriori al 7 marzo 2015)'
+    termini_chiave:
+      - regime sanzionatorio del licenziamento nel rito fornero
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: orario_normale_e_durata_massima_dell_orario_di_lavoro_d_lgs_66_2003
+    label: Orario normale e durata massima dell'orario di lavoro (D.LGS. 66/2003)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-04-08;66~art3
+      - urn:nir:stato:decreto.legislativo:2003-04-08;66~art4
+    norme_riferimento:
+      - Art. 3 d.lgs. 66/2003 (Orario normale di lavoro)
+      - Art. 4 d.lgs. 66/2003 (Durata massima dell'orario di lavoro)
+    termini_chiave:
+      - orario normale e durata massima dell'orario di lavoro
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: riposo_giornaliero_e_settimanale_d_lgs_66_2003
+    label: Riposo giornaliero e settimanale (D.LGS. 66/2003)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-04-08;66~art7
+      - urn:nir:stato:decreto.legislativo:2003-04-08;66~art9
+    norme_riferimento:
+      - Art. 7 d.lgs. 66/2003 (Riposo giornaliero)
+      - Art. 9 d.lgs. 66/2003 (Riposi settimanali)
+    termini_chiave:
+      - riposo giornaliero e settimanale
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: lavoro_straordinario_d_lgs_66_2003
+    label: Lavoro straordinario (D.LGS. 66/2003)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:decreto.legislativo:2003-04-08;66~art5
+    norme_riferimento:
+      - Art. 5 d.lgs. 66/2003 (Lavoro straordinario)
+    termini_chiave:
+      - lavoro straordinario
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: collocamento_obbligatorio_dei_disabili_l_68_1999
+    label: Collocamento obbligatorio dei disabili (L. 68/1999)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1999-03-12;68~art1
+    norme_riferimento:
+      - Art. 1 L. 68/1999 (Collocamento dei disabili)
+    termini_chiave:
+      - collocamento obbligatorio dei disabili
+    disambigua_da: {}
+    sentenze_pilota: []
+
+  - id: quote_di_riserva_e_assunzioni_obbligatorie_l_68_1999
+    label: Quote di riserva e assunzioni obbligatorie (L. 68/1999)
+    settore: lavoro
+    norme_urn:
+      - urn:nir:stato:legge:1999-03-12;68~art3
+    norme_riferimento:
+      - Art. 3 L. 68/1999 (Assunzioni obbligatorie. Quote di riserva)
+    termini_chiave:
+      - quote di riserva e assunzioni obbligatorie
     disambigua_da: {}
     sentenze_pilota: []
 

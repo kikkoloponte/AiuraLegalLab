@@ -1,8 +1,15 @@
 # AiUra LegalLab — Features
 
-> Stato al 2026-06-10. Documento di riferimento per le funzionalità implementate
-> e per la roadmap futura. Per l'installazione vedi [README.md](../README.md),
-> per il backlog operativo dettagliato vedi [BACKLOG.md](../BACKLOG.md).
+> Stato al 2026-07-03 (aggiornato da 2026-06-10). Documento di riferimento per
+> le funzionalità implementate e per la roadmap futura. Per l'installazione
+> vedi [README.md](../README.md), per il backlog operativo dettagliato vedi
+> [BACKLOG.md](../BACKLOG.md).
+>
+> **Novità principale dall'ultimo aggiornamento**: mappatura sistematica di
+> **193 istituti giuridici** con CRUD UI dedicata (sezione 15, non presente
+> nella versione precedente di questo documento), 3 nuove leggi scaricate,
+> fix strutturali al filtro settore nel retrieval. Numeri di questo documento
+> verificati contro MongoDB il 2026-07-03, non riportati da memoria.
 
 ## Visione
 
@@ -95,15 +102,28 @@ estratto dalla Fase 1.
 - Mirror da LegalAgentLab (`legal_lab.normattiva_docs`, read-only) +
   fetch diretto da Normattiva con fallback automatico N2Ls per gli HTTP 500
   ([connector.py](../aiura_legal/ingestion/normattiva/connector.py)).
-- Corpus attuale: **~166.800 articoli** — Codici (CC, CP, CPC, CPP),
-  Costituzione, TUIR, IVA, Codice Appalti 2023, Codice Ambiente, T.U. Sicurezza,
-  Privacy, statuto lavoratori/contribuente, e altri (91 atti mirati +
-  base completa da LegalAgentLab).
+- Corpus attuale: **170.857 documenti** in `normattiva_docs` (verificato
+  2026-07-03), **453.458 chunk** `corpus=normattiva` — Codici (CC, CP, CPC,
+  CPP), Costituzione, TUIR, IVA, Codice Ambiente, T.U. Sicurezza, Privacy,
+  statuto lavoratori/contribuente, e altri atti mirati + base completa da
+  LegalAgentLab.
+- **Aggiunte 2026-07-03**: Codice dei Contratti Pubblici 2023 (D.Lgs.
+  36/2023, sostituisce il D.Lgs. 50/2016 abrogato già in KB), Legge
+  Fallimentare previgente (R.D. 267/1942), Codice della Navigazione (R.D.
+  327/1942) — 2.226 articoli, 3.591 chunk totali.
 - Parser AKN per vigenza e abrogazioni ([akn_parser.py](../aiura_legal/ingestion/normattiva/akn_parser.py)).
 - Classificazione per settore giuridico della KB
   ([classify_knowledge_base.py](../scripts/classify_knowledge_base.py)):
   pre-classificazione keyword + batch LLM con checkpoint/resume.
-- Recall misurata sulla query suite: **R=0.721** (run5, +134% vs run1).
+- Recall sulla query suite (gate Fase 2+3, 2026-06-17): **G=0.780 R=0.767,
+  pass 100% (20/20)** — superata la misura R=0.721 precedente, non ancora
+  rimisurata dopo le aggiunte del 3 luglio.
+- **Gap noto**: nessun istituto giuridico (vedi §15) è mappato sul settore
+  "lavoro" (0/193) — coerente con l'assenza di un dominio "lavoro" anche
+  nella query suite di valutazione (`eval/`, domini disponibili:
+  `amm, civ, cross, pen, trib`). La normativa di base (Statuto Lavoratori
+  e altre leggi lavoristiche) non è confermata presente in KB — da
+  verificare prima di assumere sia solo un gap di mappatura istituti.
 
 ### 6. Pipeline giurisprudenza
 
@@ -143,6 +163,14 @@ estrazione testo (PDF/DOCX/TXT) → anonimizzazione PII → MongoDB
 worker embedding ([embed_worker.py](../aiura_legal/workers/embed_worker.py)).
 File watcher su `incoming/` per ingestione automatica.
 
+⚠️ **Anomalia scoperta 2026-07-03, non ancora investigata**: la collection
+`documents` contiene 1.061 documenti (`workspace=mio-studio`,
+`is_chunked=True`), ma `chunks` non ha alcun documento con `corpus=studio`
+(i valori esistenti sono solo `normattiva`, `dottrina`, `giurisprudenza`,
+`massimario`). I documenti risultano marcati come chunkati ma sono
+invisibili al retrieval — richiede una sessione dedicata per capire se è un
+bug della pipeline o un disallineamento di campo `corpus` da correggere.
+
 ### 9. Privacy e PII
 
 - **LegalAnonymizer** a 2 layer ([anonymizer.py](../aiura_legal/core/anonymizer/anonymizer.py)):
@@ -160,10 +188,21 @@ File watcher su `incoming/` per ingestione automatica.
 
 - **LegalGraphBuilder** ([builder.py](../aiura_legal/core/graph/builder.py)):
   estrazione riferimenti RINVIA/ABROGA/MODIFICA via regex+euristiche, build
-  completo e update incrementale post-ingestione → `graph.json` (NetworkX).
-  Stato attuale: ~11.700 nodi, 4.569 archi RINVIA.
+  completo e update incrementale post-ingestione →
+  `workspaces/mio-studio/indices/graph.json` (NetworkX). Stato verificato
+  2026-07-03: **307.325 nodi, 666.291 archi** (molto cresciuto dal dato
+  ~11.700/4.569 riportato in precedenza).
+- **Grafo giurisprudenziale** (sentenza↔norma) — file separato
+  `workspaces/jurisprudence_graph.json`: **464.603 nodi, 2.302.324 archi**
+  (verificato 2026-07-03; superiore ai 733.598 archi dell'ultimo snapshot
+  di backlog, quindi risulta più aggiornato di quanto documentato finora —
+  da confermare con chi ha lanciato l'ultimo rebuild).
 - **GraphRetriever**: neighbor expansion con filtro vigenza + conflict
   detection (alimenta sia il retrieval sia il check `conflict_disclosure` di S5).
+  **Limite noto**: l'espansione grafo non applica il filtro settore
+  giuridico applicato invece a BM25/Vector — può reiniettare rumore
+  cross-settore (es. norme civili in risposte penali) anche dopo i fix
+  del filtro settore di giugno-luglio.
 - Endpoint `/graph/*` + viewer interattivo nel frontend.
 
 ### 11. API FastAPI (porta 8765)
@@ -188,7 +227,8 @@ Pagine: **Chat** (streaming per fase IQRAC, fonti citate),
 **Dashboard**, **Documents** (upload, cartelle, spostamento),
 **Graph** (viewer grafo), **History** (storico con feedback),
 **Settings** (backend LLM, modello, temperatura, max token per fase, top-k —
-senza riavvio manuale), **Wiki**.
+senza riavvio manuale), **Wiki**, **Istituti** (CRUD schede istituto
+giuridico, route `/istituti` — vedi §15).
 
 ### 13. Backend LLM intercambiabile
 
@@ -205,7 +245,42 @@ senza riavvio manuale), **Wiki**.
 Layer wiki ([wiki/](../aiura_legal/wiki/)): pagine di conoscenza generate e
 aggiornate da middleware sulle query, con store MongoDB, writer, lint.
 
-### 15. Valutazione qualità
+### 15. Istituti Giuridici — schede strutturate + ragionamento IQRAC
+
+Feature mergiata il 2026-06-30 (PR #7), estesa con mappatura sistematica e
+fix il 2026-07-03. Colma il divario tra "il retrieval trova chunk sparsi" e
+"l'avvocato ha una scheda concettuale dell'istituto" — alimenta anche il
+registro di ragionamento IQRAC (§2).
+
+- **Storage**: collection `istituti_giuridici` — **193 istituti mappati**
+  su 4 codici maggiori + 11 leggi complementari (231/2001, Antimafia,
+  Consumo, TUB, TUF, Privacy, TUIR, Proprietà Industriale, Assicurazioni,
+  Ambiente, Sicurezza Lavoro, Crisi d'Impresa). Optimistic locking
+  per-documento (campo `version`, 409 su conflitto).
+- **CRUD UI** (route `/istituti`): l'avvocato crea/modifica/cancella schede
+  senza toccare MongoDB — [istituti_router.py](../aiura_legal/api/istituti_router.py),
+  [Istituti.tsx](../frontend/src/pages/Istituti.tsx).
+- **Sync verso il registry IQRAC**
+  ([sync_istituti_registry.py](../scripts/sync_istituti_registry.py)):
+  merge non distruttivo MongoDB → `aiura_legal/core/istituti/registry.yaml`,
+  preserva le voci curate a mano (es. sentenze pilota).
+- **Classificazione istituto in Fase 1**: match lessicale primario, con
+  **fallback LLM** sull'`istituto_id` già prodotto nella stessa chiamata di
+  Fase 1 se il lessicale fallisce (nessuna chiamata extra) — risolve il
+  gap del match lessicale in modalità "doctrine". Il match **semantico**
+  via embedding è stato testato e scartato come classificatore primario
+  (troppi falsi positivi cross-settore ad alta confidenza su testo breve);
+  resta solo come segnale secondario a soglia 0.85 per il Clarifier.
+- **Disambiguazione multi-scelta nel Clarifier (S1)**: quando la query tocca
+  istituti esplicitamente marcati `disambigua_da` tra loro (es. sequestro
+  CPP vs confisca antimafia), il Clarifier propone una scelta con le label
+  reali invece della domanda generica "penale o civile?" — la scelta
+  arricchisce la query (`enriched_query`) per S2/S3.
+- **Gap noto**: 0/193 istituti sul settore "lavoro" — vedi §5.
+  Codice dei Contratti Pubblici 2023 (D.Lgs. 36/2023) scaricato in KB il
+  2026-07-03 ma non ancora mappato in istituti.
+
+### 16. Valutazione qualità
 
 - **Eval retrieval** (`eval/run_eval.py`): recall su query JSONL con
   `expected_source_ids`, report JSON+Markdown per modulo legislativo.
@@ -251,6 +326,21 @@ implementazione attuale:
 
 ### Knowledge base e fonti
 
+- [ ] **Colmare il gap istituti settore "lavoro"** — 0/193 istituti mappati,
+  nessun dominio "lavoro" nella query suite. Verificare prima se manca la
+  normativa di base (Statuto Lavoratori e leggi lavoristiche) o solo la
+  mappatura istituti — vedi §5, §15.
+- [ ] **Mappare in istituti il Codice Contratti Pubblici 2023** (D.Lgs.
+  36/2023) — scaricato in KB il 2026-07-03, non ancora mappato.
+- [ ] **Investigare il gap chunk `corpus=studio`** — 1.061 documenti
+  `is_chunked=True` in `documents`, zero chunk `corpus=studio` in `chunks`
+  (scoperto 2026-07-03, vedi §8) — i documenti caricati sono invisibili al
+  retrieval.
+- [ ] **Filtro settore sull'espansione grafo** — `GraphRetriever.expand()`
+  non applica il filtro settore usato da BM25/Vector, può reiniettare
+  rumore cross-settore (vedi §10).
+- [ ] **Pulizia punti Qdrant orfani** — sospetti dopo la migrazione a id
+  deterministico dei chunk normattiva (2026-07-03), mai confermata/pulita.
 - [ ] **D.Lgs. 175/2024 (TU processo tributario)** — estendere
   `NormattivaWebFetcher` al formato `~all1~artN` (allegati). Sblocca 6 query
   della suite tributaria/cross che oggi puntano al D.Lgs. 546/1992 abrogato.

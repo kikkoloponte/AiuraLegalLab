@@ -52,6 +52,18 @@ _CODICE_TO_SETTORE = {
     "D.LGS. 152/2006": "amministrativo",  # codice dell'ambiente
     "D.LGS. 81/2008":  "lavoro",     # testo unico sicurezza sul lavoro
     "D.LGS. 14/2019":  "civile",     # codice della crisi d'impresa e dell'insolvenza
+    # Sessione mappatura TUEL/CPA/271-1989 + settore lavoro (2026-07-03).
+    "D.LGS. 267/2000": "amministrativo",  # TUEL — testo unico enti locali
+    "D.LGS. 104/2010": "amministrativo",  # CPA — codice del processo amministrativo
+    "D.LGS. 271/1989": "penale",     # norme di attuazione del c.p.p.
+    "L. 300/1970":     "lavoro",     # statuto dei lavoratori
+    "D.LGS. 276/2003": "lavoro",     # legge Biagi
+    "D.LGS. 81/2015":  "lavoro",     # codice dei contratti di lavoro (Jobs Act)
+    "D.LGS. 23/2015":  "lavoro",     # tutele crescenti (Jobs Act)
+    "D.LGS. 151/2001": "lavoro",     # T.U. maternità/paternità
+    "L. 92/2012":      "lavoro",     # riforma Fornero
+    "D.LGS. 66/2003":  "lavoro",     # orario di lavoro
+    "L. 68/1999":      "lavoro",     # collocamento disabili
 }
 
 _HEADER = """# ===========================================================================
